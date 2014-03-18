@@ -14,14 +14,14 @@ public class Planner {
 		this.objects = objects;
 	}
 
-	public List<String> solve(Object goal){
-		int column = 1;
+	public List<String> solve(Goal goal){
+		int column = 0;
 		while (((JSONArray)world.get(column)).isEmpty()) column++;
 		List<String> plan = new ArrayList<String>(); 
         plan.add("I pick up . . ."); 
         plan.add("pick " + column);
         plan.add(". . . and then I drop down"); 
-        plan.add("drop " + column);
+        plan.add("drop " + (column+1));
         return plan;
 	}
 }

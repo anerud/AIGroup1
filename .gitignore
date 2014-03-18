@@ -3,4 +3,6 @@
 *.hi
 *.o
 *.pyc
+*.classpath
+*.project
 __pycache__

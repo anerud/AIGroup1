@@ -145,8 +145,8 @@ function resetSVG() {
 
     var viewBox = [0, 0, CanvasWidth + 2 * WallSeparation, CanvasHeight + FloorThickness];
     var svg = $(SVG('svg')).attr({
-        viewBox: viewBox.join(' '), 
-        width: viewBox[2], 
+        viewBox: viewBox.join(' '),
+        width: viewBox[2],
         height: viewBox[3],
     }).appendTo($('#svgdiv'));
 
@@ -163,10 +163,10 @@ function resetSVG() {
     $(SVG('line')).attr({
         id:'arm',
         x1: stackWidth() / 2,
-        y1: ArmSize * stackWidth() - CanvasHeight, 
-        x2: stackWidth() / 2, 
-        y2: ArmSize * stackWidth(), 
-        stroke: 'black', 
+        y1: ArmSize * stackWidth() - CanvasHeight,
+        x2: stackWidth() / 2,
+        y2: ArmSize * stackWidth(),
+        stroke: 'black',
         'stroke-width': ArmSize * stackWidth(),
     }).appendTo(svg);
 
@@ -297,17 +297,17 @@ function makeObject(svg, objectid, stacknr, timeout) {
     case 'brick':
     case 'plank':
         object = $(SVG('rect')).attr({
-            x: xleft, 
-            y: ytop, 
-            width: dim.width, 
+            x: xleft,
+            y: ytop,
+            width: dim.width,
             height: dim.height
         });
         break;
     case 'ball':
         object = $(SVG('ellipse')).attr({
-            cx: xcenter, 
-            cy: ycenter, 
-            rx: xradius, 
+            cx: xcenter,
+            cy: ycenter,
+            rx: xradius,
             ry: yradius
         });
         break;
@@ -318,7 +318,7 @@ function makeObject(svg, objectid, stacknr, timeout) {
         });
         break;
     case 'box':
-        var points = [xleft, ytop, xleft, ybottom, xright, ybottom, xright, ytop, 
+        var points = [xleft, ytop, xleft, ybottom, xright, ybottom, xright, ytop,
                       xright-dim.thickness, ytop, xright-dim.thickness, ybottom-dim.thickness,
                       xleft+dim.thickness, ybottom-dim.thickness, xleft+dim.thickness, ytop];
         object = $(SVG('polygon')).attr({
@@ -326,8 +326,8 @@ function makeObject(svg, objectid, stacknr, timeout) {
         });
         break;
     case 'table':
-        var points = [xleft, ytop, xright, ytop, xright, ytop+dim.thickness, 
-                      xmidright, ytop+dim.thickness, xmidright, ybottom, 
+        var points = [xleft, ytop, xright, ytop, xright, ytop+dim.thickness,
+                      xmidright, ytop+dim.thickness, xmidright, ybottom,
                       xmidright-dim.thickness, ybottom, xmidright-dim.thickness, ytop+dim.thickness,
                       xmidleft+dim.thickness, ytop+dim.thickness, xmidleft+dim.thickness, ybottom,
                       xmidleft, ybottom, xmidleft, ytop+dim.thickness, xleft, ytop+dim.thickness];
@@ -338,9 +338,9 @@ function makeObject(svg, objectid, stacknr, timeout) {
     }
     object.attr({
         id: objectid,
-        stroke: 'black', 
-        'stroke-width': boxSpacing() / 2, 
-        fill: attrs.color, 
+        stroke: 'black',
+        'stroke-width': boxSpacing() / 2,
+        fill: attrs.color,
     });
     object.appendTo(svg);
 
@@ -355,9 +355,9 @@ function disableInput(timeout) {
         setTimeout(disableInput, 1000*timeout);
     } else {
         $("#inputexamples").blur();
-        $("#inputexamples").prop('disabled', true); 
+        $("#inputexamples").prop('disabled', true);
         $("#userinput").blur();
-        $("#userinput").prop('disabled', true); 
+        $("#userinput").prop('disabled', true);
     }
 }
 
@@ -371,9 +371,9 @@ function systemPrompt(timeout) {
 }
 
 function enableInput() {
-    $("#inputexamples").prop('disabled', false).val(''); 
+    $("#inputexamples").prop('disabled', false).val('');
     $("#inputexamples option:first").attr('selected','selected');
-    $("#userinput").prop('disabled', false); 
+    $("#userinput").prop('disabled', false);
     $("#userinput").focus().select();
 }
 
@@ -449,7 +449,8 @@ function userInput() {
         try {
             result = JSON.parse(result);
         } catch(err) {
-            alertError("JSON error:" + err, result);
+			console.log(result);
+            alertError("JSON error222:" + err, result);
         }
         debugResult(result);
         sayUtterance("system", result.output);

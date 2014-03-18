@@ -28,6 +28,7 @@ public class Shrdlite {
         String     holding   = (String)     jsinput.get("holding");
         JSONObject objects   = (JSONObject) jsinput.get("objects");
 
+        
         JSONObject result = new JSONObject();
         result.put("utterance", utterance);
 
@@ -39,7 +40,7 @@ public class Shrdlite {
 
         DCGParser parser = new DCGParser("shrdlite_grammar.pl");
         List<Term> trees = parser.parseSentence("command", utterance);
-        List tstrs = new ArrayList();
+        List<String> tstrs = new ArrayList<String>();
         result.put("trees", tstrs);
         for (Term t : trees) {
             tstrs.add(t.toString());
@@ -47,7 +48,6 @@ public class Shrdlite {
 
         if (trees.isEmpty()) {
             result.put("output", "Parse error!");
-
         } else {
             List goals = new ArrayList();
             // Interpreter interpreter = new Interpreter(world, holding, objects);
@@ -66,18 +66,12 @@ public class Shrdlite {
                 result.put("output", "Ambiguity error!");
 
             } else {
-                // Planner planner = new Planner(world, holding, objects);
-                // Plan plan = planner.solve(goals.get(0));
-                int column = 0;
-                while (((JSONArray)world.get(column)).isEmpty()) column++;
-                List plan = new ArrayList(); 
-                plan.add("I pick up . . ."); 
-                plan.add("pick " + column);
-                plan.add(". . . and then I drop down"); 
-                plan.add("drop " + column);
+                Planner planner = new Planner(world, holding, objects);
+                List<String> plan = planner.solve(goals.get(0));
+                
                 result.put("plan", plan);
 
-                if (plan.isEmpty()) {
+                if(plan.isEmpty()) {
                     result.put("output", "Planning error!");
                 } else {
                     result.put("output", "Success!");

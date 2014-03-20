@@ -1,4 +1,4 @@
-{ 
+{
     "world": [["e"],["g","l"],[],["k","m","f"],[]],
     "holding": null,
     "objects": {
@@ -16,7 +16,7 @@
         "l": { "form":"box",     "size":"large",  "color":"red"   },
         "m": { "form":"box",     "size":"small",  "color":"blue"  }
     },
-    "utterance": 
+    "utterance":
         ["put","the","white","ball","in","a","box","on","the","floor"],
     "examples": [
         ["put","the","white","ball","in","a","box","on","the","floor"],

@@ -1,0 +1,23 @@
+move(
+	basic_entity(
+		the
+		object(
+			ball
+			(-)
+			white)
+		)
+	relative(
+		inside
+		relative_entity(
+			any
+			object(
+				box
+				(-)
+				(-)
+				)
+			relative(
+				ontop
+				floor)
+			)
+		)
+	)

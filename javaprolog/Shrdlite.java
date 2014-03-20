@@ -5,19 +5,20 @@
 // Then test from the command line:
 // java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. Shrdlite < ../examples/medium.json
 
-import java.util.List;
-import java.util.ArrayList;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
-
 import gnu.prolog.term.Term;
 import gnu.prolog.vm.PrologException;
 
-import org.json.simple.parser.ParseException;
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 
 public class Shrdlite {
 
@@ -27,16 +28,20 @@ public class Shrdlite {
         JSONArray  world     = (JSONArray)  jsinput.get("world");
         String     holding   = (String)     jsinput.get("holding");
         JSONObject objects   = (JSONObject) jsinput.get("objects");
-
+        
+        PrintWriter log = new PrintWriter("Log.txt", "UTF-8");
         
         JSONObject result = new JSONObject();
         result.put("utterance", utterance);
 
-        // // This is how to get information about the top object in column 1:
-        // JSONArray column = (JSONArray) world.get(1);
-        // String topobject = (String) column.get(column.size() - 1);
-        // JSONObject objectinfo = (JSONObject) objects.get(topobject);
-        // String form = (String) objectinfo.get("form");
+         // This is how to get information about the top object in column 1:
+//         JSONArray column = (JSONArray) world.get(1);
+//         String topobject = (String) column.get(column.size() - 1);
+//         JSONObject objectinfo = (JSONObject) objects.get(topobject);
+//         String form = (String) objectinfo.get("form");
+//         log.println(topobject);
+//         log.println(objectinfo.toString());
+//         log.println(form);
 
         DCGParser parser = new DCGParser("shrdlite_grammar.pl");
         List<Term> trees = parser.parseSentence("command", utterance);
@@ -44,6 +49,7 @@ public class Shrdlite {
         result.put("trees", tstrs);
         for (Term t : trees) {
             tstrs.add(t.toString());
+            log.println(t.toString());
         }
 
         if (trees.isEmpty()) {
@@ -51,7 +57,7 @@ public class Shrdlite {
         } else {
             List<Goal> goals = new ArrayList<Goal>();
             Interpreter interpreter = new Interpreter(world, holding, objects);
-            for (Term tree : trees) {
+            for (String tree : tstrs) {
                  for (Goal goal : interpreter.interpret(tree)) {
                      goals.add(goal);
                  }
@@ -79,6 +85,8 @@ public class Shrdlite {
         }
 
         System.out.print(result);
+        
+        log.close();
     }
 
     public static String readFromStdin() throws IOException {

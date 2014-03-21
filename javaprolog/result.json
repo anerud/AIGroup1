@@ -1,21 +1,21 @@
 {
-  "goals":[
-    true
-  ],
-  "plan":[
-    "I pick up . . .",
-    "pick 0",
-    ". . . and then I drop down",
-    "drop 1"
-  ],
-  "trees":[
-    "take(basic_entity(the,object(ball,(-),white)))"
-  ],
-  "utterance":[
-    "take",
-    "the",
-    "white",
-    "ball"
-  ],
-  "output":"Success!"
-}
+   "goals":[
+     true
+   ],
+   "plan":[
+     "I pick up . . .",
+     "pick 0",
+     ". . . and then I drop down",
+     "drop 1"
+   ],
+   "trees":[
+     "take(basic_entity(the,object(ball,(-),white)))"
+   ],
+   "utterance":[
+     "take",
+     "the",
+     "white",
+     "ball"
+   ],
+   "output":"Success!"
+ }

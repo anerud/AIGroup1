@@ -1,9 +1,0 @@
-take(
-	basic_entity(
-		the
-		object(
-			ball
-			(-)
-			white)
-		)
-	)

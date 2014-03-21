@@ -1,5 +1,1 @@
-l
-{"form":"box","color":"red","size":"large"}
-box
-move(basic_entity(the,object(ball,(-),white)),relative(inside,relative_entity(any,object(box,(-),(-)),relative(ontop,floor))))
-move(relative_entity(the,object(ball,(-),white),relative(inside,basic_entity(any,object(box,(-),(-))))),relative(ontop,floor))
+take(basic_entity(the,object(ball,(-),white)))

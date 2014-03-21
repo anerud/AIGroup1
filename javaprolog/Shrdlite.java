@@ -8,10 +8,7 @@
 import gnu.prolog.term.Term;
 import gnu.prolog.vm.PrologException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +20,12 @@ import org.json.simple.parser.ParseException;
 public class Shrdlite {
 
 	public static void main(String[] args) throws PrologException, ParseException, IOException {
-        JSONObject jsinput   = (JSONObject) JSONValue.parse(readFromStdin());
+        JSONObject jsinput = null;
+        if(args.length == 0){
+            jsinput   = (JSONObject) JSONValue.parse(readFromReader(new InputStreamReader(System.in)));
+        } else {
+            jsinput = (JSONObject) JSONValue.parse(readFromReader(new FileReader(args[0])));
+        }
         JSONArray  utterance = (JSONArray)  jsinput.get("utterance");
         JSONArray  world     = (JSONArray)  jsinput.get("world");
         String     holding   = (String)     jsinput.get("holding");
@@ -85,12 +87,18 @@ public class Shrdlite {
         }
 
         System.out.print(result);
-        
+
+        //Also print the result to a file
+        FileWriter fw = new FileWriter("./result.json");
+        String pretty = com.cedarsoftware.util.io.JsonWriter.formatJson(result.toJSONString());
+        fw.write(pretty);
+        fw.close();
+
         log.close();
     }
 
-    public static String readFromStdin() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    public static String readFromReader(Reader reader) throws IOException {
+        BufferedReader in = new BufferedReader(reader);
         StringBuilder data = new StringBuilder();
         String line;
         while ((line = in.readLine()) != null) {

@@ -13,7 +13,9 @@ public class Interpreter {
 	private JSONArray world;
 	private String holding;
 	private JSONObject objects;
-	private PrintWriter intLog;
+	private PrintWriter log;
+	private PrintWriter tlog;
+	private ParseTree pt;
 	private int treeDepth;
 
 	public Interpreter(JSONArray world, String holding, JSONObject objects) {
@@ -21,11 +23,29 @@ public class Interpreter {
 		this.holding = holding;
 		this.objects = objects;
 		try {
-			intLog = new PrintWriter("intLog.txt", "UTF-8");
+			log = new PrintWriter("intepreter log.txt", "UTF-8");
+			tlog = new PrintWriter("intepreter treelog.txt", "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		pt = new ParseTree();
+	}
+
+	public List<Goal> interpret(String tree) {
+		pt = new ParseTree();
+		String cleanString = cleanupString(tree);
+		log.println(cleanString);
+		tlog.println(cleanString);
+		return interpretString(cleanString);
+	}
+	
+	private String cleanupString(String tree) {
+		while(tree.indexOf("(-)") > 0){
+			tree = tree.substring(0,tree.indexOf("(-)")) + "-" +
+					tree.substring(tree.indexOf("(-)")+3,tree.length());
+		}
+		return tree;
 	}
 
 	/**
@@ -33,7 +53,8 @@ public class Interpreter {
 	 * @param tree the linearized tree
 	 * @return
 	 */
-	public List<Goal> interpret(String tree) {
+	private List<Goal> interpretString(String tree) {
+		
 		int parent = tree.indexOf("(");
 		if(parent <= 0) 
 			parent = Integer.MAX_VALUE;
@@ -52,22 +73,39 @@ public class Interpreter {
 			if(min == parent) {
 				ending = "(";
 				d = 1;
+				pt.addChild(e1);
+				tlog.println("Added parent: " + e1);
 			} else if(min == closure) {
 				ending = ")";
 				d = -1;
+				if(e1.length() > 0) {
+					pt.addLeaf(e1);
+					tlog.println("Added leaf (length > 1): " + e1);
+				} else {
+					tlog.println("Went to parent");
+				}
+				pt.parent();
+			} else if(min == child) {
+				if(e1.length() > 0) {
+					pt.addLeaf(e1);
+					tlog.println("Added child: " + e1);
+				}
 			}
-			if(!(min == child && min == 0))
-			intLog.println(toWhiteSpace(treeDepth) + e1 + ending);
-			if(!e1.contains("-")) {
-				treeDepth += d;
-			}
-			return interpret(rest);
+			
+			log.println(toWhiteSpace(treeDepth) + e1 + ending);
+			treeDepth += d;
+			return interpretString(rest);
 		}
-		intLog.close();
+		tlog.close();
+		log.close();
 		ArrayList<Goal> goals = new ArrayList<Goal>();
 		goals.add(new Goal());
 		return goals;
 	
+	}
+	
+	public ParseTree getParseTree(){
+		return pt;
 	}
 	
 	/**

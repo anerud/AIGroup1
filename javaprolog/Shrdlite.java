@@ -63,6 +63,16 @@ public class Shrdlite {
                  for (Goal goal : interpreter.interpret(tree)) {
                      goals.add(goal);
                  }
+                 ParseTree pt = interpreter.getParseTree();
+//                 pt.nextChild();
+//                 pt.nextChild();
+//                 pt.nextChild();
+//                 pt.parent();
+//                 pt.nextChild();
+//                 pt.nextChild();
+//                 pt.parent();
+//                 pt.nextChild();
+                 log.println(pt);
             }
             result.put("goals", goals);
 

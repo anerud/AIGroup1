@@ -44,6 +44,8 @@ public class Interpreter {
 
         //Now use the internal representation to extract the goals from the tree. That is, create a logical pddl-expression from the tree.
         ArrayList<Goal> goals = new ArrayList<Goal>();
+
+
 //		goals.add(new Goal());  //TODO
 		return goals;
 	}

@@ -63,7 +63,6 @@ public class Shrdlite {
                  for (Goal goal : interpreter.interpret(tree)) {
                      goals.add(goal);
                  }
-                //TODO: if some pair of goals come from separate tstrs, we need to ask the user a clarification question.
                  ParseTree pt = interpreter.getParseTree();
 //                 pt.nextChild();
 //                 pt.nextChild();
@@ -80,13 +79,12 @@ public class Shrdlite {
             if (goals.isEmpty()) {
                 result.put("output", "Interpretation error!");
 
-            } else if (goals.size() > 1) {           //TODO: This can be OK as long as the goals come from the same interpretation
+            } else if (goals.size() > 1) {           //TODO: This can be OK as long as only one of the goals is reachable for the planner. If more than one goal is reachable and a pair of reachable goals come from different parse trees, there is an ambiguity which needs a clarification question.
                 result.put("output", "Ambiguity error!");
 
             } else {
                 Planner planner = new Planner(world, holding, objects);
-                List<String> plan = planner.solve(goals.get(0));      //TODO: if we have several plans with the same interpretation, we should try all of them and return the solution to the first one (or the fastest one) which the planner can find a plan for (there could e.g. be plans which are logically impossible to carry out, and therefore, such plans require no clarification questions)
-                
+                List<String> plan = planner.solve(goals.get(0));      /*TODO: if we have several goals from the same tree, we return the solution to the fastest one which the planner can find a plan for. If ambiguities arise from the same tree, it is up to the user to add more information if more specific goals are intended. */
                 result.put("plan", plan);
 
                 if(plan.isEmpty()) {

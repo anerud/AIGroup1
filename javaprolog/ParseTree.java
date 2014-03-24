@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * A parse tree.
+ */
 public class ParseTree {
 	
 	Node root;

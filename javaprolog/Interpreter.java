@@ -33,11 +33,19 @@ public class Interpreter {
 	}
 
 	public List<Goal> interpret(String tree) {
-		pt = new ParseTree();
+        //Some initial preprocessing
 		String cleanString = cleanupString(tree);
 		log.println(cleanString);
 		tlog.println(cleanString);
-		return interpretString(cleanString);
+
+        //Build an internal representation of the parse tree which is easier to work with
+        pt = new ParseTree();
+        buildParseTree(cleanString, pt);
+
+        //Now use the internal representation to extract the goals from the tree
+        ArrayList<Goal> goals = new ArrayList<Goal>();
+//		goals.add(new Goal());  //TODO
+		return goals;
 	}
 	
 	private String cleanupString(String tree) {
@@ -49,12 +57,11 @@ public class Interpreter {
 	}
 
 	/**
-	 * Recursive function that interprets a linearized tree
+	 * Recursive function that builds a ParseTree structure from a linearized String tree
 	 * @param tree the linearized tree
-	 * @return
+     * @param treeToBuild the ParseTree representation of this parse tree
 	 */
-	private List<Goal> interpretString(String tree) {
-		
+	private void buildParseTree(String tree, ParseTree treeToBuild) {
 		int parent = tree.indexOf("(");
 		if(parent <= 0) 
 			parent = Integer.MAX_VALUE;
@@ -73,35 +80,30 @@ public class Interpreter {
 			if(min == parent) {
 				ending = "(";
 				d = 1;
-				pt.addChild(e1);
+                treeToBuild.addChild(e1);
 				tlog.println("Added parent: " + e1);
 			} else if(min == closure) {
 				ending = ")";
 				d = -1;
 				if(e1.length() > 0) {
-					pt.addLeaf(e1);
+                    treeToBuild.addLeaf(e1);
 					tlog.println("Added leaf (length > 1): " + e1);
 				} else {
 					tlog.println("Went to parent");
 				}
-				pt.parent();
+                treeToBuild.parent();
 			} else if(min == child) {
 				if(e1.length() > 0) {
-					pt.addLeaf(e1);
+                    treeToBuild.addLeaf(e1);
 					tlog.println("Added child: " + e1);
 				}
 			}
-			
 			log.println(toWhiteSpace(treeDepth) + e1 + ending);
 			treeDepth += d;
-			return interpretString(rest);
+			buildParseTree(rest, treeToBuild);
 		}
 		tlog.close();
 		log.close();
-		ArrayList<Goal> goals = new ArrayList<Goal>();
-		goals.add(new Goal());
-		return goals;
-	
 	}
 	
 	public ParseTree getParseTree(){

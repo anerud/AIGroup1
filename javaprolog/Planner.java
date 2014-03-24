@@ -2,6 +2,8 @@ import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import pddl4j.exp.Exp;
+
 public class Planner {
 	
 	private JSONArray world;
@@ -15,6 +17,9 @@ public class Planner {
 	}
 
 	public List<String> solve(Goal goal){
+
+        Exp expression = goal.getPddlExpression();
+
 		int column = 0;
 		while (((JSONArray)world.get(column)).isEmpty()) column++;
 		List<String> plan = new ArrayList<String>(); 

@@ -3,6 +3,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -42,15 +43,76 @@ public class Interpreter {
         pt = new ParseTree();
         buildParseTree(cleanString, pt);
 
-        //Now use the internal representation to extract the goals from the tree. That is, create a logical pddl-expression from the tree.
-        ArrayList<Goal> goals = new ArrayList<Goal>();
-
-
-//		goals.add(new Goal());  //TODO
-		return goals;
+        //Now use the internal representation to extract the goals from the tree. That is, create logical pddl-expressions from the tree.
+		return new ArrayList<Goal>();//TODO: return extractPDDLGoals(pt);
 	}
-	
-	private String cleanupString(String tree) {
+
+    /**
+     * Extracts the PDDL goals from the parse tree
+     * @param pt the parse tree
+     * @return a list of goals
+     */
+    private List<Goal> extractPDDLGoals(ParseTree pt) {
+        ArrayList<Goal> goals = new ArrayList<Goal>();
+        pt.returnToRoot();
+        //Let's hard-code stuff for the moment to get the idea.. The following is an example that should work for the sentence "take the white ball"
+        //Note that the root is merely symbolic here, it contains nothing. TODO: Eventually, the rules for every action should be dynamically read from the PDDL-format. See the following example PDDL for the action pick-up:
+        /*
+         (:action pick-up
+             :parameters (?x - block)
+             :precondition (and (clear ?x) (ontable ?x) (handempty))
+             :effect
+             (and (not (ontable ?x))
+               (not (clear ?x))
+               (not (handempty))
+               (holding ?x)))
+         */
+        //What action is it?
+        if(pt.nextChild().toString().equals("take")){
+            //is the (handempty) precondition fulfilled?
+            if(holding == null){
+                //identify the objects
+                JSONObject wantedObjects = filterObjects(pt);
+                //Create PDDL goals
+                for(String wantedObject : (Set<String>)wantedObjects.keySet()){
+                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                    Goal goal =  null; //new Goal(some Exp..);TODO
+                    goals.add(goal);
+                }
+            } else {
+                //The action cannot be executed. Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
+            }
+        }
+//		goals.add(new Goal());  //TODO
+        return goals;
+    }
+
+    /**
+     * Filters the objects in the world and returns the ones which match the subtree of the current node of pt
+     * TODO: perhaps not use JSONObject.. use something more efficient.
+     * @param pt
+     * @return
+     */
+    private JSONObject filterObjects(ParseTree pt) {
+        if(pt.nextChild().toString().equals("basic_entity")) {
+            if(pt.nextChild().toString().equals("the")) {
+                if(pt.getNextChild().toString().equals("object")){
+                    //Now simply find the unique object in the world which matches the description. If multiple, return an error message.
+                    //TODO: compare this.objects and the children of the current node in pt
+                } else{
+                    //..?
+                }
+            } else {
+                //Quantifiers: any, some, etc...
+            }
+
+        } else {
+            //relative entity...
+        }
+        return new JSONObject();
+    }
+
+    private String cleanupString(String tree) {
 		while(tree.indexOf("(-)") > 0){
 			tree = tree.substring(0,tree.indexOf("(-)")) + "-" +
 					tree.substring(tree.indexOf("(-)")+3,tree.length());

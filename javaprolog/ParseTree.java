@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A parse tree.
+ * A parse tree. Iteration over the tree is done by navigating from the current state, which is a node in the tree.
  */
 public class ParseTree {
 	
@@ -44,7 +44,7 @@ public class ParseTree {
 	}
 	
 	/**
-	 * Returns and moves to the parent
+	 * Sets the current node to the parent and returns it
 	 * @return
 	 */
 	public Node parent() {
@@ -54,7 +54,7 @@ public class ParseTree {
 	}
 	
 	/**
-	 * Only returns the parent
+	 * Returns the parent of the current node
 	 * @return
 	 */
 	public Node getParent() {
@@ -97,7 +97,7 @@ public class ParseTree {
 	}
 	
 	/**
-	 * Returns to the root
+	 * Sets the current node to the root
 	 */
 	public void returnToRoot(){
 		currentNode = root;

@@ -19,6 +19,7 @@ public class Planner {
 	public List<String> solve(Goal goal){
 
         Exp expression = goal.getPddlExpression();
+        //TODO: the expression determines the final state which we want to reach somehow.
 
 		int column = 0;
 		while (((JSONArray)world.get(column)).isEmpty()) column++;

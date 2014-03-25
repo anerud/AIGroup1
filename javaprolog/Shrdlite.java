@@ -9,7 +9,6 @@ import gnu.prolog.vm.PrologException;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -48,12 +47,12 @@ public class Shrdlite {
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", utterance);
 
-		List<LinkedList<String>> tstrs = new ArrayList<LinkedList<String>>();
+		List<NTree> tstrs = new ArrayList<NTree>();
 		result.put("trees", tstrs);
 		for (Term t : trees) {
-//			tstrs.add(allTerms((CompoundTerm) t));
+			tstrs.add(termsToTree((CompoundTerm) t, null));
 			
-			log.println(termsToTree((CompoundTerm) t,null).getAsList());
+			log.println(termsToTree((CompoundTerm) t, null).getAsList());
 			log.println(t.toString());
 		}
 
@@ -62,7 +61,7 @@ public class Shrdlite {
 		} else {
 			List<Goal> goals = new ArrayList<Goal>();
 			Interpreter interpreter = new Interpreter(world, holding, objects);
-			for (LinkedList<String> tree : tstrs) {
+			for (NTree tree : tstrs) {
 				for (Goal goal : interpreter.interpret(tree)) {
 					goals.add(goal);
 				}
@@ -160,10 +159,10 @@ public class Shrdlite {
 			if (tt instanceof CompoundTerm) {
 				CompoundTerm ttt = (CompoundTerm) tt;
 				NTree tr = termsToTree(ttt, n);
-				n.getChilds().add(tr.getRoot());
+				n.getChildren().add(tr.getRoot());
 			}else if (tt instanceof AtomTerm) {
 				AtomTerm ttt = (AtomTerm) tt;
-				n.getChilds().add(new Node(parent, ttt.value));
+				n.getChildren().add(new Node(parent, ttt.value));
 			} else {
 			}
 		}

@@ -28,15 +28,8 @@ public class Interpreter {
 	}
 
 	public List<Goal> interpret(NTree tree) {
-        //Some initial preprocessing
-		
-		
-		
-		
-        //Build an internal representation of the parse tree which is easier to work with
-
         //Now use the internal representation to extract the goals from the tree. That is, create logical pddl-expressions from the tree.
-		return new ArrayList<Goal>();//TODO: return extractPDDLGoals(pt);
+		return extractPDDLGoals(tree);
 	}
 
     /**
@@ -60,13 +53,20 @@ public class Interpreter {
          */
         //What action is it?
         String action = tree.getRoot().toString();
+        LinkedList<Node> args = tree.getRoot().getChildren();
         if(action.equals("take")){
             //is the (handempty) precondition fulfilled?
             if(holding == null){
                 //identify the objects
-                JSONObject wantedObjects = filterObjects(tree.getRoot().getChildren().getFirst());
+
+                LinkedList<WorldObject> desiredObjs = new LinkedList<>();
+                for(LinkedList<WorldObject> ll : world){
+                    desiredObjs.addAll(ll);
+                }
+                filterObjects(args.getFirst(), desiredObjs);
+
                 //Create PDDL goals
-                for(String wantedObject : (Set<String>)wantedObjects.keySet()){
+                for(WorldObject des : desiredObjs){
                     //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
                     Goal goal =  null; //new Goal(some Exp..);TODO
                     goals.add(goal);
@@ -75,22 +75,47 @@ public class Interpreter {
                 //The action cannot be executed. Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }
         } else if(action.equals("put")){
-            if(holding != null){
-                //identify the objects
-                JSONObject wantedObjects = filterObjects(tree);
-                //Create PDDL goals
-                for(String wantedObject : (Set<String>)wantedObjects.keySet()){
-                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                    Goal goal =  null; //new Goal(some Exp..);TODO
-                    goals.add(goal);
-                }
-            } else {
-                //The action cannot be executed. Notify GUI or do stuff..
-            }
+            //TODO: Ska "put" fungera på ett vettigt sätt, eller som angivet i exemplen, d.v.s. put fungerar likadant som move?
+//            if(holding != null){
+//                //identify the objects
+//                JSONObject wantedObjects = filterObjects(tree);
+//                //Create PDDL goals
+//                for(String wantedObject : (Set<String>)wantedObjects.keySet()){
+//                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+//                    Goal goal =  null; //new Goal(some Exp..);TODO
+//                    goals.add(goal);
+//                }
+//            } else {
+//                //The action cannot be executed. Notify GUI or do stuff..
+//            }
         } else if(action.equals("move")){
-            //dostuff
-        }
+            //TODO: Check preconditions..
 
+            LinkedList<WorldObject> desiredObjs = new LinkedList<>(); //First argument
+            LinkedList<WorldObject> desiredObjs2 = new LinkedList<>(); //Second argument
+            for(LinkedList<WorldObject> ll : world){
+                desiredObjs.addAll(ll);
+                desiredObjs2.addAll(ll);
+            }
+            filterObjects(args.getFirst(), desiredObjs);
+
+            //Now filter these depending on the relative objects..
+            List<Node> relArgs = args.get(1).getChildren();
+            if(args.get(1).getData().equals("relative")) {
+                filterObjects(relArgs.get(1), desiredObjs2);
+            } else { //
+                // Cannot happen probably..
+            }
+
+            //Create PDDL goals
+            //TODO: What happens if many objects are to be moved to many places?
+            //Use: relArgs.get(0) to get the relative keyword
+            for(WorldObject des : desiredObjs){
+                //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                Goal goal =  null; //new Goal(some Exp..);TODO
+                goals.add(goal);
+            }
+        }
 //		goals.add(new Goal());  //TODO
         return goals;
     }
@@ -99,14 +124,15 @@ public class Interpreter {
      * Filters the objects in the world and returns the ones which match the subtree of the current node of entity
      * TODO: perhaps not use JSONObject.. use something more efficient.
      *
-     * @param entity
+     * @param rules
      * @return
      */
-    private JSONObject filterObjects(Node entity) {
+    private void filterObjects(Node rules, List<WorldObject> toBeFiltered) {
         //Basic_entity and floor are the base cases in the recursion
+        List<WorldObject> toBeFilteredOrig = new LinkedList<>(toBeFiltered);
 
-        String str = entity.getData();
-        List<Node> args = entity.getChildren();
+        String str = rules.getData();
+        List<Node> args = rules.getChildren();
         if(str.equals("basic_entity")) {
             if(args.get(0).getData().equals("the")) {
                 if(args.get(1).getData().equals("object")){
@@ -142,20 +168,34 @@ public class Interpreter {
                 }
             }
 
-            if(args.get(2).getData().equals("relative")) {
+            Node relative = args.get(2);
+            if(relative.getData().equals("relative")) {
+                List<Node> relArgs = relative.getChildren();
+                // call filterObjects recursively to get the relative objects
+                List<WorldObject> theRelativeObjects = new LinkedList<WorldObject>(toBeFilteredOrig);
+                filterObjects(relArgs.get(1), theRelativeObjects);
 
+                //retain objects for which toBeFiltered is inside or ontop theRelativeObjects
+                filterByRelation(toBeFiltered, theRelativeObjects, relArgs.get(0).getData());
             } else {
                 //..? above is prob. always satisfied.
             }
-
-        } else { //"relative"
-            // call filterObjects recursively
+            //Note that the "relative" keyword is never encountered here
         }
-        return new JSONObject();
+    }
+
+    /**
+     * Retains the objects in toBeFiltered which are "relation" to theRelativeObjects
+     * @param toBeFiltered
+     * @param theRelativeObjects
+     * @param relation
+     */
+    private void filterByRelation(List<WorldObject> toBeFiltered, List<WorldObject> theRelativeObjects, String relation) {
+        //TODO
     }
 
 
-	/**
+    /**
 	 * Recursive function that builds a ParseTree structure from a linearized String tree
 	 * @param tree the linearized tree
      * @param treeToBuild the ParseTree representation of this parse tree
@@ -205,20 +245,7 @@ public class Interpreter {
 		tlog.close();
 		log.close();
 	}
-	
-	
-	/**
-	 * Check if an object, described in the tree, exists in the world.
-	 * @return the number of existencies of an object.
-	 */
-	private int existsInWorld() {
-		JSONArray column = (JSONArray) world.get(1);
-        String topobject = (String) column.get(column.size() - 1);
-        JSONObject objectinfo = (JSONObject) objects.get(topobject);
-        String form = (String) objectinfo.get("form");
 
-        return 0;
-	}
 	
 	/**
 	 * Checks if an object fits a description

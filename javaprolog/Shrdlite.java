@@ -47,6 +47,9 @@ public class Shrdlite {
 
         DCGParser parser = new DCGParser("shrdlite_grammar.pl");
         List<Term> trees = parser.parseSentence("command", utterance);
+
+        trees.get(0).dereference().dereference().dereference().dereference().dereference()
+
         List<String> tstrs = new ArrayList<String>();
         result.put("trees", tstrs);
         for (Term t : trees) {

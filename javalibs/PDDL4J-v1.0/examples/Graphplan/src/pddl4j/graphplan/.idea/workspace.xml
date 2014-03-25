@@ -69,12 +69,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state line="891" column="28" selection-start="33779" selection-end="33787" vertical-scroll-proportion="17.447369" vertical-offset="0" max-vertical-offset="21624">
               <folding>
-                <element signature="e#0#49057#0" expanded="true" />
-                <element signature="e#29752#29758#0" expanded="true" />
-                <element signature="e#31000#31006#0" expanded="true" />
-                <element signature="e#32017#32023#0" expanded="true" />
-                <element signature="e#33217#33223#0" expanded="true" />
-                <element signature="e#41301#41310#0" expanded="true" />
+                <element signature="imports" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -376,7 +371,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="606" y="0" width="1594" height="1400" extended-state="0" />
+    <frame x="606" y="0" width="1594" height="1400" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -489,12 +484,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="891" column="28" selection-start="33779" selection-end="33787" vertical-scroll-proportion="17.447369" vertical-offset="0" max-vertical-offset="21624">
           <folding>
-            <element signature="e#0#49057#0" expanded="true" />
-            <element signature="e#29752#29758#0" expanded="true" />
-            <element signature="e#31000#31006#0" expanded="true" />
-            <element signature="e#32017#32023#0" expanded="true" />
-            <element signature="e#33217#33223#0" expanded="true" />
-            <element signature="e#41301#41310#0" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>

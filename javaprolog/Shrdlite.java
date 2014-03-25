@@ -53,8 +53,8 @@ public class Shrdlite {
         List<String> tstrs = new ArrayList<String>();
         result.put("trees", tstrs);
         for (Term t : trees) {
+        	log.println(t.toString());
             tstrs.add(t.toString());
-            log.println(t.toString());
         }
 
         if (trees.isEmpty()) {

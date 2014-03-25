@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ public class Interpreter {
 	private JSONObject objects;
 	private PrintWriter log;
 	private PrintWriter tlog;
-	private ParseTree pt;
 	private int treeDepth;
 
 	public Interpreter(JSONArray world, String holding, JSONObject objects) {
@@ -30,18 +30,15 @@ public class Interpreter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		pt = new ParseTree();
 	}
 
-	public List<Goal> interpret(String tree) {
+	public List<Goal> interpret(LinkedList<String> tree) {
         //Some initial preprocessing
-		String cleanString = cleanupString(tree);
-		log.println(cleanString);
-		tlog.println(cleanString);
-
+		
+		
+		
+		
         //Build an internal representation of the parse tree which is easier to work with
-        pt = new ParseTree();
-        buildParseTree(cleanString, pt);
 
         //Now use the internal representation to extract the goals from the tree. That is, create logical pddl-expressions from the tree.
 		return new ArrayList<Goal>();//TODO: return extractPDDLGoals(pt);
@@ -52,9 +49,8 @@ public class Interpreter {
      * @param pt the parse tree
      * @return a list of goals
      */
-    private List<Goal> extractPDDLGoals(ParseTree pt) {
+    private List<Goal> extractPDDLGoals(LinkedList<String> tree) {
         ArrayList<Goal> goals = new ArrayList<Goal>();
-        pt.returnToRoot();
         //Let's hard-code stuff for the moment to get the idea.. The following is an example that should work for the sentence "take the white ball"
         //Note that the root is merely symbolic here, it contains nothing. TODO: Eventually, the rules for every action should be dynamically read from the PDDL-format. See the following example PDDL for the action pick-up:
         /*
@@ -68,7 +64,7 @@ public class Interpreter {
                (holding ?x)))
          */
         //What action is it?
-        if(pt.nextChild().toString().equals("take")){
+        /*if(pt.nextChild().toString().equals("take")){
             //is the (handempty) precondition fulfilled?
             if(holding == null){
                 //identify the objects
@@ -82,7 +78,7 @@ public class Interpreter {
             } else {
                 //The action cannot be executed. Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }
-        }
+        }*/
 //		goals.add(new Goal());  //TODO
         return goals;
     }
@@ -112,13 +108,6 @@ public class Interpreter {
         return new JSONObject();
     }
 
-    private String cleanupString(String tree) {
-		while(tree.indexOf("(-)") > 0){
-			tree = tree.substring(0,tree.indexOf("(-)")) + "-" +
-					tree.substring(tree.indexOf("(-)")+3,tree.length());
-		}
-		return tree;
-	}
 
 	/**
 	 * Recursive function that builds a ParseTree structure from a linearized String tree
@@ -126,6 +115,7 @@ public class Interpreter {
      * @param treeToBuild the ParseTree representation of this parse tree
 	 */
 	private void buildParseTree(String tree, ParseTree treeToBuild) {
+		
 		int parent = tree.indexOf("(");
 		if(parent <= 0) 
 			parent = Integer.MAX_VALUE;
@@ -170,9 +160,6 @@ public class Interpreter {
 		log.close();
 	}
 	
-	public ParseTree getParseTree(){
-		return pt;
-	}
 	
 	/**
 	 * Check if an object, described in the tree, exists in the world.

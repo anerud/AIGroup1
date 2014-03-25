@@ -19,7 +19,7 @@ public class NTree {
 	public LinkedList<String> getAsList() {
 		LinkedList<String> s = new LinkedList<String>();
 		s.add(root.getData());
-		for (Node n : root.getChilds()) {
+		for (Node n : root.getChildren()) {
 			s.addAll(n.toTree().getAsList());
 		}
 		return s;

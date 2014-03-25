@@ -15,7 +15,7 @@ public class Node {
 		return parent;
 	}
 
-	public LinkedList<Node> getChilds() {
+	public LinkedList<Node> getChildren() {
 		return childs;
 	}
 
@@ -23,7 +23,7 @@ public class Node {
 		return data;
 	}
 
-	public void setChilds(LinkedList<Node> childs) {
+	public void setChildren(LinkedList<Node> childs) {
 		this.childs = childs;
 	}
 
@@ -50,7 +50,7 @@ public class Node {
 			tab += "\t";
 		}
 		String s = tab+data+"\n";
-		for(Node n : getChilds()){
+		for(Node n : getChildren()){
 			s += n.toIndentString(tabs+1);
 		}
 		return s;

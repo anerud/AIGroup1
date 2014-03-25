@@ -67,6 +67,7 @@ public class ParseTree {
 	 */
 	public Node nextChild(){
 		currentNode = currentNode.nextChild();
+		currentNode.startIteration();
 		return currentNode;
 	}
 	

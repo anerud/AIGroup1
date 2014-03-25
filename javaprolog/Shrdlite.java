@@ -9,6 +9,7 @@ import gnu.prolog.vm.PrologException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,9 +31,28 @@ public class Shrdlite {
 		JSONArray world = (JSONArray) jsinput.get("world");
 		String holding = (String) jsinput.get("holding");
 		JSONObject objects = (JSONObject) jsinput.get("objects");
+		
+		ArrayList<LinkedList<WorldObject>> realWorld = new ArrayList<LinkedList<WorldObject>>(world.size());
+		HashMap<String, WorldObject> realObjects = new HashMap<String,WorldObject>();
 
 		PrintWriter log = new PrintWriter("Log.txt", "UTF-8");
-
+		
+		for(Object o : objects.keySet().toArray()){
+			if(o instanceof String){
+				HashMap<String,String> obj = (HashMap<String, String>)objects.get(o);
+				WorldObject wo = new WorldObject(obj.get("form"), obj.get("size"), obj.get("color"));
+				realObjects.put((String)o, wo);
+			}
+		}
+		
+		for(int i =0;i<world.size();i++){
+			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();	
+			for(String s : (List<String>)world.get(i)){
+				objList.add(realObjects.get(s));
+			}
+			realWorld.add(objList);
+		}
+		
 		JSONObject result = new JSONObject();
 		result.put("utterance", utterance);
 

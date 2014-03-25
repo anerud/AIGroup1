@@ -51,8 +51,10 @@ public class Shrdlite {
 		List<LinkedList<String>> tstrs = new ArrayList<LinkedList<String>>();
 		result.put("trees", tstrs);
 		for (Term t : trees) {
-			tstrs.add(allTerms((CompoundTerm) t));
-			log.println(t.getClass().toString());
+//			tstrs.add(allTerms((CompoundTerm) t));
+			
+			log.println(termsToTree((CompoundTerm) t,null).getAsList());
+			log.println(t.toString());
 		}
 
 		if (trees.isEmpty()) {
@@ -150,21 +152,24 @@ public class Shrdlite {
 	}
 
 	//Build an internal representation of the parse tree which is easier to work with
-	private static LinkedList<String> allTerms(CompoundTerm t) {
-		LinkedList<String> ss = new LinkedList<String>();
-		ss.add(t.tag.functor.value);
+	private static NTree termsToTree(CompoundTerm t, Node parent) {
+		Node n = new Node(parent, t.tag.functor.value);
+		NTree tree = new NTree(n);
 		
 		for (Term tt : t.args) {
 			if (tt instanceof CompoundTerm) {
 				CompoundTerm ttt = (CompoundTerm) tt;
-				ss.addAll(allTerms(ttt));
+				NTree tr = termsToTree(ttt, n);
+				n.getChilds().add(tr.getRoot());
 			}else if (tt instanceof AtomTerm) {
 				AtomTerm ttt = (AtomTerm) tt;
-				ss.add(ttt.value);
+				n.getChilds().add(new Node(parent, ttt.value));
 			} else {
 			}
 		}
-		return ss;
+		
+		
+		return tree;
 	}
 
 }

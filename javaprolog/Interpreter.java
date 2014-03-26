@@ -9,15 +9,13 @@ import org.json.simple.JSONObject;
 
 public class Interpreter {
 	
-	private ArrayList<LinkedList<WorldObject>> world;
-	private String holding;
+	private World world;
 	private PrintWriter log;
 	private PrintWriter tlog;
 	private int treeDepth;
 
-	public Interpreter(ArrayList<LinkedList<WorldObject>> world, String holding) {
+	public Interpreter(World world) {
 		this.world = world;
-		this.holding = holding;
 		try {
 			log = new PrintWriter("intepreter log.txt", "UTF-8");
 			tlog = new PrintWriter("intepreter treelog.txt", "UTF-8");
@@ -39,7 +37,7 @@ public class Interpreter {
      */
     private List<Goal> extractPDDLGoals(NTree tree) {
         ArrayList<Goal> goals = new ArrayList<Goal>();
-        //Let's hard-code stuff for the moment to get the idea.. The following is an example that should work for the sentence "take the white ball"
+        //Let's hard-code stuff for the moment to get the idea..
         //Note that the root is merely symbolic here, it contains nothing. TODO: Eventually, the rules for every action should be dynamically read from the PDDL-format. See the following example PDDL for the action pick-up:
         /*
          (:action pick-up
@@ -56,23 +54,19 @@ public class Interpreter {
         LinkedList<Node> args = tree.getRoot().getChildren();
         if(action.equals("take")){
             //is the (handempty) precondition fulfilled?
-            if(holding == null){
+            if(world.getHolding() == null){
                 //identify the objects
-
-                LinkedList<WorldObject> desiredObjs = new LinkedList<>();
-                for(LinkedList<WorldObject> ll : world){
-                    desiredObjs.addAll(ll);
-                }
-                filterObjects(args.getFirst(), desiredObjs);
+                LinkedList<WorldObject> desiredObjs = world.getWorldObjects();
+                filterObjects(args.getFirst(), desiredObjs);   //getfirst should return a basic_entity
 
                 //Create PDDL goals
                 for(WorldObject des : desiredObjs){
                     //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                    Goal goal =  null; //new Goal(some Exp..);TODO
+                    Goal goal =  new Goal("(holding " + des.getId() + ")"); //TODO new Goal(some Exp..);
                     goals.add(goal);
                 }
             } else {
-                //The action cannot be executed. Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
+                //The action cannot be executed. TODO: Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }
         } else if(action.equals("put")){
             //TODO: Ska "put" fungera på ett vettigt sätt, eller som angivet i exemplen, d.v.s. put fungerar likadant som move?
@@ -91,12 +85,9 @@ public class Interpreter {
         } else if(action.equals("move")){
             //TODO: Check preconditions..
 
-            LinkedList<WorldObject> desiredObjs = new LinkedList<>(); //First argument
-            LinkedList<WorldObject> desiredObjs2 = new LinkedList<>(); //Second argument
-            for(LinkedList<WorldObject> ll : world){
-                desiredObjs.addAll(ll);
-                desiredObjs2.addAll(ll);
-            }
+            LinkedList<WorldObject> desiredObjs = world.getWorldObjects(); //First argument
+            LinkedList<WorldObject> desiredObjs2 = world.getWorldObjects(); //Second argument
+
             filterObjects(args.getFirst(), desiredObjs);
 
             //Now filter these depending on the relative objects..
@@ -134,23 +125,21 @@ public class Interpreter {
         String str = rules.getData();
         List<Node> args = rules.getChildren();
         if(str.equals("basic_entity")) {
-            if(args.get(0).getData().equals("the")) {
-                if(args.get(1).getData().equals("object")){
-                    //Leaf..
-                    //Now simply filter out the unique object in the world which matches the description. If multiple, return an error message.
-                    //TODO: compare this.objects and the children of the current node in entity
-                } else{
-                    //..? above is prob. always satisfied.
-                }
-            } else { //Quantifier any
-                if(args.get(1).getData().equals("object")){
-                    //Leaf.. filter out the objects which match the description
-                } else{
-                    //..? above is prob. always satisfied.
-                }
+            //Filter out the object
+            if(args.get(1).getData().equals("object")){
+                List<Node> objArs = args.get(1).getChildren();
+                //Leaf.. Now simply filter out the unique object in toBeFiltered which matches the description. If multiple, return an error message.
+                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
+            } else{
+                //..? above is prob. always satisfied.
             }
+            //
+            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
+                //TODO return error message to GUI
+            }// Else quantifier any, so everything is ok..
         } else if(str.equals("floor")){
-            //leaf..
+            toBeFiltered.clear();
+            toBeFiltered.add(new WorldObject("floor", "floor", "floor"));
         } else if(str.equals("relative_entity")){ //Here, we first filter the objects depending on the first argument object, then move on to the recursion..
             if(args.get(0).getData().equals("the")) {
                 if(args.get(1).getData().equals("object")){
@@ -182,6 +171,16 @@ public class Interpreter {
             }
             //Note that the "relative" keyword is never encountered here
         }
+    }
+
+    private void filterByMatch(List<WorldObject> toBeFiltered, WorldObject match) {
+        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+        for(WorldObject wo : toBeFiltered){
+            if(wo.matchesPattern(match)){
+                toBeRetained.add(wo);
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
     }
 
     /**

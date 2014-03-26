@@ -1,33 +1,68 @@
 import java.util.*;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import pddl4j.exp.Exp;
-
 public class Planner {
 	
-	private JSONArray world;
-	private JSONObject objects;
-	private String holding;
-	
-	public Planner(JSONArray world, String holding, JSONObject objects) {
+	private World world;
+
+	public Planner(World world) {
 		this.world = world;
-		this.holding = holding;
-		this.objects = objects;
 	}
 
 	public List<String> solve(Goal goal){
+        List<String> plan = new ArrayList<String>();
 
-        Exp expression = goal.getPddlExpression();
-        //TODO: the expression determines the final state which we want to reach somehow.
+        //TODO: Exp expression = goal.getPddlExpression();
 
-		int column = 0;
-		while (((JSONArray)world.get(column)).isEmpty()) column++;
-		List<String> plan = new ArrayList<String>(); 
-        plan.add("I pick up . . ."); 
-        plan.add("pick " + column);
-        plan.add(". . . and then I drop down"); 
-        plan.add("drop " + (column+1));
+        //the expression determines the final state which we want to reach somehow.
+
+        String predicate = goal.toString().split(" ")[0].substring(1);
+        if(predicate.equals("holding")){
+            String argtmp = goal.toString().split(" ")[1];
+            String arg = argtmp.substring(0, argtmp.length() - 1);
+            WorldObject wo = world.getWorldObject(arg);
+            int woColumn = world.columnOf(wo);
+            //TODO check that no object is being held
+            if(world.isOntopOfStack(wo)){
+                plan.add("I pick up...");
+                plan.add("pick " + woColumn);
+            } else {
+                freeWorldObject(wo, plan);
+                if(world.pick(woColumn)){
+                    plan.add("I pick up...");
+                    plan.add("pick " + woColumn);
+                }
+            }
+        } else {
+            //TODO: Replace the following
+            int column = 0;
+            plan.add("I pick up . . .");
+            plan.add("pick " + 1);
+            plan.add(". . . and then I drop down");
+            plan.add("drop " + (2));
+        }
         return plan;
 	}
+
+    private void freeWorldObject(WorldObject wo, List<String> plan) {
+        int woColumn = world.columnOf(wo);
+        while(!world.isOntopOfStack(wo)){
+            moveTopToNextColumn(woColumn, plan);
+        }
+    }
+
+    /**
+     * Moves the WorldObject to the column which is one step to the right of the specified column (modulo)
+     * @param fromColumn
+     * @param plan
+     */
+    private void moveTopToNextColumn(int fromColumn, List<String> plan) {
+        //TODO: check that nothing is being held : if(holding != null) ...
+        int numCol = world.numberOfColumns();
+        if(world.moveTopToNextColumn(fromColumn)){
+            plan.add("I pick up...");
+            plan.add("pick " + fromColumn);
+            plan.add("I put down...");
+            plan.add("drop " + (fromColumn + 1) % numCol);
+        }
+    }
 }

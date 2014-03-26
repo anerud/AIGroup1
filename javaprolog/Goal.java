@@ -10,15 +10,20 @@ import pddl4j.exp.Exp;
  */
 public class Goal {
 
-    private final Exp pddlExpression;
+    private String pddlExpressionStr;
+    private Exp pddlExpression;
 
-    public Goal(Exp pddlExpression){
+    public Goal(Exp pddlExpression){   //TODO: use this constructor instead
         this.pddlExpression = pddlExpression;
+    }
+
+    public Goal(String pddlExpression){
+        this.pddlExpressionStr = pddlExpression;
     }
 
 	@Override
 	public String toString() {
-		return pddlExpression.toString();
+		return pddlExpressionStr;//TODO pddlExpression.toString();
 	}
 
     public Exp getPddlExpression() {

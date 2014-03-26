@@ -28,29 +28,33 @@ public class Shrdlite {
 			jsinput = (JSONObject) JSONValue.parse(readFromReader(new FileReader(args[0])));
 		}
 		JSONArray utterance = (JSONArray) jsinput.get("utterance");
-		JSONArray world = (JSONArray) jsinput.get("world");
-		String holding = (String) jsinput.get("holding");
-		JSONObject objects = (JSONObject) jsinput.get("objects");
+		JSONArray worldJSON = (JSONArray) jsinput.get("world");
+		String holdingId = (String) jsinput.get("holding");
+		JSONObject objsJSON = (JSONObject) jsinput.get("objects");
 		
-		ArrayList<LinkedList<WorldObject>> realWorld = new ArrayList<LinkedList<WorldObject>>(world.size());
-		HashMap<String, WorldObject> realObjects = new HashMap<String,WorldObject>();
+		ArrayList<LinkedList<WorldObject>> worldArr = new ArrayList<LinkedList<WorldObject>>(worldJSON.size());
+		HashMap<String, WorldObject> objsArr = new HashMap<String,WorldObject>();
 
 		PrintWriter log = new PrintWriter("Log.txt", "UTF-8");
 		
-		for(Object o : objects.keySet().toArray()){
+		for(Object o : objsJSON.keySet().toArray()){
 			if(o instanceof String){
-				HashMap<String,String> obj = (HashMap<String, String>)objects.get(o);
-				WorldObject wo = new WorldObject(obj.get("form"), obj.get("size"), obj.get("color"));
-				realObjects.put((String)o, wo);
+				HashMap<String,String> obj = (HashMap<String, String>)objsJSON.get(o);
+				WorldObject wo = new WorldObject(obj.get("form"), obj.get("size"), obj.get("color"), (String)o);
+				objsArr.put((String) o, wo);
 			}
 		}
+        //Initialize world
+        World world = new World(worldArr);
+        //Initialize holding object
+        WorldObject holding = objsArr.get(holdingId);
 		
-		for(int i =0;i<world.size();i++){
+		for(int i =0;i<worldJSON.size();i++){
 			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();	
-			for(String s : (List<String>)world.get(i)){
-				objList.add(realObjects.get(s));
+			for(String s : (List<String>)worldJSON.get(i)){
+				objList.add(objsArr.get(s));
 			}
-			realWorld.add(objList);
+			worldArr.add(objList);
 		}
 		
 		JSONObject result = new JSONObject();
@@ -68,10 +72,15 @@ public class Shrdlite {
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", utterance);
 
-		List<NTree> tstrs = new ArrayList<NTree>();
-		result.put("trees", tstrs);
+        List tstrs = new ArrayList();
+        result.put("trees", tstrs);
+        for (Term t : trees) {
+            tstrs.add(t.toString());
+        }
+
+		List<NTree> treeList = new ArrayList<NTree>();
 		for (Term t : trees) {
-			tstrs.add(termsToTree((CompoundTerm) t, null));
+			treeList.add(termsToTree((CompoundTerm) t, null));
 			
 			log.println(termsToTree((CompoundTerm) t, null).getAsList());
 			log.println(t.toString());
@@ -81,8 +90,9 @@ public class Shrdlite {
 			result.put("output", "Parse error!");
 		} else {
 			List<Goal> goals = new ArrayList<Goal>();
-			Interpreter interpreter = new Interpreter(realWorld, holding);
-			for (NTree tree : tstrs) {
+
+			Interpreter interpreter = new Interpreter(world);
+			for (NTree tree : treeList) {
 				for (Goal goal : interpreter.interpret(tree)) {
 					goals.add(goal);
 				}
@@ -97,7 +107,17 @@ public class Shrdlite {
 				// pt.nextChild();
 				//log.println(pt);
 			}
-			result.put("goals", goals);
+            //____________
+//			result.put("goals", goals); //TODO: change
+//            List herp = new ArrayList();
+//            for (Term tree : trees) {
+//                // for (Goal goal : interpreter.interpret(tree)) {
+//                //     goals.add(goal);
+//                // }
+//                herp.add(true);
+//            }
+////            result.put("goals", herp);
+            //____________
 
 			if (goals.isEmpty()) {
 				result.put("output", "Interpretation error!");
@@ -113,7 +133,7 @@ public class Shrdlite {
 				result.put("output", "Ambiguity error!");
 
 			} else {
-				Planner planner = new Planner(world, holding, objects);
+				Planner planner = new Planner(world);
 				List<String> plan = planner.solve(goals.get(0)); /*
 																 * TODO: if we
 																 * have several
@@ -154,7 +174,8 @@ public class Shrdlite {
 
 		// Also print the result to a file
 		FileWriter fw = new FileWriter("./result.json");
-		String pretty = com.cedarsoftware.util.io.JsonWriter.formatJson(result.toJSONString());
+        String jsonString = result.toJSONString();
+		String pretty = com.cedarsoftware.util.io.JsonWriter.formatJson(jsonString);
 		fw.write(pretty);
 		fw.close();
 

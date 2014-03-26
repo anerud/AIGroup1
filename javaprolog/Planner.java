@@ -15,8 +15,20 @@ public class Planner {
 
         //the expression determines the final state which we want to reach somehow.
 
-        String predicate = goal.toString().split(" ")[0].substring(1);
-        if(predicate.equals("holding")){
+        //TODO: do proper pddl parsing with the library
+        String[] tmp1 = goal.toString().split(" ");
+        String[] tmp = tmp1[0].split("\\(");
+        String mainPredicate = tmp[tmp.length - 1];
+        if(mainPredicate.equals("OR")){
+            String[] parts = goal.toString().split(" \\(");
+            //TODO take the quickest path
+//            for(int i = 1; i < parts.length; i++){ //skipping the "OR predicate"
+//                parts[i].split(" ")[0];
+//            }
+            mainPredicate = parts[1].split(" ")[0]; //Take the first one for now..
+            goal = new Goal("(" + parts[1]);
+        }
+        if(mainPredicate.equals("holding")){
             String argtmp = goal.toString().split(" ")[1];
             String arg = argtmp.substring(0, argtmp.length() - 1);
             WorldObject wo = world.getWorldObject(arg);

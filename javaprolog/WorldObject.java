@@ -56,7 +56,7 @@ public class WorldObject {
 	}
 
     public boolean matchesPattern(WorldObject match){
-        return (match.form.equals(this.form) || match.form.equals("-")) && (match.size.equals(this.size) || match.size.equals("-")) && (match.color.equals(this.color) || match.color.equals("-"));
+        return (match.form.equals(this.form) || match.form.equals("anyform")) && (match.size.equals(this.size) || match.size.equals("-")) && (match.color.equals(this.color) || match.color.equals("-"));
     }
 
 }

@@ -60,11 +60,22 @@ public class Interpreter {
                 filterObjects(args.getFirst(), desiredObjs);   //getfirst should return a basic_entity
 
                 //Create PDDL goals
-                for(WorldObject des : desiredObjs){
-                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                    Goal goal =  new Goal("(holding " + des.getId() + ")"); //TODO new Goal(some Exp..);
-                    goals.add(goal);
+                //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
+                StringBuilder pddlString = new StringBuilder();
+                if(desiredObjs.size() > 1){
+                    pddlString.append("(OR ");
+                    for(WorldObject des : desiredObjs){
+                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                        pddlString.append("(holding " + des.getId() + ") ");
+                    }
+                    pddlString.deleteCharAt(pddlString.length() - 1);
+                    pddlString.append(")");
+                } else {
+                    pddlString.append("(holding " + desiredObjs.getFirst().getId() + ") ");
                 }
+
+                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                goals.add(goal);
             } else {
                 //The action cannot be executed. TODO: Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }

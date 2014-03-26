@@ -17,7 +17,7 @@
         "m": { "form":"box",     "size":"small",  "color":"blue"  }
     },
     "utterance": 
-        ["take","a","ball"],
+        ["take","an","object","in","a","box"],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],
@@ -28,6 +28,7 @@
         ["put","all","boxes","on","the","floor"],
         ["put","the","large","plank","under","the","blue","brick"],
         ["move","all","bricks","on","a","table"],
-        ["move","all","balls","inside","a","large","box"]
+        ["move","all","balls","inside","a","large","box"],
+        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"]
     ]
 }

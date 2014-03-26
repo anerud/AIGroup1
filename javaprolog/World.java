@@ -156,7 +156,7 @@ public class World {
      * @return
      */
     public boolean hasRelation(String relation, WorldObject wo, WorldObject worel) {
-        if(relation.equals("ontop")){
+        if(relation.equals("ontop") || relation.equals("inside")){
             int col = columnOf(wo);
             if(isOnFloor(wo)){
                 return worel.getForm().equals("floor");

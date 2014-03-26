@@ -164,6 +164,8 @@ public class World {
                 int row = rowOf(wo);
                 return stacks.get(col).get(row - 1).equals(worel);
             }
+        } else if(relation.equals("under")) {
+            return hasRelation("ontop", worel, wo);
         }
         return false;
     }

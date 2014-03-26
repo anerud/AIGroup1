@@ -46,6 +46,11 @@ public class World {
         return top != null && top.equals(wo);
     }
 
+    public boolean isOnFloor(WorldObject wo){
+        WorldObject bottom = bottomOfStack(columnOf(wo));
+        return bottom != null && bottom.equals(wo);
+    }
+
     /**
      *
      * @param wo
@@ -90,6 +95,20 @@ public class World {
         }
     }
 
+    /**
+     *
+     * @param column
+     * @return the WorldObject which is on the bottom of the stack, or null if the stack has no WorldObjects
+     */
+    public WorldObject bottomOfStack(int column) {
+        List<WorldObject> stack = stacks.get(column);
+        if(!stack.isEmpty()){
+            return stack.get(0);
+        } else {
+            return null;
+        }
+    }
+
     public int numberOfColumns() {
         return stacks.size();
     }
@@ -127,5 +146,39 @@ public class World {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Determines if the objects have a certain geometric relation in the world
+     * @param relation
+     * @param wo
+     * @param worel
+     * @return
+     */
+    public boolean hasRelation(String relation, WorldObject wo, WorldObject worel) {
+        if(relation.equals("ontop")){
+            int col = columnOf(wo);
+            if(isOnFloor(wo)){
+                return worel.getForm().equals("floor");
+            } else {
+                int row = rowOf(wo);
+                return stacks.get(col).get(row - 1).equals(worel);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Indexed from 0 where 0 means the object is on the floor and 1 means one step above the floor, etc.
+     * @param wo
+     * @return
+     */
+    private int rowOf(WorldObject wo) {
+        for(LinkedList<WorldObject> ll : stacks){
+            if(ll.contains(wo)){
+                return ll.indexOf(wo);
+            }
+        }
+        return -1;
     }
 }

@@ -143,9 +143,9 @@ public class Interpreter {
         } else if(str.equals("relative_entity")){ //Here, we first filter the objects depending on the first argument object, then move on to the recursion..
             if(args.get(0).getData().equals("the")) {
                 if(args.get(1).getData().equals("object")){
-                    //Leaf..
-                    //Now simply find the unique object in the world which matches the description. If multiple, it can still be filtered below..
-                    //TODO: compare this.objects and the children of the current node in entity
+                    //Leaf.. now simply find the unique object in the world which matches the description. If multiple, it can still be filtered below..
+                    List<Node> objArs = args.get(1).getChildren();
+                    filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
                 } else{
                     //..? above is prob. always satisfied.
                 }
@@ -184,13 +184,21 @@ public class Interpreter {
     }
 
     /**
-     * Retains the objects in toBeFiltered which are "relation" to theRelativeObjects
+     * Retains the objects in toBeFiltered which are "relation" to ANY of theRelativeObjects
      * @param toBeFiltered
      * @param theRelativeObjects
      * @param relation
      */
     private void filterByRelation(List<WorldObject> toBeFiltered, List<WorldObject> theRelativeObjects, String relation) {
-        //TODO
+        List<WorldObject> toBeRetained = new LinkedList<>();
+        for(WorldObject wo : toBeFiltered){
+            for(WorldObject worel : theRelativeObjects){
+                if(world.hasRelation(relation, wo, worel)){
+                    toBeRetained.add(wo);
+                }
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
     }
 
 

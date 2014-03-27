@@ -67,7 +67,7 @@ public class World {
 
     public boolean isOntopOfStack(WorldObject wo){
         WorldObject top = topOfStack(columnOf(wo));
-        return top != null && top.equals(wo);
+        return top != null && top.getId().equals(wo.getId());
     }
 
     public boolean isOnFloor(WorldObject wo){
@@ -78,11 +78,14 @@ public class World {
     /**
      *
      * @param wo
-     * @return the column of the WorldObject, or -1 if the object is not contained in the world
+     * @return the column of the WorldObject, or -1 if the object is not contained in the world. If the object is the floor, the first column which is empty is returned.
      */
     public int columnOf(WorldObject wo){
         for(LinkedList<WorldObject> ll : stacks){
             if(ll.contains(wo)){
+                return stacks.indexOf(ll);
+            }
+            if(wo.getForm().equals("floor") && ll.isEmpty()){
                 return stacks.indexOf(ll);
             }
         }
@@ -95,6 +98,10 @@ public class World {
      * @return the WorldObject which has the specified id or null if the world contains no such WorldObject
      */
     public WorldObject getWorldObject(String id) {
+        if(holding != null && holding.getId().equals(id)) return holding;
+        if(id.equals("floor")){
+            return new WorldObject("floor", "floor", "floor", "floor");
+        }
         for(LinkedList<WorldObject> ll : stacks){
             for(WorldObject wo : ll){
                 if(wo.getId() != null && wo.getId().equals(id)){
@@ -108,14 +115,14 @@ public class World {
     /**
      *
      * @param column
-     * @return the WorldObject which is on top of the stack, or null if the stack has no WorldObjects
+     * @return the WorldObject which is on top of the stack, or a floor object if the stack has no WorldObjects
      */
     public WorldObject topOfStack(int column) {
         List<WorldObject> stack = stacks.get(column);
         if(!stack.isEmpty()){
             return stack.get(stack.size() - 1);
         } else {
-            return null;
+            return new WorldObject("floor", "floor", "floor", "floor");
         }
     }
 
@@ -198,7 +205,7 @@ public class World {
      * @return
      */
     public boolean isValidRelation(String ontop, WorldObject holding, WorldObject top) {
-        return false; //TODO
+        return true; //TODO
     }
 
     /**

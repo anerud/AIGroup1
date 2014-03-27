@@ -33,40 +33,65 @@ public class Interpreter {
     private class ActionVisitor implements IActionVisitor<List<Goal>, List<WorldObject>>{
 
 		@Override
-		public List<Goal> visit(PutNode n, List<WorldObject> a) {
-			// TODO Auto-generated method stub
-			return null;
+		public List<Goal> visit(PutNode n, List<WorldObject> worldObjects) throws InterpretationException {
+
+            if(world.getHolding() == null){
+                throw new InterpretationException("You are not holding anything!");
+            }
+
+            //identify the object on which the held object should be placed (or the column for the floor)
+            List<WorldObject> placedOnObjs = n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects);
+
+            //Create PDDL goals
+            List<Goal> goals = new ArrayList<Goal>();
+            StringBuilder pddlString = new StringBuilder();
+            if(placedOnObjs.size() > 1){
+                pddlString.append("(OR ");
+                for(WorldObject des : placedOnObjs){
+                    pddlString.append("(on " + world.getHolding().getId() +" " + (des.getForm().equals("floor") ? "floor" : des.getId()) + ") ");
+                }
+                pddlString.deleteCharAt(pddlString.length() - 1);
+                pddlString.append(")");
+            } else if (placedOnObjs.size() == 1) {
+                WorldObject obj = placedOnObjs.get(0);
+                pddlString.append("(on " + world.getHolding().getId() +" " + (obj.getForm().equals("floor") ? "floor" : obj.getId()) + ")");
+            }
+            if(placedOnObjs.size() >= 1){
+                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                goals.add(goal);
+            }
+
+			return goals;
 		}
 
 		@Override
         public List<Goal> visit(TakeNode n, List<WorldObject> worldObjects) throws InterpretationException {
-        	List<Goal> goals = new ArrayList<Goal>();
-        	
         	//is the (handempty) precondition fulfilled?
-            if(world.getHolding() == null){
-                //identify the objects
-            	List<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects);
-            	
-                //Create PDDL goals
-                //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
-                StringBuilder pddlString = new StringBuilder();
-                if(filteredObjects.size() > 1){
-                    pddlString.append("(OR ");
-                    for(WorldObject des : filteredObjects){
-                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                        pddlString.append("(holding " + des.getId() + ") ");
-                    }
-                    pddlString.deleteCharAt(pddlString.length() - 1);
-                    pddlString.append(")");
-                } else if (filteredObjects.size() == 1) {
-                    pddlString.append("(holding " + filteredObjects.get(0).getId() + ") ");
-                }
-                if(filteredObjects.size() >= 1){
-                    Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-                    goals.add(goal);
-                }
-            } else {
+            if(world.getHolding() != null){
                 throw new InterpretationException("You need to put down what you are holding first.");
+            }
+
+            //identify the objects
+            List<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects);
+
+            //Create PDDL goals
+            //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
+            List<Goal> goals = new ArrayList<Goal>();
+            StringBuilder pddlString = new StringBuilder();
+            if(filteredObjects.size() > 1){
+                pddlString.append("(OR ");
+                for(WorldObject des : filteredObjects){
+                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                    pddlString.append("(holding " + des.getId() + ") ");
+                }
+                pddlString.deleteCharAt(pddlString.length() - 1);
+                pddlString.append(")");
+            } else if (filteredObjects.size() == 1) {
+                pddlString.append("(holding " + filteredObjects.get(0).getId() + ") ");
+            }
+            if(filteredObjects.size() >= 1){
+                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                goals.add(goal);
             }
             return goals;
         }
@@ -74,7 +99,6 @@ public class Interpreter {
 		@Override
 		public List<Goal> visit(MoveNode n, List<WorldObject> a) {
             //TODO
-
             return null;
 		}
     	

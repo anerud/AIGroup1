@@ -1,5 +1,7 @@
 package tree;
 
+import main.Interpreter;
+
 import java.util.*;
 
 public class PutNode extends Node {
@@ -31,7 +33,7 @@ public class PutNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
+	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
 		return v.visit(this, arg);
 	}
 

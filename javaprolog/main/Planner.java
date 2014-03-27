@@ -39,14 +39,38 @@ public class Planner {
             int woColumn = world.columnOf(wo);
             //TODO check that no object is being held
             if(world.isOntopOfStack(wo)){
-                plan.add("I pick up...");
-                plan.add("pick " + woColumn);
+                if(world.pick(woColumn)){
+                    plan.add("I pick up...");
+                    plan.add("pick " + woColumn);
+                }
             } else {
                 freeWorldObject(wo, plan);
                 if(world.pick(woColumn)){
                     plan.add("I pick up...");
                     plan.add("pick " + woColumn);
                 }
+            }
+        } else if(mainPredicate.equals("on")){
+            String[] parts = goal.toString().split(" ");
+            String arg1 = parts[1];
+            String arg2 = parts[2].substring(0, parts[2].length() - 1);
+            WorldObject wo1 = world.getWorldObject(arg1);
+            WorldObject wo2 = world.getWorldObject(arg2);
+            WorldObject holding = world.getHolding();
+            if(holding !=null && holding.getId().equals(wo1.getId())){
+                if(world.isOntopOfStack(wo2)){
+                    int wo2Column = world.columnOf(wo2);
+                    if(world.drop(wo2Column)){
+                        plan.add("I drop down...");
+                        plan.add("drop " + wo2Column);
+                    }
+                } else {
+                    //TODO.. get's a bit more complicated.. time for some proper algorithms
+                }
+            } else if (holding == null && world.isOntopOfStack(wo1) && world.isOntopOfStack(wo2)){
+
+            } else {
+                //TODO: get's a bit more complicated.. time for some proper algorithms
             }
         } else {
             //TODO: Replace the following

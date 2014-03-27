@@ -3,6 +3,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+<<<<<<< HEAD
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -11,23 +12,15 @@ import tree.Node;
 import world.World;
 import world.WorldObject;
 
+=======
+>>>>>>> 126d9050c15383146a7a3ea325a112f6a4cc63a2
 
 public class Interpreter {
 
     private World world;
-    private PrintWriter log;
-    private PrintWriter tlog;
-    private int treeDepth;
 
     public Interpreter(World world) {
         this.world = world;
-        try {
-            log = new PrintWriter("intepreter log.txt", "UTF-8");
-            tlog = new PrintWriter("intepreter treelog.txt", "UTF-8");
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     public List<Goal> interpret(NTree tree) {
@@ -78,9 +71,10 @@ public class Interpreter {
                 } else {
                     pddlString.append("(holding " + desiredObjs.getFirst().getId() + ") ");
                 }
-
-                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-                goals.add(goal);
+                if(desiredObjs.size() >= 1){
+                    Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                    goals.add(goal);
+                }
             } else {
                 //The action cannot be executed. TODO: Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }
@@ -129,7 +123,6 @@ public class Interpreter {
 
     /**
      * Filters the objects in the world and returns the ones which match the subtree of the current node of entity
-     * TODO: perhaps not use JSONObject.. use something more efficient.
      *
      * @param rules
      * @return
@@ -213,5 +206,4 @@ public class Interpreter {
         }
         toBeFiltered.retainAll(toBeRetained);
     }
-
 }

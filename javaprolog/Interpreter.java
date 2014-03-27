@@ -1,19 +1,11 @@
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-<<<<<<< HEAD
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import tree.NTree;
 import tree.Node;
 import world.World;
 import world.WorldObject;
 
-=======
->>>>>>> 126d9050c15383146a7a3ea325a112f6a4cc63a2
 
 public class Interpreter {
 

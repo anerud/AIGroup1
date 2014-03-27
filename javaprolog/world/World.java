@@ -18,6 +18,16 @@ public class World {
         this.stacks = stacks;
     }
 
+    /**
+     * This constructor assumes there are no constraints
+     * @param stacks
+     */
+    public World(ArrayList<LinkedList<WorldObject>> stacks){
+        this.constraints = new ArrayList<WorldConstraint>();
+        this.holding = null;
+        this.stacks = stacks;
+    }
+
     public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains){
         this.constraints = constrains;
         this.holding = null;
@@ -177,7 +187,7 @@ public class World {
      * @return
      */
     public boolean isValidRelation(String ontop, WorldObject holding, WorldObject top) {
-
+        return false; //TODO
     }
 
     /**

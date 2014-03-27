@@ -165,7 +165,11 @@ public class World {
                 return stacks.get(col).get(row - 1).equals(worel);
             }
         } else if(relation.equals("under")) {
-            return hasRelation("ontop", worel, wo);
+            return hasRelation("ontop", worel, wo); //TODO: by "under", do we mean "directly under"?
+        } else if(relation.equals("leftof")) {
+            return columnOf(wo) < columnOf(worel);
+        } else if(relation.equals("rightof")){
+            return hasRelation("leftof", worel, wo);
         }
         return false;
     }

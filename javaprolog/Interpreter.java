@@ -154,6 +154,9 @@ public class Interpreter {
             if(args.get(1).getData().equals("object")){
                 //Leaf.. now simply find the unique object in the world which matches the description. If multiple, it can still be filtered below..
                 List<Node> objArs = args.get(1).getChildren();
+                Node objectType = objArs.get(0);
+                Node size = objArs.get(0);
+                Node color = objArs.get(0);
                 filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
             } else{
                 //..? above is prob. always satisfied.
@@ -205,77 +208,5 @@ public class Interpreter {
         }
         toBeFiltered.retainAll(toBeRetained);
     }
-
-
-    /**
-     * Recursive function that builds a ParseTree structure from a linearized String tree
-     * @param tree the linearized tree
-     * @param treeToBuild the ParseTree representation of this parse tree
-     */
-    private void buildParseTree(String tree, ParseTree treeToBuild) {
-
-        int parent = tree.indexOf("(");
-        if(parent <= 0)
-            parent = Integer.MAX_VALUE;
-        int child = tree.indexOf(",");
-        if(child < 0)
-            child = Integer.MAX_VALUE;
-        int closure = tree.indexOf(")");
-        if(closure < 0)
-            closure = Integer.MAX_VALUE;
-        int min = Math.min(parent, Math.min(child, closure));
-        if(min < Integer.MAX_VALUE) {
-            String e1 = tree.substring(0, min);
-            String rest = tree.substring(min+1, tree.length());
-            String ending = "";
-            int d = 0;
-            if(min == parent) {
-                ending = "(";
-                d = 1;
-                treeToBuild.addChild(e1);
-                tlog.println("Added parent: " + e1);
-            } else if(min == closure) {
-                ending = ")";
-                d = -1;
-                if(e1.length() > 0) {
-                    treeToBuild.addLeaf(e1);
-                    tlog.println("Added leaf (length > 1): " + e1);
-                } else {
-                    tlog.println("Went to parent");
-                }
-                treeToBuild.parent();
-            } else if(min == child) {
-                if(e1.length() > 0) {
-                    treeToBuild.addLeaf(e1);
-                    tlog.println("Added child: " + e1);
-                }
-            }
-            log.println(toWhiteSpace(treeDepth) + e1 + ending);
-            treeDepth += d;
-            buildParseTree(rest, treeToBuild);
-        }
-        tlog.close();
-        log.close();
-    }
-
-
-    /**
-     * Checks if an object fits a description
-     * example: fitsDescription("ball, (-), white", o) returns true if
-     * the object o is white and a ball (independent of its size)
-     */
-    private boolean fitsDescription(String discription, JSONObject o){
-        return true;
-    }
-
-    private String toWhiteSpace(int n) {
-        String s = "";
-        for(int i = 0; i<n;i++) {
-            s = s + "\t";
-        }
-        return s;
-    }
-
-
 
 }

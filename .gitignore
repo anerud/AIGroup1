@@ -6,5 +6,6 @@
 *.classpath
 *.project
 *.txt
+*.classpath
 *result.json
 __pycache__

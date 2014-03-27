@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="gnuprologjava-0.2.6.jar" sourcepath="C:/Users/John/workspace/AIGroup1/javalibs/gnuprologjava-0.2.6-src.zip"/>
 	<classpathentry kind="lib" path="json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/John/workspace/AIGroup1/javalibs/PDDL4J-v1.0/lib/pddl4j.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sebbe/Documents/GitHub/AIGroup1/javalibs/PDDL4J-v1.0/lib/pddl4j.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

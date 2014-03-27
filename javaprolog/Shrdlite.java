@@ -60,23 +60,9 @@ public class Shrdlite {
 		JSONObject result = new JSONObject();
 		result.put("utterance", utterance);
 
-		// This is how to get information about the top object in column 1:
-		// JSONArray column = (JSONArray) world.get(1);
-		// String topobject = (String) column.get(column.size() - 1);
-		// JSONObject objectinfo = (JSONObject) objects.get(topobject);
-		// String form = (String) objectinfo.get("form");
-		// log.println(topobject);
-		// log.println(objectinfo.toString());
-		// log.println(form);
 
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", utterance);
-
-        List tstrs = new ArrayList();
-        result.put("trees", tstrs);
-        for (Term t : trees) {
-            tstrs.add(t.toString());
-        }
 
 		List<NTree> treeList = new ArrayList<NTree>();
 		for (Term t : trees) {
@@ -96,29 +82,8 @@ public class Shrdlite {
 				for (Goal goal : interpreter.interpret(tree)) {
 					goals.add(goal);
 				}
-				//ParseTree pt = interpreter.getParseTree();
-				// pt.nextChild();
-				// pt.nextChild();
-				// pt.nextChild();
-				// pt.parent();
-				// pt.nextChild();
-				// pt.nextChild();
-				// pt.parent();
-				// pt.nextChild();
-				//log.println(pt);
 			}
-            //____________
-//			result.put("goals", goals); //TODO: change
-//            List herp = new ArrayList();
-//            for (Term tree : trees) {
-//                // for (Goal goal : interpreter.interpret(tree)) {
-//                //     goals.add(goal);
-//                // }
-//                herp.add(true);
-//            }
-////            result.put("goals", herp);
-            //____________
-
+			
 			if (goals.isEmpty()) {
 				result.put("output", "Interpretation error!");
 

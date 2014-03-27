@@ -1,8 +1,7 @@
 import java.util.*;
 
 
-import tree.NTree;
-import tree.Node;
+import tree.*;
 import world.World;
 import world.WorldObject;
 
@@ -112,6 +111,76 @@ public class Interpreter {
 //		goals.add(new Goal());  //TODO
         return goals;
     }
+
+
+    private class NodeVisitor implements INodeVisitor<List<WorldObject>, List<WorldObject>>{
+
+        @Override
+        public List<WorldObject> visit(BasicEntityNode n, List<WorldObject> worldObjects) {
+            //Filter out the object
+            if(args.get(1).getData().equals("object")){
+                List<Node> objArs = args.get(1).getChildren();
+                //Leaf.. Now simply filter out the unique object in toBeFiltered which matches the description. If multiple, return an error message.
+                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
+            } else{
+                //..? above is prob. always satisfied.
+            }
+            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
+                //TODO return error message to GUI
+            }// Else quantifier any, so everything is ok..
+        }
+
+        @Override
+        public List<WorldObject> visit(RelativeEntityNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(RelativeNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(PutNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(TakeNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(MoveNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(FloorNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(QuantifierNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(ObjectNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(AttributeNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+
+        @Override
+        public List<WorldObject> visit(RelationNode n, List<WorldObject> worldObjects) {
+            return null;
+        }
+    }
+
 
     /**
      * Filters the objects in the world and returns the ones which match the subtree of the current node of entity

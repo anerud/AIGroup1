@@ -3,9 +3,7 @@
 *.hi
 *.o
 *.pyc
-*.classpath
 *.project
 *.txt
-*.classpath
 *result.json
 __pycache__

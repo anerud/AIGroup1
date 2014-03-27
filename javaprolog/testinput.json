@@ -16,8 +16,8 @@
         "l": { "form":"box",     "size":"large",  "color":"red"   },
         "m": { "form":"box",     "size":"small",  "color":"blue"  }
     },
-    "utterance": 
-        ["put","it","on","the","floor"],
+    "utterance":
+        ["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],
@@ -29,6 +29,8 @@
         ["put","the","large","plank","under","the","blue","brick"],
         ["move","all","bricks","on","a","table"],
         ["move","all","balls","inside","a","large","box"],
-        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"]
+        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"],
+        ["put","it","on","the","floor"],
+        ["take", "the", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "the", "pyramid"]
     ]
 }

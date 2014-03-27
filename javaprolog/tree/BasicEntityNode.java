@@ -1,5 +1,7 @@
 package tree;
 
+import main.Interpreter;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class BasicEntityNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) {
+	public <R, A> R accept(INodeVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
 		return v.visit(this, arg);
 	}
 

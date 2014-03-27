@@ -1,16 +1,17 @@
 package tree;
 
 import main.Goal;
+import main.Interpreter;
 
 import java.util.List;
 
 public interface INodeVisitor<R, A> {
 
-	public R visit(BasicEntityNode n, A a);
+	public R visit(BasicEntityNode n, A a) throws Interpreter.InterpretationException;
 
-	public R visit(RelativeEntityNode n, A a);
+	public R visit(RelativeEntityNode n, A a) throws Interpreter.InterpretationException;
 
-	public R visit(RelativeNode n, A a);
+	public R visit(RelativeNode n, A a) throws Interpreter.InterpretationException;
 
 	public R visit(FloorNode n, A a);
 

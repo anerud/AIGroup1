@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.management.relation.RelationException;
-
 import main.DCGParser;
 import main.Goal;
 import main.Interpreter;
@@ -86,14 +84,19 @@ public class Shrdlite {
 
 			Interpreter interpreter = new Interpreter(world);
 			for (NTree tree : treeList) {
-				for (Goal goal : interpreter.interpret(tree)) {
-					goals.add(goal);
-				}
+                try{
+                    for (Goal goal : interpreter.interpret(tree)) {
+                        goals.add(goal);
+                    }
+                } catch (Interpreter.InterpretationException e) {
+                    result.put("output", e.getMessage());
+                }
 			}
 
 			if (goals.isEmpty()) {
-				result.put("output", "Interpretation error!");
-
+                if(!result.containsKey("output")){
+				    result.put("output", "Interpretation error!");
+                }
 			} else if (goals.size() > 1) { // TODO: This can be OK as long as
 											// only one of the goals is
 											// reachable for the planner. If

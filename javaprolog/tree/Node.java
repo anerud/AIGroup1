@@ -1,5 +1,7 @@
 package tree;
 
+import main.Interpreter;
+
 import java.util.LinkedList;
 
 public abstract class Node {
@@ -50,7 +52,7 @@ public abstract class Node {
 		return s;
 	}
 	
-	public abstract <R,A> R accept(INodeVisitor<R,A> v, A arg);
+	public abstract <R,A> R accept(INodeVisitor<R,A> v, A arg) throws Interpreter.InterpretationException;
 	
-	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg);
+	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg) throws Interpreter.InterpretationException;
 }

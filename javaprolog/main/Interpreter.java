@@ -9,13 +9,19 @@ import world.WorldObject;
 
 public class Interpreter {
 
+    public class InterpretationException extends Exception{
+        public InterpretationException(String s) {
+            super(s);
+        }
+    }
+
     private World world;
 
     public Interpreter(World world) {
         this.world = world;
     }
 
-    public List<Goal> interpret(NTree tree) {
+    public List<Goal> interpret(NTree tree) throws InterpretationException {
         //Now use the internal representation to extract the goals from the tree. That is, create logical pddl-expressions from the tree.
         return extractPDDLGoals(tree);
     }
@@ -25,7 +31,7 @@ public class Interpreter {
      * @param tree the parse tree
      * @return a list of goals
      */
-    private List<Goal> extractPDDLGoals(NTree tree) {
+    private List<Goal> extractPDDLGoals(NTree tree) throws InterpretationException {
         return tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
     }
 
@@ -38,7 +44,7 @@ public class Interpreter {
 		}
 
 		@Override
-        public List<Goal> visit(TakeNode n, List<WorldObject> worldObjects) {
+        public List<Goal> visit(TakeNode n, List<WorldObject> worldObjects) throws InterpretationException {
         	List<Goal> goals = new ArrayList<Goal>();
         	
         	//is the (handempty) precondition fulfilled?
@@ -79,16 +85,16 @@ public class Interpreter {
     private class NodeVisitor implements INodeVisitor<List<WorldObject>, List<WorldObject>>{
 
         @Override
-        public List<WorldObject> visit(BasicEntityNode n, List<WorldObject> worldObjects) {
+        public List<WorldObject> visit(BasicEntityNode n, List<WorldObject> worldObjects) throws InterpretationException {
         	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects);
         	if(n.getQuantifierNode().getData().equals("the") && filteredObjects.size() > 1) {
-        		//TODO: Error message
+        		throw new InterpretationException("Several objects match the description. Which one do you mean?");//TODO: Proper error message
         	}
 			return filteredObjects;
         }
 
         @Override
-        public List<WorldObject> visit(RelativeEntityNode n, List<WorldObject> worldObjects) {
+        public List<WorldObject> visit(RelativeEntityNode n, List<WorldObject> worldObjects) throws InterpretationException {
         	
         	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects); 
             List<WorldObject> relativeFilteredObjects = n.getLocationNode().accept(this, filteredObjects);
@@ -101,7 +107,7 @@ public class Interpreter {
         }
 
         @Override
-        public List<WorldObject> visit(RelativeNode n, List<WorldObject> worldObjects) {
+        public List<WorldObject> visit(RelativeNode n, List<WorldObject> worldObjects) throws InterpretationException {
         	
         	List<WorldObject> relativeObjects = n.getEntityNode().accept(this, world.getWorldObjects());
         	
@@ -141,38 +147,38 @@ public class Interpreter {
     }
 
 
-    /**
-     * Filters the objects in the world and returns the ones which match the subtree of the current node of entity
-     *
-     * @param rules
-     * @return
-     */
-    private void filterObjects(Node rules, List<WorldObject> toBeFiltered) {
-        //Basic_entity and floor are the base cases in the recursion
-        List<WorldObject> toBeFilteredOrig = new LinkedList<>(toBeFiltered);
-
-        String str = rules.getData();
-        List<Node> args = rules.getChildren();
-        if(str.equals("basic_entity")) {
-            //Filter out the object
-            if(args.get(1).getData().equals("object")){
-                List<Node> objArs = args.get(1).getChildren();
-                //Leaf.. Now simply filter out the unique object in toBeFiltered which matches the description. If multiple, return an error message.
-                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
-            } else{
-                //..? above is prob. always satisfied.
-            }
-            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
-                //TODO return error message to GUI
-            }// Else quantifier any, so everything is ok..
-        } else if(str.equals("floor")){
-            toBeFiltered.clear();
-            toBeFiltered.add(new WorldObject("floor", "floor", "floor"));
-        } else if(str.equals("relative_entity")){ //Here, we first filter the objects depending on the first argument object, then move on to the recursion..
-            
-        }
-        //Note that the "relative" keyword is never encountered here
-    }
+//    /**
+//     * Filters the objects in the world and returns the ones which match the subtree of the current node of entity
+//     *
+//     * @param rules
+//     * @return
+//     */
+//    private void filterObjects(Node rules, List<WorldObject> toBeFiltered) throws InterpretationException{
+//        //Basic_entity and floor are the base cases in the recursion
+//        List<WorldObject> toBeFilteredOrig = new LinkedList<>(toBeFiltered);
+//
+//        String str = rules.getData();
+//        List<Node> args = rules.getChildren();
+//        if(str.equals("basic_entity")) {
+//            //Filter out the object
+//            if(args.get(1).getData().equals("object")){
+//                List<Node> objArs = args.get(1).getChildren();
+//                //Leaf.. Now simply filter out the unique object in toBeFiltered which matches the description. If multiple, return an error message.
+//                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
+//            } else{
+//                //..? above is prob. always satisfied.
+//            }
+//            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
+//                //TODO return error message to GUI
+//            }// Else quantifier any, so everything is ok..
+//        } else if(str.equals("floor")){
+//            toBeFiltered.clear();
+//            toBeFiltered.add(new WorldObject("floor", "floor", "floor"));
+//        } else if(str.equals("relative_entity")){ //Here, we first filter the objects depending on the first argument object, then move on to the recursion..
+//
+//        }
+//        //Note that the "relative" keyword is never encountered here
+//    }
 
     private void filterByMatch(List<WorldObject> toBeFiltered, WorldObject match) {
         Set<WorldObject> toBeRetained = new HashSet<WorldObject>();

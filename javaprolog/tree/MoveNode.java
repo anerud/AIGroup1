@@ -39,8 +39,7 @@ public class MoveNode extends Node {
 
 	@Override
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.visit(this, arg);
 	}
 
 	@Override

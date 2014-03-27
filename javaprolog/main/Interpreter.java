@@ -26,91 +26,7 @@ public class Interpreter {
      * @return a list of goals
      */
     private List<Goal> extractPDDLGoals(NTree tree) {
-        ArrayList<Goal> goals = new ArrayList<Goal>();
-        //Let's hard-code stuff for the moment to get the idea..
-        //Note that the root is merely symbolic here, it contains nothing. TODO: Eventually, the rules for every action should be dynamically read from the PDDL-format. See the following example PDDL for the action pick-up:
-        /*
-         (:action pick-up
-             :parameters (?x - block)
-             :precondition (and (clear ?x) (ontable ?x) (handempty))
-             :effect
-             (and (not (ontable ?x))
-               (not (clear ?x))
-               (not (handempty))
-               (holding ?x)))
-         */
-        //What action is it?
-        String action = tree.getRoot().toString();
-        LinkedList<Node> args = tree.getRoot().getChildren();
-        if(action.equals("take")){
-            //is the (handempty) precondition fulfilled?
-            if(world.getHolding() == null){
-                //identify the objects
-                LinkedList<WorldObject> desiredObjs = world.getWorldObjects();
-                filterObjects(args.getFirst(), desiredObjs);   //getfirst should return a basic_entity
-
-                //Create PDDL goals
-                //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
-                StringBuilder pddlString = new StringBuilder();
-                if(desiredObjs.size() > 1){
-                    pddlString.append("(OR ");
-                    for(WorldObject des : desiredObjs){
-                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                        pddlString.append("(holding " + des.getId() + ") ");
-                    }
-                    pddlString.deleteCharAt(pddlString.length() - 1);
-                    pddlString.append(")");
-                } else {
-                    pddlString.append("(holding " + desiredObjs.getFirst().getId() + ") ");
-                }
-                if(desiredObjs.size() >= 1){
-                    Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-                    goals.add(goal);
-                }
-            } else {
-                //The action cannot be executed. TODO: Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
-            }
-        } else if(action.equals("put")){
-            //TODO: Ska "put" fungera på ett vettigt sätt, eller som angivet i exemplen, d.v.s. put fungerar likadant som move?
-//            if(holding != null){
-//                //identify the objects
-//                JSONObject wantedObjects = filterObjects(tree);
-//                //Create PDDL goals
-//                for(String wantedObject : (Set<String>)wantedObjects.keySet()){
-//                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-//                    Goal goal =  null; //new Goal(some Exp..);TODO
-//                    goals.add(goal);
-//                }
-//            } else {
-//                //The action cannot be executed. Notify GUI or do stuff..
-//            }
-        } else if(action.equals("move")){
-            //TODO: Check preconditions..
-
-            LinkedList<WorldObject> desiredObjs = world.getWorldObjects(); //First argument
-            LinkedList<WorldObject> desiredObjs2 = world.getWorldObjects(); //Second argument
-
-            filterObjects(args.getFirst(), desiredObjs);
-
-            //Now filter these depending on the relative objects..
-            List<Node> relArgs = args.get(1).getChildren();
-            if(args.get(1).getData().equals("relative")) {
-                filterObjects(relArgs.get(1), desiredObjs2);
-            } else { //
-                // Cannot happen probably..
-            }
-
-            //Create PDDL goals
-            //TODO: What happens if many objects are to be moved to many places?
-            //Use: relArgs.get(0) to get the relative keyword
-            for(WorldObject des : desiredObjs){
-                //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                Goal goal =  null; //new Goal(some Exp..);TODO
-                goals.add(goal);
-            }
-        }
-//		goals.add(new Goal());  //TODO
-        return goals;
+        return tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
     }
 
     private class ActionVisitor implements IActionVisitor<List<Goal>, List<WorldObject>>{
@@ -130,9 +46,6 @@ public class Interpreter {
                 //identify the objects
             	List<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects);
             	
-//                LinkedList<WorldObject> desiredObjs = world.getWorldObjects();
-//                filterObjects(args.getFirst(), desiredObjs);   //getfirst should return a basic_entity
-
                 //Create PDDL goals
                 //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
                 StringBuilder pddlString = new StringBuilder();
@@ -152,8 +65,7 @@ public class Interpreter {
                     goals.add(goal);
                 }
             }
-        	
-            return null;
+            return goals;
         }
 
 		@Override
@@ -177,28 +89,25 @@ public class Interpreter {
 
         @Override
         public List<WorldObject> visit(RelativeEntityNode n, List<WorldObject> worldObjects) {
-        	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects); 
         	
-            if(n.getQuantifierNode().getData().equals("the") && filteredObjects.size() > 1) {
+        	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects); 
+            List<WorldObject> relativeFilteredObjects = n.getLocationNode().accept(this, filteredObjects);
+            
+            if(n.getQuantifierNode().getData().equals("the") && relativeFilteredObjects.size() > 1) {
                 //TODO return error message to GUI
             }// Else quantifier any, so everything is ok..
 
-            n.getLocationNode().accept(this, filteredObjects);
+            return relativeFilteredObjects;
         }
 
         @Override
         public List<WorldObject> visit(RelativeNode n, List<WorldObject> worldObjects) {
-        	if(relative.getData().equals("relative")) {
-                List<Node> relArgs = relative.getChildren();
-                // call filterObjects recursively to get the relative objects
-                List<WorldObject> theRelativeObjects = new LinkedList<WorldObject>(toBeFilteredOrig);
-                filterObjects(relArgs.get(1), theRelativeObjects);
-
-                //retain objects for which toBeFiltered is inside or ontop theRelativeObjects
-                filterByRelation(toBeFiltered, theRelativeObjects, relArgs.get(0).getData());
-            } else {
-                //..? above is prob. always satisfied.
-            }
+        	
+        	List<WorldObject> relativeObjects = n.getEntityNode().accept(this, world.getWorldObjects());
+        	
+            //retain objects for which toBeFiltered is inside or ontop theRelativeObjects
+            filterByRelation(worldObjects, relativeObjects, n.getRelationNode().getData());
+            return worldObjects;
         }
 
         @Override

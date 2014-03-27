@@ -1,3 +1,4 @@
+package world;
 public class WorldObject {
 
     private String id;

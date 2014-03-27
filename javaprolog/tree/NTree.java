@@ -1,4 +1,6 @@
+package tree;
 import java.util.LinkedList;
+
 
 public class NTree {
 

@@ -1,30 +1,22 @@
+package tree;
+
 import java.util.LinkedList;
 
-public class Node {
-	private LinkedList<Node> childs;
+public abstract class Node {
 	private Node parent;
 	private String data;
 
 	public Node(Node parent, String data) {
 		this.data = data;
 		this.parent = parent;
-		childs = new LinkedList<Node>();
 	}
 
 	public Node getParent() {
 		return parent;
 	}
 
-	public LinkedList<Node> getChildren() {
-		return childs;
-	}
-
 	public String getData() {
 		return data;
-	}
-
-	public void setChildren(LinkedList<Node> childs) {
-		this.childs = childs;
 	}
 
 	public void setParent(Node parent) {
@@ -38,6 +30,8 @@ public class Node {
 	public void setData(String data) {
 		this.data = data;
 	}
+	
+	public abstract LinkedList<Node> getChildren();
 	
 	@Override
 	public String toString() {
@@ -55,4 +49,6 @@ public class Node {
 		}
 		return s;
 	}
+	
+	public abstract <R,A> R accept(INodeVisitor<R,A> v, A arg);
 }

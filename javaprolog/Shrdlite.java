@@ -52,10 +52,10 @@ public class Shrdlite {
 				objsArr.put((String) o, wo);
 			}
 		}
+        // Initialize holding object
+        WorldObject holding = objsArr.get(holdingId);
 		// Initialize world
-		World world = new World(worldArr);
-		// Initialize holding object
-		WorldObject holding = objsArr.get(holdingId);
+		World world = new World(worldArr, holding);
 
 		for (int i = 0; i < worldJSON.size(); i++) {
 			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();

@@ -30,7 +30,6 @@ public class TakeNode extends Node {
 
 	@Override
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
-		// TODO Auto-generated method stub
 		return v.visit(this, arg);
 	}
 

@@ -19,7 +19,7 @@ public class World {
     }
 
     /**
-     * This constructor assumes there are no constraints
+     * This constructor assumes there are no constraints and that nothing is being held
      * @param stacks
      */
     public World(ArrayList<LinkedList<WorldObject>> stacks){
@@ -31,6 +31,17 @@ public class World {
     public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains){
         this.constraints = constrains;
         this.holding = null;
+        this.stacks = stacks;
+    }
+
+    /**
+     *  This constructor assumes there are no constraints
+     * @param stacks
+     * @param holding
+     */
+    public World(ArrayList<LinkedList<WorldObject>> stacks, WorldObject holding) {
+        this.constraints = new ArrayList<WorldConstraint>();
+        this.holding = holding;
         this.stacks = stacks;
     }
 

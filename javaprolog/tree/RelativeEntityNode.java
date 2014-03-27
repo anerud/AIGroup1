@@ -51,4 +51,10 @@ public class RelativeEntityNode extends Node {
 		return v.visit(this, arg);
 	}
 
+	@Override
+	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

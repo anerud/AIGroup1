@@ -1,5 +1,4 @@
-// First compile the program:
-// javac -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. Shrdlite.java
+
 
 // Then test from the command line:
 // java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. Shrdlite < ../examples/medium.json
@@ -14,6 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.management.relation.RelationException;
+
+import main.DCGParser;
+import main.Goal;
+import main.Interpreter;
+import main.Planner;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

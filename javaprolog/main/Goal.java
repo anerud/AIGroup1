@@ -1,3 +1,4 @@
+package main;
 import pddl4j.Domain;
 import pddl4j.PDDLObject;
 import pddl4j.Parser;

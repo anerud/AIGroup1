@@ -1,5 +1,9 @@
 package tree;
 
+import main.Goal;
+
+import java.util.List;
+
 public interface INodeVisitor<R, A> {
 
 	public R visit(BasicEntityNode n, A a);
@@ -7,12 +11,6 @@ public interface INodeVisitor<R, A> {
 	public R visit(RelativeEntityNode n, A a);
 
 	public R visit(RelativeNode n, A a);
-
-	public R visit(PutNode n, A a);
-
-	public R visit(TakeNode n, A a);
-
-	public R visit(MoveNode n, A a);
 
 	public R visit(FloorNode n, A a);
 

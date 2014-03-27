@@ -51,4 +51,6 @@ public abstract class Node {
 	}
 	
 	public abstract <R,A> R accept(INodeVisitor<R,A> v, A arg);
+	
+	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg);
 }

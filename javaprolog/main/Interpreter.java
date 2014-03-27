@@ -1,3 +1,4 @@
+package main;
 import java.util.*;
 
 
@@ -112,52 +113,99 @@ public class Interpreter {
         return goals;
     }
 
+    private class ActionVisitor implements IActionVisitor<List<Goal>, List<WorldObject>>{
+
+		@Override
+		public List<Goal> visit(PutNode n, List<WorldObject> a) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+        public List<Goal> visit(TakeNode n, List<WorldObject> worldObjects) {
+        	List<Goal> goals = new ArrayList<Goal>();
+        	
+        	//is the (handempty) precondition fulfilled?
+            if(world.getHolding() == null){
+                //identify the objects
+            	List<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects);
+            	
+//                LinkedList<WorldObject> desiredObjs = world.getWorldObjects();
+//                filterObjects(args.getFirst(), desiredObjs);   //getfirst should return a basic_entity
+
+                //Create PDDL goals
+                //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
+                StringBuilder pddlString = new StringBuilder();
+                if(filteredObjects.size() > 1){
+                    pddlString.append("(OR ");
+                    for(WorldObject des : filteredObjects){
+                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                        pddlString.append("(holding " + des.getId() + ") ");
+                    }
+                    pddlString.deleteCharAt(pddlString.length() - 1);
+                    pddlString.append(")");
+                } else if (filteredObjects.size() == 1) {
+                    pddlString.append("(holding " + filteredObjects.get(0).getId() + ") ");
+                }
+                if(filteredObjects.size() >= 1){
+                    Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                    goals.add(goal);
+                }
+            }
+        	
+            return null;
+        }
+
+		@Override
+		public List<Goal> visit(MoveNode n, List<WorldObject> a) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+    	
+    }
 
     private class NodeVisitor implements INodeVisitor<List<WorldObject>, List<WorldObject>>{
 
         @Override
         public List<WorldObject> visit(BasicEntityNode n, List<WorldObject> worldObjects) {
-            //Filter out the object
-            if(args.get(1).getData().equals("object")){
-                List<Node> objArs = args.get(1).getChildren();
-                //Leaf.. Now simply filter out the unique object in toBeFiltered which matches the description. If multiple, return an error message.
-                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
-            } else{
-                //..? above is prob. always satisfied.
-            }
-            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
-                //TODO return error message to GUI
-            }// Else quantifier any, so everything is ok..
+        	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects);
+        	if(n.getQuantifierNode().getData().equals("the") && filteredObjects.size() > 1) {
+        		//TODO: Error message
+        	}
+			return filteredObjects;
         }
 
         @Override
         public List<WorldObject> visit(RelativeEntityNode n, List<WorldObject> worldObjects) {
-            return null;
+        	List<WorldObject> filteredObjects = n.getObjectNode().accept(this, worldObjects); 
+        	
+            if(n.getQuantifierNode().getData().equals("the") && filteredObjects.size() > 1) {
+                //TODO return error message to GUI
+            }// Else quantifier any, so everything is ok..
+
+            n.getLocationNode().accept(this, filteredObjects);
         }
 
         @Override
         public List<WorldObject> visit(RelativeNode n, List<WorldObject> worldObjects) {
-            return null;
-        }
+        	if(relative.getData().equals("relative")) {
+                List<Node> relArgs = relative.getChildren();
+                // call filterObjects recursively to get the relative objects
+                List<WorldObject> theRelativeObjects = new LinkedList<WorldObject>(toBeFilteredOrig);
+                filterObjects(relArgs.get(1), theRelativeObjects);
 
-        @Override
-        public List<WorldObject> visit(PutNode n, List<WorldObject> worldObjects) {
-            return null;
-        }
-
-        @Override
-        public List<WorldObject> visit(TakeNode n, List<WorldObject> worldObjects) {
-            return null;
-        }
-
-        @Override
-        public List<WorldObject> visit(MoveNode n, List<WorldObject> worldObjects) {
-            return null;
+                //retain objects for which toBeFiltered is inside or ontop theRelativeObjects
+                filterByRelation(toBeFiltered, theRelativeObjects, relArgs.get(0).getData());
+            } else {
+                //..? above is prob. always satisfied.
+            }
         }
 
         @Override
         public List<WorldObject> visit(FloorNode n, List<WorldObject> worldObjects) {
-            return null;
+        	worldObjects.clear();
+        	worldObjects.add(new WorldObject("floor", "floor", "floor"));
+            return worldObjects;
         }
 
         @Override
@@ -167,7 +215,9 @@ public class Interpreter {
 
         @Override
         public List<WorldObject> visit(ObjectNode n, List<WorldObject> worldObjects) {
-            return null;
+            filterByMatch(worldObjects, new WorldObject(n.getFormNode().getData(),
+            		n.getSizeNode().getData(), n.getColorNode().getData()));
+            return worldObjects;
         }
 
         @Override
@@ -210,32 +260,7 @@ public class Interpreter {
             toBeFiltered.clear();
             toBeFiltered.add(new WorldObject("floor", "floor", "floor"));
         } else if(str.equals("relative_entity")){ //Here, we first filter the objects depending on the first argument object, then move on to the recursion..
-            if(args.get(1).getData().equals("object")){
-                //Leaf.. now simply find the unique object in the world which matches the description. If multiple, it can still be filtered below..
-                List<Node> objArs = args.get(1).getChildren();
-                Node objectType = objArs.get(0);
-                Node size = objArs.get(0);
-                Node color = objArs.get(0);
-                filterByMatch(toBeFiltered, new WorldObject(objArs.get(0).getData(), objArs.get(1).getData(), objArs.get(2).getData()));
-            } else{
-                //..? above is prob. always satisfied.
-            }
-            if(args.get(0).getData().equals("the") && toBeFiltered.size() > 1) {
-                //TODO return error message to GUI
-            }// Else quantifier any, so everything is ok..
-
-            Node relative = args.get(2);
-            if(relative.getData().equals("relative")) {
-                List<Node> relArgs = relative.getChildren();
-                // call filterObjects recursively to get the relative objects
-                List<WorldObject> theRelativeObjects = new LinkedList<WorldObject>(toBeFilteredOrig);
-                filterObjects(relArgs.get(1), theRelativeObjects);
-
-                //retain objects for which toBeFiltered is inside or ontop theRelativeObjects
-                filterByRelation(toBeFiltered, theRelativeObjects, relArgs.get(0).getData());
-            } else {
-                //..? above is prob. always satisfied.
-            }
+            
         }
         //Note that the "relative" keyword is never encountered here
     }

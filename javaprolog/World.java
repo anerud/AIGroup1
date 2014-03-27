@@ -8,15 +8,17 @@ import java.util.List;
 public class World {
 
     private ArrayList<LinkedList<WorldObject>> stacks;
-
+    private List<WorldConstraint> constraints;
     private WorldObject holding;
 
-    public World(ArrayList<LinkedList<WorldObject>> stacks, WorldObject holding){
+    public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains, WorldObject holding){
+        this.constraints = constrains;
         this.holding = holding;
         this.stacks = stacks;
     }
 
-    public World(ArrayList<LinkedList<WorldObject>> stacks){
+    public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains){
+        this.constraints = constrains;
         this.holding = null;
         this.stacks = stacks;
     }
@@ -146,6 +148,35 @@ public class World {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Drops the object being held at the specified column
+     * @param woColumn
+     * @return true if the operation was successful
+     */
+    public boolean drop(int woColumn) {
+        if(holding == null){
+            return false;
+        }
+        WorldObject top = topOfStack(woColumn);
+        if(top != null && !isValidRelation("ontop", holding, top)){
+            return false;
+        }  //This assumes it's always ok to put stuff directly on the floor
+        stacks.get(woColumn).addLast(holding);
+        holding = null;
+        return true;
+    }
+
+    /**
+     *
+     * @param ontop
+     * @param holding
+     * @param top
+     * @return
+     */
+    public boolean isValidRelation(String ontop, WorldObject holding, WorldObject top) {
+
     }
 
     /**

@@ -3,26 +3,13 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 
 public class Interpreter {
 
     private World world;
-    private PrintWriter log;
-    private PrintWriter tlog;
-    private int treeDepth;
 
     public Interpreter(World world) {
         this.world = world;
-        try {
-            log = new PrintWriter("intepreter log.txt", "UTF-8");
-            tlog = new PrintWriter("intepreter treelog.txt", "UTF-8");
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     public List<Goal> interpret(NTree tree) {
@@ -125,7 +112,6 @@ public class Interpreter {
 
     /**
      * Filters the objects in the world and returns the ones which match the subtree of the current node of entity
-     * TODO: perhaps not use JSONObject.. use something more efficient.
      *
      * @param rules
      * @return
@@ -209,5 +195,4 @@ public class Interpreter {
         }
         toBeFiltered.retainAll(toBeRetained);
     }
-
 }

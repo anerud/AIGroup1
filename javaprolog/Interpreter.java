@@ -73,9 +73,10 @@ public class Interpreter {
                 } else {
                     pddlString.append("(holding " + desiredObjs.getFirst().getId() + ") ");
                 }
-
-                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-                goals.add(goal);
+                if(desiredObjs.size() >= 1){
+                    Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                    goals.add(goal);
+                }
             } else {
                 //The action cannot be executed. TODO: Either notify the GUI that the object in hand needs to be dropped, or just drop it and try again...
             }

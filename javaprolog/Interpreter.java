@@ -6,6 +6,11 @@ import java.util.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import tree.NTree;
+import tree.Node;
+import world.World;
+import world.WorldObject;
+
 
 public class Interpreter {
 

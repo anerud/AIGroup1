@@ -1,5 +1,8 @@
 import java.util.*;
 
+import world.World;
+import world.WorldObject;
+
 public class Planner {
 	
 	private World world;

@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>BNF for Lexer.jj</TITLE>
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>BNF for Lexer.jj</H1>
+<H2 ALIGN=CENTER>NON-TERMINALS</H2>
+<TABLE>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod1">parse</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod2">domain</A> | <A HREF="#prod3">problem</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod2">domain</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DEFINE&gt; &lt;LPAREN&gt; &lt;DOMAIN&gt; <A HREF="#prod4">domain_name</A> &lt;RPAREN&gt; ( <A HREF="#prod5">require_def</A> )? ( <A HREF="#prod6">type_def</A> )? ( <A HREF="#prod7">constants_def</A> )? ( <A HREF="#prod8">predicates_def</A> )? ( <A HREF="#prod9">functions_def</A> )? ( <A HREF="#prod10">constraints</A> )? ( <A HREF="#prod11">structure_def</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod5">require_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;REQUIREMENTS&gt; ( <A HREF="#prod12">require_key</A> )+ &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod12">require_key</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;STRIPS&gt; | &lt;TYPING&gt; | &lt;NEGATIVE_PRECONDITIONS&gt; | &lt;DISJUNCTIVE_PRECONDITIONS&gt; | &lt;EQUALITY&gt; | &lt;EXISTENTIAL_PRECONDITIONS&gt; | &lt;UNIVERSAL_PRECONDITIONS&gt; | &lt;QUANTIFIED_PRECONDITIONS&gt; | &lt;CONDITIONAL_EFFECTS&gt; | &lt;FLUENTS&gt; | &lt;ADL&gt; | &lt;DURATIVE_ACTIONS&gt; | &lt;DERIVED_PREDICATES&gt; | &lt;TIMED_INITIAL_LITERALS&gt; | &lt;PREFERENCES&gt; | &lt;CONSTRAINTS&gt; | &lt;CONTINUS_EFFECTS&gt; | &lt;DURATION_INEQUALITIES&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod6">type_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;TYPES&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod13">typed_list</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( <A HREF="#prod14">primitive_type</A> )* ( &lt;SUB&gt; <A HREF="#prod15">type</A> <A HREF="#prod13">typed_list</A> )? | ( <A HREF="#prod16">constant</A> )* ( &lt;SUB&gt; <A HREF="#prod15">type</A> <A HREF="#prod13">typed_list</A> )? | ( <A HREF="#prod17">variable</A> )* ( &lt;SUB&gt; <A HREF="#prod15">type</A> <A HREF="#prod13">typed_list</A> )? )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod15">type</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;LPAREN&gt; &lt;EITHER&gt; ( <A HREF="#prod14">primitive_type</A> )+ &lt;RPAREN&gt; | <A HREF="#prod14">primitive_type</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod14">primitive_type</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;OBJECT_TYPE&gt; | &lt;NUMBER_TYPE&gt; | &lt;SYMBOL&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod7">constants_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;CONSTANTS&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod16">constant</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod8">predicates_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;PREDICATES&gt; ( <A HREF="#prod18">atomic_formula_skeleton</A> )+ &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod18">atomic_formula_skeleton</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod19">predicate</A> <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod19">predicate</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;SYMBOL&gt; | &lt;AT&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod17">variable</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>"?" ( &lt;SYMBOL&gt; | &lt;OBJECT_TYPE&gt; | &lt;NUMBER_TYPE&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod9">functions_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FUNCTIONS&gt; <A HREF="#prod20">function_typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod21">atomic_function_skeleton</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod22">functor</A> <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod22">functor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod20">function_typed_list</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod21">atomic_function_skeleton</A> )* ( &lt;SUB&gt; <A HREF="#prod23">function_type</A> <A HREF="#prod20">function_typed_list</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod23">function_type</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;NUMBER_TYPE&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod24">con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod25">and_con_gd</A> | <A HREF="#prod26">forall_con_gd</A> | <A HREF="#prod27">at_end_con_gd</A> | <A HREF="#prod28">always_con_gd</A> | <A HREF="#prod29">sometime_con_gd</A> | <A HREF="#prod30">within_con_gd</A> | <A HREF="#prod31">at_most_once_con_gd</A> | <A HREF="#prod32">sometime_after_con_gd</A> | <A HREF="#prod33">sometime_before_con_gd</A> | <A HREF="#prod34">always_within_con_gd</A> | <A HREF="#prod35">hold_during_con_gd</A> | <A HREF="#prod36">hold_after_con_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod25">and_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod24">con_gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod26">forall_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod24">con_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod27">at_end_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;END&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod28">always_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ALWAYS&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod29">sometime_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SOMETIME&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod30">within_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;WITHIN&gt; &lt;NUMBER&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod31">at_most_once_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT_MOST_ONCE&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod32">sometime_after_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SOMETIME_AFTER&gt; <A HREF="#prod37">gd</A> <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod33">sometime_before_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SOMETIME_BEFORE&gt; <A HREF="#prod37">gd</A> <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod34">always_within_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ALWAYS_WITHIN&gt; &lt;NUMBER&gt; <A HREF="#prod37">gd</A> <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod35">hold_during_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;HOLD_DURING&gt; &lt;NUMBER&gt; &lt;NUMBER&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod36">hold_after_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;HOLD_AFTER&gt; &lt;NUMBER&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod37">gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod38">atomic_formula</A> | <A HREF="#prod39">and_gd</A> | <A HREF="#prod40">or_gd</A> | <A HREF="#prod41">not_gd</A> | <A HREF="#prod42">imply_gd</A> | <A HREF="#prod43">exists_gd</A> | <A HREF="#prod44">forall_gd</A> | <A HREF="#prod45">f_comp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod39">and_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod37">gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod40">or_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;OR&gt; ( <A HREF="#prod37">gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod41">not_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;NOT&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod42">imply_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;IMPLY&gt; <A HREF="#prod37">gd</A> <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod43">exists_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;EXISTS&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod44">forall_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod38">atomic_formula</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod19">predicate</A> ( ( <A HREF="#prod16">constant</A> )* | ( <A HREF="#prod46">term</A> )* ) &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod46">term</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod16">constant</A> | <A HREF="#prod17">variable</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod47">literal</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod38">atomic_formula</A> | <A HREF="#prod48">not_atomic_formula</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod48">not_atomic_formula</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;NOT&gt; <A HREF="#prod38">atomic_formula</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod45">f_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod49">binary_comp</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod49">binary_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod50">greater_comp</A> | <A HREF="#prod51">less_comp</A> | <A HREF="#prod52">greater_equal_comp</A> | <A HREF="#prod53">less_equal_comp</A> | <A HREF="#prod54">equal_comp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod50">greater_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;GREATER&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod52">greater_equal_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;GEQUAL&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod53">less_equal_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;LEQUAL&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod51">less_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;LESS&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod54">equal_comp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;EQUAL&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod55">f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod56">number</A> | <A HREF="#prod57">op</A> | <A HREF="#prod58">f_head</A> | <A HREF="#prod17">variable</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod56">number</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;NUMBER&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod57">op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod59">binary_operation</A> | <A HREF="#prod60">unary_op</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod59">binary_operation</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod61">add_op</A> | <A HREF="#prod62">substract_op</A> | <A HREF="#prod63">multiply_op</A> | <A HREF="#prod64">divide_op</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod61">add_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ADD&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod62">substract_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod63">multiply_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;MUL&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod64">divide_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DIV&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod60">unary_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod58">f_head</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod22">functor</A> ( <A HREF="#prod46">term</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod11">structure_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod66">action_def</A> | <A HREF="#prod67">durative_action_def</A> | <A HREF="#prod68">derived_def</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod66">action_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ACTION&gt; <A HREF="#prod69">action_name</A> &lt;PARAMETERS&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod70">action_def_body</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod69">action_name</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod70">action_def_body</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;PRECONDITION&gt; <A HREF="#prod71">pre_gd</A> &lt;EFFECT&gt; <A HREF="#prod72">effect</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod71">pre_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod73">empty_or</A> | <A HREF="#prod74">pref_gd</A> | <A HREF="#prod75">and_pre_gd</A> | <A HREF="#prod76">forall_pre_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod73">empty_or</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod75">and_pre_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod71">pre_gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod76">forall_pre_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod71">pre_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod74">pref_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod77">named_pref_gd</A> | <A HREF="#prod37">gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod77">named_pref_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;PREFERENCE&gt; ( <A HREF="#prod78">pref_name</A> )? <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod78">pref_name</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod72">effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod79">and_c_effect</A> | <A HREF="#prod80">c_effect</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod79">and_c_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod80">c_effect</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod80">c_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod81">forall_effect</A> | <A HREF="#prod82">when_con_effect</A> | <A HREF="#prod83">p_effect</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod81">forall_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod72">effect</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod82">when_con_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;WHEN&gt; <A HREF="#prod37">gd</A> <A HREF="#prod84">cond_effect</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod84">cond_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod85">and_p_effect</A> | <A HREF="#prod83">p_effect</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod85">and_p_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod83">p_effect</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod83">p_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod86">assign_op</A> | <A HREF="#prod47">literal</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod86">assign_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod87">assign</A> | <A HREF="#prod88">scale_up</A> | <A HREF="#prod89">scale_down</A> | <A HREF="#prod90">increase</A> | <A HREF="#prod91">decrease</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod87">assign</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ASSIGN&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod88">scale_up</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SCALE_UP&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod89">scale_down</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SCALE_DOWN&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod90">increase</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;INCREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod91">decrease</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DECREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod67">durative_action_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DURATIVE_ACTION&gt; <A HREF="#prod92">da_symbol</A> &lt;PARAMETERS&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod93">da_def_body</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod92">da_symbol</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod93">da_def_body</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DURATION&gt; <A HREF="#prod94">duration_constraint</A> &lt;CONDITION&gt; <A HREF="#prod95">da_gd</A> &lt;EFFECT&gt; <A HREF="#prod96">da_effect</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod94">duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod73">empty_or</A> | <A HREF="#prod97">and_simple_duration_constraint</A> | <A HREF="#prod98">simple_duration_constraint</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod97">and_simple_duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod98">simple_duration_constraint</A> )+ &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod98">simple_duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod99">d_op</A> | <A HREF="#prod100">at_simple_duration_constraint</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod100">at_simple_duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod101">at_start_simple_duration_constraint</A> | <A HREF="#prod102">at_end_simple_duration_constraint</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod101">at_start_simple_duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;START&gt; <A HREF="#prod98">simple_duration_constraint</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod102">at_end_simple_duration_constraint</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;END&gt; <A HREF="#prod98">simple_duration_constraint</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod99">d_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod103">equal_d_op</A> | <A HREF="#prod104">gequal_d_op</A> | <A HREF="#prod105">lequal_d_op</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod103">equal_d_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;EQUAL&gt; <A HREF="#prod106">var_duration</A> <A HREF="#prod107">d_value</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod104">gequal_d_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;GEQUAL&gt; <A HREF="#prod106">var_duration</A> <A HREF="#prod107">d_value</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod105">lequal_d_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;LEQUAL&gt; <A HREF="#prod106">var_duration</A> <A HREF="#prod107">d_value</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod106">var_duration</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VAR_DURATION&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod107">d_value</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod56">number</A> | <A HREF="#prod55">f_exp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod95">da_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod108">pref_timed_gd</A> | <A HREF="#prod109">and_da_gd</A> | <A HREF="#prod110">forall_da_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod110">forall_da_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod95">da_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod109">and_da_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod95">da_gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod108">pref_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod111">timed_gd</A> | <A HREF="#prod112">named_pref_timed_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod112">named_pref_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;PREFERENCE&gt; ( <A HREF="#prod78">pref_name</A> )? <A HREF="#prod111">timed_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod111">timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod113">at_timed_gd</A> | <A HREF="#prod114">over_timed_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod114">over_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod115">over_all_timed_gd</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod115">over_all_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;OVER&gt; &lt;ALL&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod113">at_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod116">at_start_timed_gd</A> | <A HREF="#prod117">at_end_timed_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod116">at_start_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;START&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod117">at_end_timed_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;END&gt; <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod118">interval</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ALL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod96">da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod119">timed_effect</A> | <A HREF="#prod120">and_da_effect</A> | <A HREF="#prod121">forall_da_effect</A> | <A HREF="#prod122">when_da_effect</A> | <A HREF="#prod123">da_assign_op</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod123">da_assign_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod124">da_assign</A> | <A HREF="#prod125">da_scale_up</A> | <A HREF="#prod126">da_scale_down</A> | <A HREF="#prod127">da_increase</A> | <A HREF="#prod128">da_decrease</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod124">da_assign</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ASSIGN&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod125">da_scale_up</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SCALE_UP&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod126">da_scale_down</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SCALE_DOWN&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod127">da_increase</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;INCREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod128">da_decrease</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DECREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod122">when_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;WHEN&gt; <A HREF="#prod95">da_gd</A> <A HREF="#prod119">timed_effect</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod121">forall_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod96">da_effect</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod120">and_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod96">da_effect</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod119">timed_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod129">at_da_effect</A> | <A HREF="#prod130">at_f_assign_da_effect</A> | <A HREF="#prod131">assign_op_t</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod130">at_f_assign_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod132">at_start_f_assign_da_effect</A> | <A HREF="#prod133">at_end_f_assign_da_effect</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod132">at_start_f_assign_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;START&gt; <A HREF="#prod134">f_assign_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod133">at_end_f_assign_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;END&gt; <A HREF="#prod134">f_assign_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod129">at_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod135">at_start_da_effect</A> | <A HREF="#prod136">at_end_da_effect</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod135">at_start_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;START&gt; <A HREF="#prod47">literal</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod136">at_end_da_effect</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; &lt;END&gt; <A HREF="#prod47">literal</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod131">assign_op_t</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod137">increase_assign_op_t</A> | <A HREF="#prod138">decrease_assign_op_t</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod137">increase_assign_op_t</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;INCREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod139">f_exp_t</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod138">decrease_assign_op_t</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DECREASE&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod139">f_exp_t</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod139">f_exp_t</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;LPAREN&gt; &lt;MUL&gt; <A HREF="#prod140">continous_variable</A> <A HREF="#prod55">f_exp</A> &lt;RPAREN&gt; | &lt;LPAREN&gt; &lt;MUL&gt; <A HREF="#prod55">f_exp</A> <A HREF="#prod140">continous_variable</A> &lt;RPAREN&gt; | <A HREF="#prod140">continous_variable</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod140">continous_variable</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;CONTINOUS_VARIABLE&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod134">f_assign_da</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod124">da_assign</A> | <A HREF="#prod125">da_scale_up</A> | <A HREF="#prod126">da_scale_down</A> | <A HREF="#prod127">da_increase</A> | <A HREF="#prod128">da_decrease</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod65">f_exp_da</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod55">f_exp</A> | <A HREF="#prod141">da_binary_op</A> | <A HREF="#prod142">da_unary_op</A> | <A HREF="#prod106">var_duration</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod141">da_binary_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod143">da_add_op</A> | <A HREF="#prod144">da_substract_op</A> | <A HREF="#prod145">da_multiply_op</A> | <A HREF="#prod146">da_divide_op</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod143">da_add_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ADD&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod144">da_substract_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod145">da_multiply_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;MUL&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod146">da_divide_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DIV&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod142">da_unary_op</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod65">f_exp_da</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod68">derived_def</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DERIVED&gt; <A HREF="#prod38">atomic_formula</A> <A HREF="#prod37">gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod3">problem</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;DEFINE&gt; &lt;LPAREN&gt; &lt;PROBLEM&gt; <A HREF="#prod147">problem_name</A> &lt;RPAREN&gt; &lt;LPAREN&gt; &lt;P_DOMAIN&gt; <A HREF="#prod4">domain_name</A> &lt;RPAREN&gt; ( <A HREF="#prod5">require_def</A> )? ( <A HREF="#prod148">object_declaration</A> )? <A HREF="#prod149">init</A> <A HREF="#prod150">goal</A> ( <A HREF="#prod10">constraints</A> )? ( <A HREF="#prod151">metric_spec</A> )? &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod147">problem_name</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod4">domain_name</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SYMBOL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod148">object_declaration</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;OBJECTS&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod149">init</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;INIT&gt; ( <A HREF="#prod152">init_el</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod152">init_el</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod47">literal</A> | <A HREF="#prod153">equal_init_el</A> | <A HREF="#prod154">timed_literal</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod153">equal_init_el</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;EQUALITY&gt; <A HREF="#prod58">f_head</A> <A HREF="#prod56">number</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod154">timed_literal</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AT&gt; <A HREF="#prod56">number</A> <A HREF="#prod47">literal</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod150">goal</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;GOAL&gt; <A HREF="#prod71">pre_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod10">constraints</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;CONSTRAINTS&gt; <A HREF="#prod155">pref_con_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod155">pref_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod156">and_pref_con_gd</A> | <A HREF="#prod157">forall_pref_con_gd</A> | <A HREF="#prod158">named_pref_con_gd</A> | <A HREF="#prod24">con_gd</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod156">and_pref_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;AND&gt; ( <A HREF="#prod155">pref_con_gd</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod158">named_pref_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;PREFERENCE&gt; ( <A HREF="#prod78">pref_name</A> )? <A HREF="#prod24">con_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod157">forall_pref_con_gd</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;FORALL&gt; &lt;LPAREN&gt; <A HREF="#prod13">typed_list</A> &lt;RPAREN&gt; <A HREF="#prod155">pref_con_gd</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod151">metric_spec</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod159">maximize</A> | <A HREF="#prod160">minimize</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod159">maximize</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;METRIC&gt; &lt;MAXIMIZE&gt; <A HREF="#prod161">metric_f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod160">minimize</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;METRIC&gt; &lt;MINIMIZE&gt; <A HREF="#prod161">metric_f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod161">metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod162">unary_op_metric_f_exp</A> | <A HREF="#prod163">binary_op_metric_f_exp</A> | <A HREF="#prod164">multi_op_metric_f_exp</A> | <A HREF="#prod56">number</A> | <A HREF="#prod165">constant_f_head</A> | <A HREF="#prod166">total_time</A> | <A HREF="#prod167">violated_pref_exp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod167">violated_pref_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;IS_VIOLATED&gt; <A HREF="#prod78">pref_name</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod165">constant_f_head</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod22">functor</A> ( <A HREF="#prod16">constant</A> )* &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod166">total_time</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;TOTAL_TIME&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod163">binary_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod168">add_op_metric_f_exp</A> | <A HREF="#prod169">substract_op_metric_f_exp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod168">add_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ADD&gt; <A HREF="#prod161">metric_f_exp</A> <A HREF="#prod161">metric_f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod169">substract_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod161">metric_f_exp</A> <A HREF="#prod161">metric_f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod164">multi_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod170">multiply_narity_op_metric_f_exp</A> | <A HREF="#prod171">add_narity_op_metric_f_exp</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod170">multiply_narity_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;MUL&gt; <A HREF="#prod161">metric_f_exp</A> ( <A HREF="#prod161">metric_f_exp</A> )+ &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod171">add_narity_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;ADD&gt; <A HREF="#prod161">metric_f_exp</A> ( <A HREF="#prod161">metric_f_exp</A> )+ &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod162">unary_op_metric_f_exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; &lt;SUB&gt; <A HREF="#prod161">metric_f_exp</A> &lt;RPAREN&gt;</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

@@ -3,7 +3,7 @@
 	<classpathentry excluding="javalibs/" kind="src" path=""/>
 	<classpathentry kind="lib" path="gnuprologjava-0.2.6.jar"/>
 	<classpathentry kind="lib" path="json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="javalibs/PDDL4J-v1.0/lib/pddl4j.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="javalibs/PDDL4J-v1.0/lib/pddl4j.jar"/>
+	<classpathentry kind="output" path=""/>
 </classpath>

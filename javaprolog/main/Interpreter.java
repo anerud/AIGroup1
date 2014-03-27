@@ -3,8 +3,7 @@ import java.util.*;
 
 
 import tree.*;
-import world.World;
-import world.WorldObject;
+import world.*;
 
 
 public class Interpreter {

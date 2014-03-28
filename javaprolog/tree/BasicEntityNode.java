@@ -3,18 +3,21 @@ package tree;
 import main.Interpreter;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class BasicEntityNode extends Node {
 
-	private Node quantityNode;
+	private QuantifierNode quantityNode;
 	private Node objectNode;
 
 	public BasicEntityNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setQuantifierNode(Node quantityNode) {
+    public void setQuantifierNode(Node quantityNode) {
+        this.quantityNode = (QuantifierNode)quantityNode;
+    }
+
+	public void setQuantifierNode(QuantifierNode quantityNode) {
 		this.quantityNode = quantityNode;
 	}
 
@@ -26,7 +29,7 @@ public class BasicEntityNode extends Node {
 		return objectNode;
 	}
 
-	public Node getQuantifierNode() {
+	public QuantifierNode getQuantifierNode() {
 		return quantityNode;
 	}
 
@@ -38,15 +41,14 @@ public class BasicEntityNode extends Node {
 		return childs;
 	}
 
-	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
-		return v.visit(this, arg);
-	}
+    @Override
+    public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+        return v.visit(this, arg, arg2);
+    }
 
-	@Override
-	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+    @Override
+    public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

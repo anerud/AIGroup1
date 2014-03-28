@@ -85,15 +85,12 @@ public class Shrdlite {
 
 			
 			Interpreter interpreter = new Interpreter(world);
-			for (NTree tree : treeList) {
-                try{
-                    for (Goal goal : interpreter.interpret(tree)) {
-                        goals.add(goal);
-                    }
-                } catch (Interpreter.InterpretationException e) {
-                    result.put("output", e.getMessage());
-                }
-			}
+
+            try{
+                goals.addAll(interpreter.interpret(treeList));
+            } catch (Interpreter.InterpretationException e) {
+                result.put("output", e.getMessage());
+            }
 
 			if (goals.isEmpty()) {
                 if(!result.containsKey("output")){

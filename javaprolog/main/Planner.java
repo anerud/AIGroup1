@@ -32,6 +32,7 @@ public class Planner {
             mainPredicate = parts[1].split(" ")[0]; //Take the first one for now..
             goal = new Goal("(" + parts[1]);
         }
+
         if(mainPredicate.equals("holding")){
             String argtmp = goal.toString().split(" ")[1];
             String arg = argtmp.substring(0, argtmp.length() - 1);

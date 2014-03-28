@@ -3,7 +3,6 @@ package tree;
 import main.Interpreter;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class MoveNode extends Node {
 
@@ -45,7 +44,7 @@ public class MoveNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) {
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) {
 		// TODO Auto-generated method stub
 		return null;
 	}

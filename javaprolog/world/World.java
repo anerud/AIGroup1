@@ -1,7 +1,5 @@
 package world;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Roland on 2014-03-26.
@@ -55,10 +53,11 @@ public class World {
 
     /**
      *
-     * @return a new LinkedList containing the objects in this world
+     * @return a new Set containing the objects in this world
      */
-    public LinkedList<WorldObject> getWorldObjects(){
-        LinkedList<WorldObject> objs = new LinkedList<WorldObject>();
+    public Set<WorldObject> getWorldObjects(){
+        HashSet<WorldObject> objs = new HashSet<WorldObject>();
+        if(holding != null) {objs.add(holding);}
         for(LinkedList<WorldObject> ll : stacks){
             objs.addAll(ll);
         }
@@ -210,13 +209,14 @@ public class World {
 
     /**
      * Determines if the objects have a certain geometric relation in the world
+     *
      * @param relation
      * @param wo
      * @param worel
      * @return
      */
-    public boolean hasRelation(String relation, WorldObject wo, WorldObject worel) {
-        if(relation.equals("ontop") || relation.equals("inside")){
+    public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo, WorldObject worel) {
+        if(relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE)){
             int col = columnOf(wo);
             if(isOnFloor(wo)){
                 return worel.getForm().equals("floor");
@@ -224,12 +224,12 @@ public class World {
                 int row = rowOf(wo);
                 return stacks.get(col).get(row - 1).equals(worel);
             }
-        } else if(relation.equals("under")) {
-            return hasRelation("ontop", worel, wo); //TODO: by "under", do we mean "directly under"?
-        } else if(relation.equals("leftof")) {
+        } else if(relation.equals(WorldConstraint.Relation.UNDER)) {
+            return hasRelation(WorldConstraint.Relation.ONTOP, worel, wo); //TODO: by "under", do we mean "directly under"?
+        } else if(relation.equals(WorldConstraint.Relation.LEFTOF)) {
             return columnOf(wo) < columnOf(worel);
-        } else if(relation.equals("rightof")){
-            return hasRelation("leftof", worel, wo);
+        } else if(relation.equals(WorldConstraint.Relation.RIGHTOF)){
+            return hasRelation(WorldConstraint.Relation.LEFTOF, worel, wo);
         }
         return false;
     }

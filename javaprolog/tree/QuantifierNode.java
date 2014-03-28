@@ -1,16 +1,26 @@
 package tree;
 
+import logic.Quantifier;
+import main.Interpreter;
+
 import java.util.LinkedList;
 
 public class QuantifierNode extends Node{
 
-	public QuantifierNode(Node parent, String data) {
+    public Quantifier getQuantifier() {
+        return quantifier;
+    }
+
+    private final Quantifier quantifier;
+
+    public QuantifierNode(Node parent, String data) {
 		super(parent, data);
+        this.quantifier = Quantifier.valueOf(data.toUpperCase());
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) {
-		return v.visit(this, arg);
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+		return v.visit(this, arg, arg2);
 	}
 
 	@Override

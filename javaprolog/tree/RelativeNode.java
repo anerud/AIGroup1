@@ -3,18 +3,21 @@ package tree;
 import main.Interpreter;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class RelativeNode extends Node {
 
-	private Node relationNode;
+	private RelationNode relationNode;
 	private Node entityNode;
 
 	public RelativeNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setRelationNode(Node relationNode) {
+    public void setRelationNode(Node relationNode) {
+        this.relationNode = (RelationNode)relationNode;
+    }
+
+	public void setRelationNode(RelationNode relationNode) {
 		this.relationNode = relationNode;
 	}
 
@@ -26,13 +29,13 @@ public class RelativeNode extends Node {
 		return entityNode;
 	}
 
-	public Node getRelationNode() {
+	public RelationNode getRelationNode() {
 		return relationNode;
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
-		return v.visit(this, arg);
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+		return v.visit(this, arg, arg2);
 	}
 
 	@Override

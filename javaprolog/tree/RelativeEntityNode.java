@@ -3,19 +3,22 @@ package tree;
 import main.Interpreter;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class RelativeEntityNode extends Node {
 
-	private Node quantifierNode;
+	private QuantifierNode quantifierNode;
 	private Node objectNode;
-	private Node locationNode;
+	private RelativeNode locationNode;
 
 	public RelativeEntityNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setLocationNode(Node locationNode) {
+    public void setLocationNode(Node locationNode) {
+        this.locationNode = (RelativeNode)locationNode;
+    }
+
+	public void setLocationNode(RelativeNode locationNode) {
 		this.locationNode = locationNode;
 	}
 
@@ -23,7 +26,11 @@ public class RelativeEntityNode extends Node {
 		this.objectNode = objectNode;
 	}
 
-	public void setQuantifierNode(Node quantifierNode) {
+    public void setQuantifierNode(Node quantifierNode) {
+        this.quantifierNode = (QuantifierNode)quantifierNode;
+    }
+
+    public void setQuantifierNode(QuantifierNode quantifierNode) {
 		this.quantifierNode = quantifierNode;
 	}
 
@@ -31,11 +38,11 @@ public class RelativeEntityNode extends Node {
 		return objectNode;
 	}
 
-	public Node getLocationNode() {
+	public RelativeNode getLocationNode() {
 		return locationNode;
 	}
 
-	public Node getQuantifierNode() {
+	public QuantifierNode getQuantifierNode() {
 		return quantifierNode;
 	}
 
@@ -49,8 +56,8 @@ public class RelativeEntityNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
-		return v.visit(this, arg);
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+		return v.visit(this, arg, arg2);
 	}
 
 	@Override

@@ -11,6 +11,10 @@ import pddl4j.exp.Exp;
  */
 public class Goal {
 
+    public String getPddlExpressionStr() {
+        return pddlExpressionStr;
+    }
+
     private String pddlExpressionStr;
     private Exp pddlExpression;
 
@@ -27,8 +31,14 @@ public class Goal {
 		return pddlExpressionStr;//TODO pddlExpression.toString();
 	}
 
+
+
     public Exp getPddlExpression() {
         return pddlExpression;
+    }
+
+    public boolean equals(Goal g){
+        return g.getPddlExpressionStr().equals(pddlExpressionStr);
     }
 }
 

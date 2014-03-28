@@ -1,7 +1,8 @@
 package tree;
 
+import main.Interpreter;
+
 import java.util.LinkedList;
-import java.util.List;
 
 public class ObjectNode extends Node {
 
@@ -38,8 +39,8 @@ public class ObjectNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) {
-		return v.visit(this, arg);
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+		return v.visit(this, arg, arg2);
 	}
 
 	@Override

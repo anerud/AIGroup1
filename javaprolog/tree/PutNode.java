@@ -28,7 +28,7 @@ public class PutNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(INodeVisitor<R, A> v, A arg) {
+	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) {
 		return null;
 	}
 

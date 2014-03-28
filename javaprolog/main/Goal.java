@@ -37,8 +37,27 @@ public class Goal {
         return pddlExpression;
     }
 
-    public boolean equals(Goal g){
-        return g.getPddlExpressionStr().equals(pddlExpressionStr);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Goal goal = (Goal) o;
+
+        if (pddlExpression != null ? !pddlExpression.equals(goal.pddlExpression) : goal.pddlExpression != null)
+            return false;
+        if (pddlExpressionStr != null ? !pddlExpressionStr.equals(goal.pddlExpressionStr) : goal.pddlExpressionStr != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pddlExpressionStr != null ? pddlExpressionStr.hashCode() : 0;
+        result = 31 * result + (pddlExpression != null ? pddlExpression.hashCode() : 0);
+        return result;
     }
 }
 

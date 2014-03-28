@@ -68,7 +68,17 @@ public class Planner {
                     //TODO.. get's a bit more complicated.. time for some proper algorithms
                 }
             } else if (holding == null && world.isOntopOfStack(wo1) && world.isOntopOfStack(wo2)){
-
+                //this is the simplest move operation..
+                int pickCol = world.columnOf(wo1);
+                int dropCol = world.columnOf(wo2);
+                if(world.pick(pickCol)){
+                    plan.add("I pick up...");
+                    plan.add("pick " + pickCol);
+                }
+                if(world.drop(dropCol)){
+                    plan.add("I drop down...");
+                    plan.add("drop " + dropCol);
+                }
             } else {
                 //TODO: get's a bit more complicated.. time for some proper algorithms
             }

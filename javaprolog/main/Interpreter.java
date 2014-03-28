@@ -67,7 +67,7 @@ public class Interpreter {
         public List<Goal> visit(TakeNode n, List<WorldObject> worldObjects) throws InterpretationException {
         	//is the (handempty) precondition fulfilled?
             if(world.getHolding() != null){
-                throw new InterpretationException("You need to put down what you are holding first.");
+                throw new InterpretationException("You need to put down what you are holding first."); //TODO: the planner should perhaps actually just put the object down by itself first..
             }
 
             //identify the objects
@@ -96,9 +96,32 @@ public class Interpreter {
         }
 
 		@Override
-		public List<Goal> visit(MoveNode n, List<WorldObject> a) {
-            //TODO
-            return null;
+		public List<Goal> visit(MoveNode n, List<WorldObject> worldObjects) throws InterpretationException {
+
+            List<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects);
+            List<WorldObject> placedOnObjs = n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects);
+
+            //Create PDDL goals
+            List<Goal> goals = new ArrayList<Goal>();
+            StringBuilder pddlString = new StringBuilder();
+            if(firstObjects.size() > 1 || placedOnObjs.size() > 1){
+                pddlString.append("(OR ");
+                for(WorldObject des1 : firstObjects){
+                    for(WorldObject des2 : placedOnObjs){
+                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
+                        pddlString.append("(on " + (des1.getForm().equals("floor") ? "floor" : des1.getId()) +" " + (des2.getForm().equals("floor") ? "floor" : des2.getId()) + ") ");
+                    }
+                }
+                pddlString.deleteCharAt(pddlString.length() - 1);
+                pddlString.append(")");
+            } else if (firstObjects.size() == 1 && placedOnObjs.size() == 1) {
+                pddlString.append("(on " + (firstObjects.get(0).getForm().equals("floor") ? "floor" : firstObjects.get(0).getId()) +" " + (placedOnObjs.get(0).getForm().equals("floor") ? "floor" : placedOnObjs.get(0).getId()) + ") ");
+            }
+            if(firstObjects.size() >= 1 && placedOnObjs.size() >= 1){
+                Goal goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+                goals.add(goal);
+            }
+            return goals;
 		}
     	
     }
@@ -151,9 +174,10 @@ public class Interpreter {
 
         @Override
         public List<WorldObject> visit(ObjectNode n, List<WorldObject> worldObjects) {
-            filterByMatch(worldObjects, new WorldObject(n.getFormNode().getData(),
+            List<WorldObject> toBeFiltered = new ArrayList<>(worldObjects) ;
+            filterByMatch(toBeFiltered, new WorldObject(n.getFormNode().getData(),
             		n.getSizeNode().getData(), n.getColorNode().getData()));
-            return worldObjects;
+            return toBeFiltered;
         }
 
         @Override

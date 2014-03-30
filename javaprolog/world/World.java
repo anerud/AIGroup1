@@ -1,4 +1,6 @@
 package world;
+import logic.LogicalExpression;
+
 import java.util.*;
 
 /**
@@ -208,6 +210,68 @@ public class World {
     }
 
     /**
+     * Indexed from 0 where 0 means the object is on the floor and 1 means one step above the floor, etc.
+     * @param wo
+     * @return
+     */
+    private int rowOf(WorldObject wo) {
+        for(LinkedList<WorldObject> ll : stacks){
+            if(ll.contains(wo)){
+                return ll.indexOf(wo);
+            }
+        }
+        return -1;
+    }
+
+    public Set<WorldObject> filterByExistsInWorld(Set<WorldObject> toBeFiltered) {
+        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+        for(WorldObject obj : toBeFiltered){
+            //Check that the object exists
+            Set<WorldObject> fil = getWorldObjects();
+            filterByMatch(fil, obj);
+            if(!fil.isEmpty()){
+                toBeRetained.add(obj);
+            }
+
+            //Now remove the ones that do not match the relation (if any)
+            if(obj instanceof RelativeWorldObject){
+                if(!hasRelation(((RelativeWorldObject)obj).getRelation(), obj, ((RelativeWorldObject) obj).getRelativeTo())){
+                    toBeRetained.remove(obj);
+                }
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
+        return toBeFiltered;
+    }
+
+    public void filterByMatch(Set<WorldObject> toBeFiltered, WorldObject match) {
+        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+        for(WorldObject wo : toBeFiltered){
+            if(wo.matchesPattern(match)){
+                toBeRetained.add(wo);
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
+    }
+
+    /**
+     * Retains the objects in toBeFiltered which are "relation" to theRelativeObjects
+     * @param toBeFiltered
+     * @param theRelativeObjects
+     * @param relation
+     */
+    public void filterByRelation(Set<WorldObject> toBeFiltered, LogicalExpression<WorldObject> theRelativeObjects, WorldConstraint.Relation relation) {
+        Set<WorldObject> toBeRetained = new HashSet<>();
+        LogicalExpression.Operator op2 = theRelativeObjects.getOp();
+        for(WorldObject wo : toBeFiltered){
+            if(hasRelation(relation, wo, theRelativeObjects)){
+                toBeRetained.add(wo);
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
+    }
+
+    /**
      * Determines if the objects have a certain geometric relation in the world
      *
      * @param relation
@@ -216,6 +280,11 @@ public class World {
      * @return
      */
     public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo, WorldObject worel) {
+        if(worel instanceof RelativeWorldObject && ((RelativeWorldObject) worel).getRelativeTo() != null){
+            //TODO not sure if this method is necessary
+            //1. filter out the possible objects
+            //2. call this function again with the filtered objects
+        }
         if(relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE)){
             int col = columnOf(wo);
             if(isOnFloor(wo)){
@@ -234,17 +303,43 @@ public class World {
         return false;
     }
 
+    public boolean hasRelation(RelativeWorldObject obj) {
+        return hasRelation(obj.getRelation(), obj, obj.getRelativeTo());
+    }
+
     /**
-     * Indexed from 0 where 0 means the object is on the floor and 1 means one step above the floor, etc.
+     * Recursively determines if the WorldObject fulfils the relation to the logical expression
+     * @param relation
      * @param wo
+     * @param theRelativeObjects
      * @return
      */
-    private int rowOf(WorldObject wo) {
-        for(LinkedList<WorldObject> ll : stacks){
-            if(ll.contains(wo)){
-                return ll.indexOf(wo);
+    public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo, LogicalExpression<WorldObject> theRelativeObjects) {
+        LogicalExpression.Operator op = theRelativeObjects.getOp();
+        if(op.equals(LogicalExpression.Operator.AND)){
+            for(WorldObject wo1 : theRelativeObjects.getObjs()){
+                if(!hasRelation(relation, wo, wo1)){
+                    return false;
+                }
             }
+            for(LogicalExpression exp : theRelativeObjects.getExpressions()){
+                if(!hasRelation(relation, wo, exp)){
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            for(WorldObject wo1 : theRelativeObjects.getObjs()){
+                if(hasRelation(relation, wo, wo1)){
+                    return true;
+                }
+            }
+            for(LogicalExpression exp : theRelativeObjects.getExpressions()){
+                if(hasRelation(relation, wo, exp)){
+                    return true;
+                }
+            }
+            return false;
         }
-        return -1;
     }
 }

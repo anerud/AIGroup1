@@ -1,16 +1,15 @@
 package world;
-public class WorldObject {
+public class WorldObject implements Cloneable{
 
     private String id;
     private String form;
 	private String size;
 	private String color;
 
-	public WorldObject(String form, String size, String color) {
-		this.form = form;
-		this.size = size;
-		this.color = color;
-	}
+    /**
+     * Sets all fields to null.
+     */
+    public WorldObject(){}
 
     public WorldObject(String form, String size, String color, String id) {
         this.form = form;
@@ -82,5 +81,11 @@ public class WorldObject {
         result = 31 * result + (size != null ? size.hashCode() : 0);
         result = 31 * result + (color != null ? color.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public WorldObject clone(){
+        WorldObject wo = new WorldObject(this.getForm(), this.getSize(), this.getColor(), this.getId());
+        return wo;
     }
 }

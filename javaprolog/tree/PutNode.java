@@ -6,17 +6,21 @@ import java.util.*;
 
 public class PutNode extends Node {
 
-	private Node locationNode;
+	private RelativeNode locationNode;
 
 	public PutNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setLocationNode(Node locationNode) {
+	public void setLocationNode(RelativeNode locationNode) {
 		this.locationNode = locationNode;
 	}
 
-	public Node getLocationNode() {
+    public void setLocationNode(Node locationNode) {
+        this.locationNode = (RelativeNode)locationNode;
+    }
+
+	public RelativeNode getLocationNode() {
 		return locationNode;
 	}
 

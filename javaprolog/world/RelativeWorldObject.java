@@ -1,29 +1,41 @@
 package world;
 
+import logic.LogicalExpression;
+
 /**
  * Created by Roland on 2014-03-28.
  */
 public class RelativeWorldObject extends WorldObject {
 
     private WorldConstraint.Relation relation;
-    private WorldObject relativeTo;
+    private LogicalExpression<WorldObject> relativeTo;
 
-    public RelativeWorldObject(WorldObject obj, WorldObject relativeTo, WorldConstraint.Relation relation) {
+    public RelativeWorldObject(WorldObject obj, LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
         super(obj.getForm(), obj.getSize(), obj.getColor(), obj.getId());
         this.relativeTo = relativeTo;
         this.relation = relation;
     }
 
-    public RelativeWorldObject(String form, String size, String color, WorldObject relativeTo, WorldConstraint.Relation relation) {
-        super(form, size, color);
+    public RelativeWorldObject(LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
         this.relativeTo = relativeTo;
         this.relation = relation;
     }
 
-    public RelativeWorldObject(String form, String size, String color, String id, WorldObject relativeTo, WorldConstraint.Relation relation) {
+    public RelativeWorldObject(String form, String size, String color, String id, LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
         super(form, size, color, id);
         this.relativeTo = relativeTo;
         this.relation = relation;
+    }
+
+    /**
+     * Sets the parameters of this WorldObject to those of the specified WorldObject
+     * @param obj
+     */
+    public void setObj(WorldObject obj){
+        setForm(obj.getForm());
+        setSize(obj.getSize());
+        setColor(obj.getColor());
+        setId(obj.getId());
     }
 
 
@@ -35,11 +47,11 @@ public class RelativeWorldObject extends WorldObject {
         this.relation = relation;
     }
 
-    public WorldObject getRelativeTo() {
+    public LogicalExpression<WorldObject> getRelativeTo() {
         return relativeTo;
     }
 
-    public void setRelativeTo(WorldObject relativeTo) {
+    public void setRelativeTo(LogicalExpression<WorldObject> relativeTo) {
         this.relativeTo = relativeTo;
     }
 

@@ -2,7 +2,7 @@ package main;
 import java.util.*;
 
 
-import logic.LogicalObject;
+import logic.LogicalExpression;
 import logic.Quantifier;
 import tree.*;
 import world.*;
@@ -46,40 +46,79 @@ public class Interpreter {
 
     private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{
 
+        /**
+         * Recursively builds a PDDL expression from a LogicalExpression
+         * @param expression
+         * @return an empty string if there is nothing contained in the LogicalExpression
+         */
+        private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
+            StringBuilder pddlString = new StringBuilder();
+            if(expression.size() > 1){
+                LogicalExpression.Operator op = expression.getOp();
+                pddlString.append("(" + op.toString() + " ");
+                for(WorldObject obj : expression.getObjs()){
+                    if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
+                        RelativeWorldObject relObj = (RelativeWorldObject)obj;
+                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
+                    } else {
+                        pddlString.append(singlePredicate + obj.getId() + " ");
+                    }
+                }
+                for(LogicalExpression exp : expression.getExpressions()){
+                    pddlString.append(toPDDLString(exp, singlePredicate) + " "); //Recursively build string
+                }
+                //Remove last extra space
+                pddlString.deleteCharAt(pddlString.length() - 1);
+                pddlString.append(")");
+            } else if (expression.size() == 1) {
+                //Assume the RelativeWorldobject in question is at the top level of the expression
+                WorldObject wo = expression.getObjs().iterator().next();
+                if(wo instanceof RelativeWorldObject && ((RelativeWorldObject)wo).getRelativeTo() != null){
+                    RelativeWorldObject relObj = (RelativeWorldObject)wo;
+                    pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
+                } else {
+                    pddlString.append(singlePredicate + wo.getId());
+                }
+            }
+            return pddlString.toString();
+        }
+
+        /**
+         * The put operation only operates on objects of the form "it". That is, "it" refers to the object currently being held.
+         * Note that most usages of put as input to Shrdlite translates to move operations here and not put operations.
+         * @param n
+         * @param worldObjects
+         * @return
+         * @throws InterpretationException
+         */
 		@Override
 		public Goal visit(PutNode n, Set<WorldObject> worldObjects) throws InterpretationException {
-
             if(world.getHolding() == null){
                 throw new InterpretationException("You are not holding anything!");
             }
 
             //identify the object to which the held object should be placed relative (or the column for the floor)
-            Set<LogicalObject<WorldObject>> placedRelativeObjs= n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects, null);
-            String relation = n.getLocationNode().getChildren().getFirst().getData();
+            Set<WorldObject> worldObjs = new HashSet<WorldObject>(worldObjects);
+            worldObjs.remove(world.getHolding());
+            LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), worldObjs, null);
 
-            //TODO now create one PDDL goal for each placement which fulfils the relation
 
+            //NOTE: It's not possible to create one simple "ontop" PDDL goal for each possible placement which fulfils a relation unless the quantifier "THE" was used. //TODO: when "THE" is used, determine the exact possible relations.. or perhaps leave this to the planner
+            // That is, in some cases it's up to the planner to make a situation possible.
             //Create PDDL goals
+            for(WorldObject obj : placedRelativeObjs.getObjs()){
+                ((RelativeWorldObject)obj).setObj(world.getHolding());
+            }
+            String pddlString = toPDDLString(placedRelativeObjs, "");
             Goal goal = null;
-            StringBuilder pddlString = new StringBuilder();
-            if(placedRelativeObjs.size() > 1){
-                pddlString.append("(OR ");
-                for(LogicalObject<WorldObject> des : placedRelativeObjs){
-                    pddlString.append("(on " + world.getHolding().getId() +" " + (des.getObj().getForm().equals("floor") ? "floor" : des.getObj().getId()) + ") ");
-                }
-                pddlString.deleteCharAt(pddlString.length() - 1);
-                pddlString.append(")");
-            } else if (placedRelativeObjs.size() == 1) {
-                LogicalObject<WorldObject> obj = placedRelativeObjs.iterator().next();
-                pddlString.append("(on " + world.getHolding().getId() +" " + (obj.getObj().getForm().equals("floor") ? "floor" : obj.getObj().getId()) + ")");
+            if(!pddlString.equals("")){
+                goal = new Goal(pddlString);
             }
-            if(placedRelativeObjs.size() >= 1){
-                goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-            }
+
 			return goal;
 		}
 
-		@Override
+        @Override
         public Goal visit(TakeNode n, Set<WorldObject> worldObjects) throws InterpretationException {
         	//is the (handempty) precondition fulfilled?
             if(world.getHolding() != null){
@@ -87,25 +126,18 @@ public class Interpreter {
             }
 
             //identify the objects
-            Set<LogicalObject<WorldObject>> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
+            LogicalExpression<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
+
+            //Filter the objects since the take operation requires the relations to already exist in the world.
+
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(filteredObjects.getObjs()), LogicalExpression.Operator.OR);
 
             //Create PDDL goals
             //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
+            String pddlString = toPDDLString(filteredObjectsNew, "holding ");
             Goal goal = null;
-            StringBuilder pddlString = new StringBuilder();
-            if(filteredObjects.size() > 1){
-                pddlString.append("(OR ");
-                for(LogicalObject<WorldObject> des : filteredObjects){
-                    //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-                    pddlString.append("(holding " + des.getObj().getId() + ") ");
-                }
-                pddlString.deleteCharAt(pddlString.length() - 1);
-                pddlString.append(")");
-            } else if (filteredObjects.size() == 1) {
-                pddlString.append("(holding " + filteredObjects.iterator().next().getObj().getId() + ") ");
-            }
-            if(filteredObjects.size() >= 1){
-                goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
+            if(!pddlString.equals("")){
+                goal = new Goal(pddlString);
             }
             return goal;
         }
@@ -113,8 +145,8 @@ public class Interpreter {
 		@Override
 		public Goal visit(MoveNode n, Set<WorldObject> worldObjects) throws InterpretationException {
 
-            Set<LogicalObject<WorldObject>> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
-            Set<LogicalObject<WorldObject>> placedOnObjs = n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects, null);
+//            Set<LogicalExpression<WorldObject>> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
+//            Set<LogicalExpression<WorldObject>> placedOnObjs = n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects, null);
 
             //Create PDDL goal
             Goal goal = null;             //TODO
@@ -142,86 +174,132 @@ public class Interpreter {
     	
     }
 
-    private class NodeVisitor implements INodeVisitor<Set<LogicalObject<WorldObject>>,Set<WorldObject>,Quantifier> {
+    private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
 			return n.getObjectNode().accept(this, worldObjects, n.getQuantifierNode().getQuantifier());
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException {
-            //TODO: use quantifier dummy to identify if the operation is a take or a move. If a take, filtering is ok even when q = any. But if a move, it should be done as below.
+        public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException {
             Quantifier q = n.getQuantifierNode().getQuantifier();
-            Set<LogicalObject<WorldObject>> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
-            Set<LogicalObject<WorldObject>> matchesRelation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
+            LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
+            LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
+
             if(q.equals(Quantifier.THE)){
-                matchesArg1.retainAll(matchesRelation);
+                world.filterByRelation(matchesArg1.getObjs(), matchesLocation, ((RelativeWorldObject) matchesLocation.getObjs().iterator().next()).getRelation());
                 if(matchesArg1.size() > 1){
                     throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
                 } else if(matchesArg1.isEmpty()){
                     throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
                 }
-                matchesArg1.iterator().next().setOp(LogicalObject.Operator.NONE);
+                matchesArg1.setOp(LogicalExpression.Operator.NONE);
                 return matchesArg1;
             } else if(q.equals(Quantifier.ANY)){
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                Set<LogicalObject<WorldObject>> relobjs = new HashSet<LogicalObject<WorldObject>>();
-                for(LogicalObject<WorldObject> lo : matchesArg1){
-                    for(LogicalObject<WorldObject> lo1 : matchesRelation){
-                        relobjs.add(new LogicalObject<WorldObject>(new RelativeWorldObject(lo.getObj(), lo1.getObj(), n.getLocationNode().getRelationNode().getRelation()), LogicalObject.Operator.OR));
+                LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, LogicalExpression.Operator.OR);
+                for(WorldObject wo : matchesArg1.getObjs()){
+                    //clone..
+                    Set<WorldObject> objsClone = new HashSet<WorldObject>();
+                    Set<LogicalExpression> expClone = new HashSet<LogicalExpression>();
+                    for(LogicalExpression<WorldObject> le: matchesLocation.getExpressions()){
+                        Set<WorldObject> clonedObjs = new HashSet<WorldObject>();
+                        for(WorldObject wo1 : le.getObjs()){
+                            clonedObjs.add(wo1.clone());
+                        }
+                        LogicalExpression<WorldObject> leCopy = new LogicalExpression<>(clonedObjs, le.getExpressions(), le.getOp());
+                        expClone.add(leCopy);
+                    }
+                    for(WorldObject obj : matchesLocation.getObjs()){
+                        objsClone.add(obj.clone());
+                    }
+                    LogicalExpression<WorldObject> matchesLocationClone = new LogicalExpression<WorldObject>(objsClone, expClone, matchesLocation.getOp());
+
+                    //set the non-relative object...
+                    Set<WorldObject> tops = matchesLocationClone.topObjs();
+                    for(WorldObject wo1 : tops){
+                        ((RelativeWorldObject)wo1).setObj(wo);
+                    }
+
+                    //Add..
+                    if(tops.size() == 1){
+                        relobjs.getObjs().addAll(tops);
+                    } else {
+                        relobjs.getExpressions().add(matchesLocationClone);
                     }
                 }
                 return relobjs;
             }
-            //For all, it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
-            matchesArg1.retainAll(matchesRelation);
+            //For "ALL", it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
+            world.filterByRelation(matchesArg1.getObjs(), matchesLocation, ((RelativeWorldObject) matchesLocation.getObjs().iterator().next()).getRelation());
             if(matchesArg1.isEmpty()){
                 throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
             }
-            for(LogicalObject<WorldObject> lo : matchesArg1){
-                lo.setOp(LogicalObject.Operator.AND);
-            }
+            matchesArg1.setOp(LogicalExpression.Operator.AND);
             return matchesArg1;
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(RelativeNode n, Set<WorldObject> dummy, Quantifier quantifier) throws InterpretationException {
-            Set<LogicalObject<WorldObject>> relativeTo = n.getEntityNode().accept(this, world.getWorldObjects(), Quantifier.ANY);
+        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> dummy, Quantifier dummy2) throws InterpretationException {
+            LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, world.getWorldObjects(), Quantifier.ANY);
+
+            //Convert tops to RelativeWorldObjects
+            Set<WorldObject> objsNew = new HashSet<WorldObject>();
+            Set<LogicalExpression> expNew = new HashSet<LogicalExpression>();
+            for(LogicalExpression<WorldObject> le : relativeTo.getExpressions()){
+                Set<WorldObject> wRelObjs = new HashSet<WorldObject>();
+                for(WorldObject wo : le.getObjs()){
+                    Set<WorldObject> s = new HashSet<WorldObject>();
+                    s.add(wo);
+                    wRelObjs.add(new RelativeWorldObject(null, new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+                }
+                expNew.add(new LogicalExpression(wRelObjs, le.getExpressions(),le.getOp()));
+            }
+            for(WorldObject wo : relativeTo.getObjs()){
+                Set<WorldObject> s = new HashSet<WorldObject>();
+                s.add(wo);
+                objsNew.add(new RelativeWorldObject(null, new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+            }
+            LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
             if(relativeTo.isEmpty()){
                 throw new InterpretationException("There are no objects which match the description '"  + n.getEntityNode().getChildren().toString() + ".");
             }
-            if(quantifier.equals(Quantifier.THE)){
-                Set<LogicalObject<WorldObject>> toBeFiltered = new HashSet<LogicalObject<WorldObject>>(LogicalObject.toLogicalObjects(world.getWorldObjects(), Quantifier.ANY));
-                //retain objects for which toBeFiltered is relation to theRelativeObjects
-                filterByRelation(toBeFiltered, relativeTo, n.getRelationNode().getRelation());
-                return toBeFiltered;
-            } else if(quantifier.equals(Quantifier.ANY)){
-                return relativeTo;
-            }
-            //Should not be reachable
-            throw new InterpretationException("Something went wrong during the interpretation.");
+
+            return relativeToNew;
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(FloorNode n, Set<WorldObject> worldObjects, Quantifier dummy) {
+        public LogicalExpression<WorldObject> visit(FloorNode n, Set<WorldObject> worldObjects, Quantifier dummy) {
             Set<WorldObject> toBeFiltered = new HashSet<>();
-        	toBeFiltered.add(new WorldObject("floor", "floor", "floor"));
-            return LogicalObject.toLogicalObjects(toBeFiltered, Quantifier.THE);//"The" floor is the only thing that makes sense...
+        	toBeFiltered.add(new WorldObject("floor", "floor", "floor", "floor"));
+            return new LogicalExpression<WorldObject>(toBeFiltered, LogicalExpression.Operator.NONE); //"THE" floor is the only quantifier that makes sense...
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(QuantifierNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(QuantifierNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
             //Never used
             throw new InterpretationException("Something went wrong during the interpretation.");
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(ObjectNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(ObjectNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
             Set<WorldObject> toBeFiltered = new HashSet<>(worldObjects);
-            filterByMatch(toBeFiltered, new WorldObject(n.getFormNode().getData(),
-            		n.getSizeNode().getData(), n.getColorNode().getData()));
-            Set<LogicalObject<WorldObject>> logObjs = LogicalObject.toLogicalObjects(toBeFiltered, quantifier);
+            world.filterByMatch(toBeFiltered, new WorldObject(n.getFormNode().getData(),
+                    n.getSizeNode().getData(), n.getColorNode().getData(), null));
+            LogicalExpression.Operator op = LogicalExpression.Operator.NONE;
+            switch(quantifier){
+                case ALL:
+                    op = LogicalExpression.Operator.AND;
+                    break;
+                case ANY:
+                    op = LogicalExpression.Operator.OR;
+                    break;
+                case THE:
+                    op = LogicalExpression.Operator.NONE;
+                    break;
+            }
+            LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
             if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1){
                 throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
             }
@@ -232,62 +310,15 @@ public class Interpreter {
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(AttributeNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(AttributeNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
             //Never used
             throw new InterpretationException("Something went wrong during the interpretation.");
         }
 
         @Override
-        public Set<LogicalObject<WorldObject>> visit(RelationNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(RelationNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
             //Never used
             throw new InterpretationException("Something went wrong during the interpretation.");
         }
-    }
-
-    private void filterByMatch(Set<WorldObject> toBeFiltered, WorldObject match) {
-        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
-        for(WorldObject wo : toBeFiltered){
-            if(wo.matchesPattern(match)){
-                toBeRetained.add(wo);
-            }
-        }
-        toBeFiltered.retainAll(toBeRetained);
-    }
-
-    /**
-     * Retains the objects in toBeFiltered which are "relation" to ANY of theRelativeObjects
-     * The method assumes all objects in toBeFiltered have the same logical operator, and the same applies for theRelativeObjects
-     * @param toBeFiltered
-     * @param theRelativeObjects
-     * @param relation
-     */
-    private void filterByRelation(Set<LogicalObject<WorldObject>> toBeFiltered, Set<LogicalObject<WorldObject>> theRelativeObjects, WorldConstraint.Relation relation) {
-        Set<LogicalObject<WorldObject>> toBeRetained = new HashSet<>();
-        LogicalObject.Operator op1 = toBeFiltered.iterator().next().getOp();
-        LogicalObject.Operator op2 = theRelativeObjects.iterator().next().getOp();
-        if((op1.equals(LogicalObject.Operator.OR) || op1.equals(LogicalObject.Operator.NONE) && (op2.equals(LogicalObject.Operator.OR) || op2.equals(LogicalObject.Operator.NONE)))){
-            for(LogicalObject<WorldObject> wo : toBeFiltered){
-                for(LogicalObject<WorldObject> worel : theRelativeObjects){
-                    if(world.hasRelation(relation, wo.getObj(), worel.getObj())){
-                        wo.setOp(LogicalObject.Operator.NONE);
-                        toBeRetained.add(wo);
-                    }
-                }
-            }
-        } else if(op2.equals(LogicalObject.Operator.AND)){  //TODO: do all logical combinations necessary
-            for(LogicalObject<WorldObject> wo : toBeFiltered){
-                for(LogicalObject<WorldObject> worel : theRelativeObjects){
-                    boolean retain = true;
-                    if(!world.hasRelation(relation, wo.getObj(), worel.getObj())){
-                        retain = false;
-                    }
-                    if(retain){
-                        wo.setOp(LogicalObject.Operator.NONE);
-                        toBeRetained.add(wo);
-                    }
-                }
-            }
-        }
-        toBeFiltered.retainAll(toBeRetained);
     }
 }

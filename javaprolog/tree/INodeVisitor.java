@@ -1,7 +1,9 @@
 package tree;
 
+import logic.LogicalExpression;
 import main.Goal;
 import main.Interpreter;
+import world.WorldObject;
 
 import java.util.List;
 

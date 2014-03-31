@@ -28,13 +28,18 @@ import world.WorldObject;
 
 public class Shrdlite {
 
-	public static void main(String[] args) throws PrologException, ParseException, IOException {
+    private static boolean debug;
+
+    public static void main(String[] args) throws PrologException, ParseException, IOException {
 		JSONObject jsinput = null;
 		if (args.length == 0) {
 			jsinput = (JSONObject) JSONValue.parse(readFromReader(new InputStreamReader(System.in)));
 		} else {
 			jsinput = (JSONObject) JSONValue.parse(readFromReader(new FileReader(args[0])));
 		}
+        if(args.length > 1 && args[1].equals("debug")){
+            debug = true;
+        }
 		JSONArray utterance = (JSONArray) jsinput.get("utterance");
 		JSONArray worldJSON = (JSONArray) jsinput.get("world");
 		String holdingId = (String) jsinput.get("holding");
@@ -88,6 +93,9 @@ public class Shrdlite {
 
             try{
                 goals.addAll(interpreter.interpret(treeList));
+                if(debug){
+                    result.put("goals", goals.toString());
+                }
             } catch (Interpreter.InterpretationException e) {
                 result.put("output", e.getMessage());
             }

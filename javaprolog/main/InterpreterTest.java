@@ -1,30 +1,46 @@
 package main;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.cedarsoftware.util.io.JsonReader;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import java.io.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Roland on 2014-03-31.
  */
 public class InterpreterTest {
-    @Before
+    @org.junit.Before
     public void setUp() throws Exception {
 
     }
 
-    @After
+    @org.junit.After
     public void tearDown() throws Exception {
 
     }
 
-    @Test
+    @org.junit.Test
     public void testInterpret() throws Exception {
 
     }
 
-    @Test
+    @org.junit.Test
     public void testTakeSimpleObject() throws Exception {
-//        ShrdLite.
+        String[] args = new String[] {"./testfiles/testTakeSimpleObject1.json", "debug"};
+
+        PipedOutputStream pipeOut = new PipedOutputStream();
+        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+        System.setOut(new PrintStream(pipeOut));
+
+        Shrdlite.main(args);
+        pipeOut.close();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
+        String hupp = br.readLine();
+        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
+        assertEquals(jsout, "[(holding m)]");
     }
 }

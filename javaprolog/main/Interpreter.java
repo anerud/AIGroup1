@@ -161,33 +161,32 @@ public class Interpreter {
             return goal;
         }
 
+        /**
+         * TODO: should move retain relationships? E.g.: "move (a ball on a box) on a table". Should the ball still be on a box afterwards?
+         * @param n
+         * @param worldObjects
+         * @return
+         * @throws InterpretationException
+         */
 		@Override
 		public Goal visit(MoveNode n, Set<WorldObject> worldObjects) throws InterpretationException {
 
-//            Set<LogicalExpression<WorldObject>> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
-//            Set<LogicalExpression<WorldObject>> placedOnObjs = n.getLocationNode().getChildren().getLast().accept(new NodeVisitor(), worldObjects, null);
+            LogicalExpression<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
+            //Filter the objects since the move operation requires the first parameter to already exist in the world.
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects.topObjs()), LogicalExpression.Operator.OR);
+            LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), null, null);
+            //TODO perhaps make sure objects relative to themselves are avoided
+
+            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew.topObjs(), placedRelativeObjs); //TODO: should depend on the operators in filteredObjectsNew
+
 
             //Create PDDL goal
-            Goal goal = null;             //TODO
-//            StringBuilder pddlString = new StringBuilder();
-//            if(firstObjects.size() > 1 || placedOnObjs.size() > 1){
-//                pddlString.append("(OR ");
-//                for(WorldObject des1 : firstObjects){
-//                    for(WorldObject des2 : placedOnObjs){
-//                        //The PDDL goals should be of the type "(HOLDING OBJECT1)", that is, the goal describes the final state of the world
-//                        pddlString.append("(on " + (des1.getForm().equals("floor") ? "floor" : des1.getId()) +" " + (des2.getForm().equals("floor") ? "floor" : des2.getId()) + ") ");
-//                    }
-//                }
-//                pddlString.deleteCharAt(pddlString.length() - 1);
-//                pddlString.append(")");
-//            } else if (firstObjects.size() == 1 && placedOnObjs.size() == 1) {
-//                WorldObject first = firstObjects.iterator().next();
-//                WorldObject second = placedOnObjs.iterator().next();
-//                pddlString.append("(on " + (first.getForm().equals("floor") ? "floor" : first.getId()) +" " + (second.getForm().equals("floor") ? "floor" : second.getId()) + ") ");
-//            }
-//            if(firstObjects.size() >= 1 && placedOnObjs.size() >= 1){
-//                goal =  new Goal(pddlString.toString()); //TODO new Goal(some Exp..);
-//            }
+            String pddlString = toPDDLString(attached, "");
+            Goal goal = null;
+            if(!pddlString.equals("")){
+                goal = new Goal(pddlString);
+            }
+
             return goal;
 		}
     	

@@ -64,6 +64,11 @@ public class InterpreterTest {
         test("testPutObject2", "[(UNDER e f)]");
     }
 
+    @org.junit.Test
+    public void testMoveObject1() throws Exception {
+        test("testMoveObject1", "[(INSIDE e (ONTOP k floor))]");
+    }
+
     private void test(String file, String result) throws ParseException, IOException, PrologException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 

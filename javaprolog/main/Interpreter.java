@@ -85,7 +85,7 @@ public class Interpreter {
 
         /**
          * The put operation only operates on objects of the form "it". That is, "it" refers to the object currently being held.
-         * Note that most usages of put as input to Shrdlite translates to move operations here and not put operations.
+         * Note that most usages of put as input to main.Shrdlite translates to move operations here and not put operations.
          * @param n
          * @param worldObjects
          * @return

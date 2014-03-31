@@ -1,7 +1,7 @@
-
+package main;
 
 // Then test from the command line:
-// java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. Shrdlite < ../examples/medium.json
+// java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. main.Shrdlite < ../examples/medium.json
 
 import gnu.prolog.term.*;
 import gnu.prolog.vm.PrologException;
@@ -68,7 +68,7 @@ public class Shrdlite {
 		JSONObject result = new JSONObject();
 		result.put("utterance", utterance);
 
-		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
+		DCGParser parser = new DCGParser("C:\\Abyss Web Server\\htdocs\\AIGroup1\\javaprolog\\shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", utterance);
 
 		List<NTree> treeList = new ArrayList<NTree>();

@@ -5,7 +5,7 @@ import cgi
 from subprocess import Popen, PIPE, STDOUT
 
 SCRIPTDIR = 'javaprolog'
-SCRIPT = ['java', '-cp', '.;json-simple-1.1.1.jar;gnuprologjava-0.2.6.jar', 'Shrdlite']
+SCRIPT = ['java', '-cp', '.;json-simple-1.1.1.jar;gnuprologjava-0.2.6.jar;./main/.', 'main.Shrdlite']
 
 while not os.path.isdir(SCRIPTDIR):
     SCRIPTDIR = os.path.join("..", SCRIPTDIR)

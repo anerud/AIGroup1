@@ -11,6 +11,7 @@
     <orderEntry type="library" name="gnuprologjava-0.2.6" level="project" />
     <orderEntry type="library" name="json-simple-1.1.1" level="project" />
     <orderEntry type="library" name="pddl4j" level="project" />
+    <orderEntry type="library" name="junit" level="project" />
   </component>
 </module>
 

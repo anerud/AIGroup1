@@ -22,25 +22,27 @@ public class LogicalExpression<T> implements Cloneable{
         for(LogicalExpression exp : expressions){
             expSize += exp.size();
         }
-        return objs.size() + expSize;
+        return (objs == null ? 0 : objs.size()) + expSize;
     }
 
     public boolean isEmpty() {
         return size() == 0;
     }
 
-    /**
-     *
-     * @return all objects on the two first top levels of this expression
-     */
-    public Set<T> topObjs() {
-        Set<T> top = new HashSet<T>();
-        top.addAll(objs);
-        for(LogicalExpression le : expressions){
-            top.addAll(le.getObjs());
-        }
-        return top;
-    }
+//    /**
+//     *
+//     * @return all objects on the top level of this expression, that is all objects in getObj() and all objects in the expressions of getExpressions
+//     */
+//    public Set<T> topObjs() {
+//        Set<T> top = new HashSet<T>();
+//        if(objs != null){
+//            top.addAll(objs);
+//        }
+//        for(LogicalExpression le : expressions){
+//            top.addAll(le.getObjs());
+//        }
+//        return top;
+//    }
 
     public enum Operator{
         OR, AND, NOT, NONE
@@ -107,4 +109,5 @@ public class LogicalExpression<T> implements Cloneable{
         result = 31 * result + (op != null ? op.hashCode() : 0);
         return result;
     }
+
 }

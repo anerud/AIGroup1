@@ -18,6 +18,17 @@ public class WorldObject implements Cloneable{
         this.id = id;
     }
 
+    /**
+     * Copies the properties of the argument
+     * @param wo
+     */
+    public WorldObject(WorldObject wo){
+        this.form = wo.getForm();
+        this.size = wo.getSize();
+        this.color = wo.getColor();
+        this.id = wo.getId();
+    }
+
 	public String getForm() {
 		return form;
 	}
@@ -84,8 +95,12 @@ public class WorldObject implements Cloneable{
     }
 
     @Override
-    public WorldObject clone(){
-        WorldObject wo = new WorldObject(this.getForm(), this.getSize(), this.getColor(), this.getId());
-        return wo;
+    public WorldObject clone() {
+        try{
+            return (WorldObject)super.clone();
+        } catch (CloneNotSupportedException e){
+            //erpy..
+        }
+        return null;
     }
 }

@@ -61,7 +61,7 @@ public class Interpreter {
                         RelativeWorldObject relObj = (RelativeWorldObject)obj;
                         pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
                     } else {
-                        pddlString.append(singlePredicate + obj.getId() + " ");
+                        pddlString.append("(" + singlePredicate + obj.getId() + ") ");
                     }
                 }
                 for(LogicalExpression exp : expression.getExpressions()){
@@ -77,7 +77,7 @@ public class Interpreter {
                     RelativeWorldObject relObj = (RelativeWorldObject)wo;
                     pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
                 } else {
-                    pddlString.append(singlePredicate + wo.getId());
+                    pddlString.append("(" + singlePredicate + wo.getId() + ")");
                 }
             }
             return pddlString.toString();
@@ -129,11 +129,19 @@ public class Interpreter {
             LogicalExpression<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
 
             //Filter the objects since the take operation requires the relations to already exist in the world.
-
-            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(filteredObjects.getObjs()), LogicalExpression.Operator.OR);
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(filteredObjects.topObjs()), LogicalExpression.Operator.OR);
 
             //Create PDDL goals
             //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
+
+            //Clear the relations of the objects
+            for(WorldObject ob : filteredObjectsNew.getObjs()){
+                if(ob instanceof RelativeWorldObject){
+                    ((RelativeWorldObject) ob).setRelativeTo(null);
+                    ((RelativeWorldObject) ob).setRelation(null);
+                }
+            }
+
             String pddlString = toPDDLString(filteredObjectsNew, "holding ");
             Goal goal = null;
             if(!pddlString.equals("")){
@@ -174,6 +182,8 @@ public class Interpreter {
     	
     }
 
+    //TODO: in all methods, remove chosen objects in lower levels of the recursion tree to avoid self-references.. sometimes.. we don't always want to do this..
+
     private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
 
         @Override
@@ -186,58 +196,27 @@ public class Interpreter {
             Quantifier q = n.getQuantifierNode().getQuantifier();
             LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
             LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
-
+//            WorldConstraint.Relation relation = n.getLocationNode().getRelationNode().getRelation();
             if(q.equals(Quantifier.THE)){
-                world.filterByRelation(matchesArg1.getObjs(), matchesLocation, ((RelativeWorldObject) matchesLocation.getObjs().iterator().next()).getRelation());
-                if(matchesArg1.size() > 1){
+                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);
+                if(wobjs.size() > 1){
                     throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
-                } else if(matchesArg1.isEmpty()){
+                } else if(wobjs.isEmpty()){
                     throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
                 }
-                matchesArg1.setOp(LogicalExpression.Operator.NONE);
-                return matchesArg1;
+                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.NONE);
+                return le;
             } else if(q.equals(Quantifier.ANY)){
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, LogicalExpression.Operator.OR);
-                for(WorldObject wo : matchesArg1.getObjs()){
-                    //clone..
-                    Set<WorldObject> objsClone = new HashSet<WorldObject>();
-                    Set<LogicalExpression> expClone = new HashSet<LogicalExpression>();
-                    for(LogicalExpression<WorldObject> le: matchesLocation.getExpressions()){
-                        Set<WorldObject> clonedObjs = new HashSet<WorldObject>();
-                        for(WorldObject wo1 : le.getObjs()){
-                            clonedObjs.add(wo1.clone());
-                        }
-                        LogicalExpression<WorldObject> leCopy = new LogicalExpression<>(clonedObjs, le.getExpressions(), le.getOp());
-                        expClone.add(leCopy);
-                    }
-                    for(WorldObject obj : matchesLocation.getObjs()){
-                        objsClone.add(obj.clone());
-                    }
-                    LogicalExpression<WorldObject> matchesLocationClone = new LogicalExpression<WorldObject>(objsClone, expClone, matchesLocation.getOp());
-
-                    //set the non-relative object...
-                    Set<WorldObject> tops = matchesLocationClone.topObjs();
-                    for(WorldObject wo1 : tops){
-                        ((RelativeWorldObject)wo1).setObj(wo);
-                    }
-
-                    //Add..
-                    if(tops.size() == 1){
-                        relobjs.getObjs().addAll(tops);
-                    } else {
-                        relobjs.getExpressions().add(matchesLocationClone);
-                    }
-                }
-                return relobjs;
+                return world.attachWorldObjectsToRelation(matchesArg1.getObjs(), matchesLocation);
             }
             //For "ALL", it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
-            world.filterByRelation(matchesArg1.getObjs(), matchesLocation, ((RelativeWorldObject) matchesLocation.getObjs().iterator().next()).getRelation());
-            if(matchesArg1.isEmpty()){
+            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);
+            if(wobjs.isEmpty()){
                 throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
             }
-            matchesArg1.setOp(LogicalExpression.Operator.AND);
-            return matchesArg1;
+            LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.AND);
+            return le;
         }
 
         @Override
@@ -252,14 +231,16 @@ public class Interpreter {
                 for(WorldObject wo : le.getObjs()){
                     Set<WorldObject> s = new HashSet<WorldObject>();
                     s.add(wo);
-                    wRelObjs.add(new RelativeWorldObject(null, new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+                    wRelObjs.add(new RelativeWorldObject(new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
                 }
                 expNew.add(new LogicalExpression(wRelObjs, le.getExpressions(),le.getOp()));
             }
-            for(WorldObject wo : relativeTo.getObjs()){
-                Set<WorldObject> s = new HashSet<WorldObject>();
-                s.add(wo);
-                objsNew.add(new RelativeWorldObject(null, new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+            if(relativeTo.getObjs() != null){
+                for(WorldObject wo : relativeTo.getObjs()){
+                    Set<WorldObject> s = new HashSet<WorldObject>();
+                    s.add(wo);
+                    objsNew.add(new RelativeWorldObject(new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+                }
             }
             LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
             if(relativeTo.isEmpty()){
@@ -300,9 +281,9 @@ public class Interpreter {
                     break;
             }
             LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
-            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1){
-                throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
-            }
+//            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1){
+//                throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
+//            } //This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
             if(logObjs.isEmpty()) {
                 throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
             }

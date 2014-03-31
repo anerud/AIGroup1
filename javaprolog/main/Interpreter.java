@@ -52,7 +52,7 @@ public class Interpreter {
          * @return an empty string if there is nothing contained in the LogicalExpression
          */
         private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
-            //TODO: first remove redundant logic!. Also: an object cannot be placed directly under itself!
+            //TODO: first remove redundant logic!
             StringBuilder pddlString = new StringBuilder();
             if(expression.size() > 1){
                 LogicalExpression.Operator op = expression.getOp();
@@ -193,8 +193,6 @@ public class Interpreter {
     	
     }
 
-    //TODO: in all methods, remove chosen objects in lower levels of the recursion tree to avoid self-references.. sometimes.. we don't always want to do this..
-
     private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
 
         @Override
@@ -234,9 +232,17 @@ public class Interpreter {
             return le;
         }
 
+        /**
+         *
+         * @param n
+         * @param worldObjects if null, all objects in the world are used
+         * @param dummy2
+         * @return
+         * @throws InterpretationException
+         */
         @Override
-        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> dummy, Quantifier dummy2) throws InterpretationException {
-            LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, world.getWorldObjects(), Quantifier.ANY);
+        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException {
+            LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, worldObjects == null ? world.getWorldObjects() : worldObjects, Quantifier.ANY);
 
             //Convert tops to RelativeWorldObjects
             Set<WorldObject> objsNew = new HashSet<WorldObject>();

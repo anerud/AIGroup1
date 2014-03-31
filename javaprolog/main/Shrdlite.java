@@ -28,7 +28,7 @@ import world.WorldObject;
 
 public class Shrdlite {
 
-    private static boolean debug;
+    public static boolean debug;
 
     public static void main(String[] args) throws PrologException, ParseException, IOException {
 		JSONObject jsinput = null;

@@ -233,6 +233,11 @@ public class World {
         return -1;
     }
 
+    /**
+     * For an object to be retained, all relations of a RelativeWorldObject or a WorldObject must be fulfilled in this world.
+     * @param toBeFiltered
+     * @return
+     */
     public Set<WorldObject> filterByExistsInWorld(Set<WorldObject> toBeFiltered) {
         Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
         for(WorldObject obj : toBeFiltered){
@@ -427,7 +432,7 @@ public class World {
 
     /**
      * Recursively determines if the WorldObject fulfils the relation to the logical expression
-     * If the parameter wo is an instance of RelativeWorldObject, the relation is ignored.
+     * If the parameter wo is an instance of RelativeWorldObject, the relation of wo is ignored.
      * @param relation
      * @param wo
      * @param theRelativeObjects
@@ -440,7 +445,13 @@ public class World {
         }
         LogicalExpression.Operator op = theRelativeObjects.getOp();
         if(op.equals(LogicalExpression.Operator.AND)){
-            for(WorldObject wo1 : theRelativeObjects.topObjs()){
+            for(WorldObject wo1 : theRelativeObjects.getObjs()){
+                //First, check that the relations of the relative object are fulfilled
+                if(wo1 instanceof RelativeWorldObject){
+                    if(!hasRelation(((RelativeWorldObject) wo1).getRelation(), wo1, ((RelativeWorldObject) wo1).getRelativeTo())){
+                        return false;
+                    }
+                }
                 if(!hasRelation(relation, wo, wo1)){
                     return false;
                 }
@@ -452,9 +463,16 @@ public class World {
             }
             return true;
         } else {
-            for(WorldObject wo1 : theRelativeObjects.topObjs()){
+            for(WorldObject wo1 : theRelativeObjects.getObjs()){
                 if(hasRelation(relation, wo, wo1)){
-                    return true;
+                    //So far so good. Now check that the relations of the relative object are fulfilled
+                    if(wo1 instanceof RelativeWorldObject){
+                        if(hasRelation(((RelativeWorldObject) wo1).getRelation(), wo1, ((RelativeWorldObject) wo1).getRelativeTo())){
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
                 }
             }
             for(LogicalExpression exp : theRelativeObjects.getExpressions()){

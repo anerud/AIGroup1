@@ -29,20 +29,20 @@ public class LogicalExpression<T> implements Cloneable{
         return size() == 0;
     }
 
-//    /**
-//     *
-//     * @return all objects on the top level of this expression, that is all objects in getObj() and all objects in the expressions of getExpressions
-//     */
-//    public Set<T> topObjs() {
-//        Set<T> top = new HashSet<T>();
-//        if(objs != null){
-//            top.addAll(objs);
-//        }
-//        for(LogicalExpression le : expressions){
-//            top.addAll(le.getObjs());
-//        }
-//        return top;
-//    }
+    /**
+     *
+     * @return all objects on the top level of this expression, that is all objects in getObj() and all objects in the expressions of getExpressions
+     */
+    public Set<T> topObjs() {
+        Set<T> top = new HashSet<T>();
+        if(objs != null){
+            top.addAll(objs);
+        }
+        for(LogicalExpression le : expressions){
+            top.addAll(le.topObjs());
+        }
+        return top;
+    }
 
     public enum Operator{
         OR, AND, NOT, NONE

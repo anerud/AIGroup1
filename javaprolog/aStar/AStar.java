@@ -1,25 +1,24 @@
 package aStar;
 
-import java.util.Collection;
 import java.util.PriorityQueue;
 
-public class AStar<E extends AStarState> {
+public class AStar {
 	
-	private PriorityQueue<E> q;
-	private E currentState;
+	private PriorityQueue<AStarState> q;
+	private AStarState currentState;
 	
 	/**
 	 * Creates an AStar object with an empty priority queue
 	 */
 	public AStar() {
-		q = new PriorityQueue<E>();
+		q = new PriorityQueue<AStarState>();
 	}
 	
 	/**
 	 * Creates an AStar object with a starting point.
 	 * @param staringPoint
 	 */
-	public AStar(E staringPoint) {
+	public AStar(AStarState staringPoint) {
 		q = new PriorityQueue<>();
 		q.add(staringPoint);
 	}
@@ -33,14 +32,14 @@ public class AStar<E extends AStarState> {
 	public boolean iterate(){
 		if(q.isEmpty()) return false;
 		currentState = q.poll();
-		q.addAll((Collection<? extends E>) currentState.expand());
+		q.addAll(currentState.expand());
 		return true;
 	}
 	
 	/**
 	 * @return the current state
 	 */
-	public E getCurrentState(){
+	public AStarState getCurrentState(){
 		return currentState;
 	}
 

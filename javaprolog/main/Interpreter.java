@@ -52,20 +52,23 @@ public class Interpreter {
          * @return an empty string if there is nothing contained in the LogicalExpression
          */
         private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
+            //TODO: first remove redundant logic!. Also: an object cannot be placed directly under itself!
             StringBuilder pddlString = new StringBuilder();
             if(expression.size() > 1){
                 LogicalExpression.Operator op = expression.getOp();
                 pddlString.append("(" + op.toString() + " ");
-                for(WorldObject obj : expression.getObjs()){
-                    if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
-                        RelativeWorldObject relObj = (RelativeWorldObject)obj;
-                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
-                    } else {
-                        if(singlePredicate.equals("")){
-                            pddlString.append(obj.getId());
+                if(expression.getObjs() != null){
+                    for(WorldObject obj : expression.getObjs()){
+                        if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
+                            RelativeWorldObject relObj = (RelativeWorldObject)obj;
+                            pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
                         } else {
-                            pddlString.append("(" + singlePredicate + obj.getId() + ") ");}
+                            if(singlePredicate.equals("")){
+                                pddlString.append(obj.getId());
+                            } else {
+                                pddlString.append("(" + singlePredicate + obj.getId() + ") ");}
 
+                        }
                     }
                 }
                 for(LogicalExpression exp : expression.getExpressions()){

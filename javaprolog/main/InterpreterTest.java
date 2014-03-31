@@ -1,7 +1,9 @@
 package main;
 
+import gnu.prolog.vm.PrologException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 
@@ -28,92 +30,42 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testTakeObject1() throws Exception {
-        String[] args = new String[] {"testfiles/testTakeObject1.json", "debug"};
-
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-        System.setOut(new PrintStream(pipeOut));
-
-        Shrdlite.main(args);
-        pipeOut.close();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
-        String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[(holding m)]");
+        test("testTakeObject1", "[(holding m)]");
     }
 
     @org.junit.Test
     public void testTakeObject2() throws Exception {
-        String[] args = new String[] {"testfiles/testTakeObject2.json", "debug"};
-
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-        System.setOut(new PrintStream(pipeOut));
-
-        Shrdlite.main(args);
-        pipeOut.close();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
-        String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[]");
+        test("testTakeObject2", "[]");
     }
 
     @org.junit.Test
     public void testTakeObject3() throws Exception {
-        String[] args = new String[] {"testfiles/testTakeObject3.json", "debug"};
-
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-        System.setOut(new PrintStream(pipeOut));
-
-        Shrdlite.main(args);
-        pipeOut.close();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
-        String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[(OR (holding l) (holding j) (holding h) (holding c))]");
+        test("testTakeObject3", "[(OR (holding l) (holding j) (holding h) (holding c))]");
     }
 
     @org.junit.Test
     public void testTakeObject4() throws Exception {
-        String[] args = new String[] {"testfiles/testTakeObject4.json", "debug"};
-
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-        System.setOut(new PrintStream(pipeOut));
-
-        Shrdlite.main(args);
-        pipeOut.close();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
-        String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[(holding e)]");
+        test("testTakeObject4", "[(holding e)]");
     }
 
     @org.junit.Test
     public void testTakeObject5() throws Exception {
-        String[] args = new String[] {"testfiles/testTakeObject5.json", "debug"};
-
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-        System.setOut(new PrintStream(pipeOut));
-
-        Shrdlite.main(args);
-        pipeOut.close();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
-        String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[(OR (holding h) (holding g))]");
+        test("testTakeObject5", "[(OR (holding h) (holding g))]");
     }
 
     @org.junit.Test
     public void testPutObject1() throws Exception {
-        String[] args = new String[] {"testfiles/testPutObject1.json", "debug"};
+        test("testPutObject1", "[(ONTOP e floor)]");
+    }
+
+
+    @org.junit.Test
+    public void testPutObject2() throws Exception {
+        test("testPutObject2", "[(UNDER e f)]");
+    }
+
+    private void test(String file, String result) throws ParseException, IOException, PrologException {
+        String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
         PipedOutputStream pipeOut = new PipedOutputStream();
         PipedInputStream pipeIn = new PipedInputStream(pipeOut);
@@ -125,6 +77,10 @@ public class InterpreterTest {
         BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
         String hupp = br.readLine();
         String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
-        assertEquals(jsout, "[(ONTOP e floor)]");
+        assertEquals(jsout, result);
     }
+
+
+
+
 }

@@ -61,7 +61,11 @@ public class Interpreter {
                         RelativeWorldObject relObj = (RelativeWorldObject)obj;
                         pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
                     } else {
-                        pddlString.append("(" + singlePredicate + obj.getId() + ") ");
+                        if(singlePredicate.equals("")){
+                            pddlString.append(obj.getId());
+                        } else {
+                            pddlString.append("(" + singlePredicate + obj.getId() + ") ");}
+
                     }
                 }
                 for(LogicalExpression exp : expression.getExpressions()){
@@ -77,7 +81,11 @@ public class Interpreter {
                     RelativeWorldObject relObj = (RelativeWorldObject)wo;
                     pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
                 } else {
-                    pddlString.append("(" + singlePredicate + wo.getId() + ")");
+                    if(singlePredicate.equals("")){
+                        pddlString.append(wo.getId());
+                    } else {
+                        pddlString.append("(" + singlePredicate + wo.getId() + ")");
+                    }
                 }
             }
             return pddlString.toString();
@@ -102,14 +110,14 @@ public class Interpreter {
             worldObjs.remove(world.getHolding());
             LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), worldObjs, null);
 
+            Set<WorldObject> objsDummy = new HashSet<WorldObject>();
+            objsDummy.add(world.getHolding());
+            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(objsDummy, placedRelativeObjs);
 
             //NOTE: It's not possible to create one simple "ontop" PDDL goal for each possible placement which fulfils a relation unless the quantifier "THE" was used. //TODO: when "THE" is used, determine the exact possible relations.. or perhaps leave this to the planner
             // That is, in some cases it's up to the planner to make a situation possible.
             //Create PDDL goals
-            for(WorldObject obj : placedRelativeObjs.getObjs()){
-                ((RelativeWorldObject)obj).setObj(world.getHolding());
-            }
-            String pddlString = toPDDLString(placedRelativeObjs, "");
+            String pddlString = toPDDLString(attached, "");
             Goal goal = null;
             if(!pddlString.equals("")){
                 goal = new Goal(pddlString);

@@ -110,4 +110,21 @@ public class InterpreterTest {
         String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
         assertEquals(jsout, "[(OR (holding h) (holding g))]");
     }
+
+    @org.junit.Test
+    public void testPutObject1() throws Exception {
+        String[] args = new String[] {"testfiles/testPutObject1.json", "debug"};
+
+        PipedOutputStream pipeOut = new PipedOutputStream();
+        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+        System.setOut(new PrintStream(pipeOut));
+
+        Shrdlite.main(args);
+        pipeOut.close();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
+        String hupp = br.readLine();
+        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
+        assertEquals(jsout, "[(ONTOP e floor)]");
+    }
 }

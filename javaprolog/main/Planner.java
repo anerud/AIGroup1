@@ -51,7 +51,7 @@ public class Planner {
                     plan.add("pick " + woColumn);
                 }
             }
-        } else if(mainPredicate.equals("on")){
+        } else if(mainPredicate.equals("ONTOP")){
             String[] parts = goal.toString().split(" ");
             String arg1 = parts[1];
             String arg2 = parts[2].substring(0, parts[2].length() - 1);

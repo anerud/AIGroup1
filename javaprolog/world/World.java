@@ -1,5 +1,6 @@
 package world;
 import logic.LogicalExpression;
+import sun.util.logging.resources.logging_es;
 
 import java.util.*;
 
@@ -300,8 +301,8 @@ public class World {
      * @param attachTo
      * @return
      */
-    public LogicalExpression<WorldObject> attachWorldObjectsToRelation(Set<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo){
-        LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, LogicalExpression.Operator.OR);
+    public LogicalExpression<WorldObject> attachWorldObjectsToRelation(Set<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo, LogicalExpression.Operator op){
+        LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, op);
         for(WorldObject wo : toBeAttached){
             //clone..
             Set<WorldObject> objsClone = new HashSet<WorldObject>();
@@ -317,11 +318,11 @@ public class World {
             for(WorldObject obj : attachTo.getObjs()){
                 objsClone.add(obj.clone());
             }
-            LogicalExpression<WorldObject> matchesLocationClone = new LogicalExpression<WorldObject>(objsClone, expClone, attachTo.getOp());
+            LogicalExpression<WorldObject> attachToClone = new LogicalExpression<WorldObject>(objsClone, expClone, attachTo.getOp());
 //                    LogicalExpression<WorldObject> matchesLocationClone = matchesLocation.clone(); //shallow copy not sufficient.
 
             //set the non-relative object...
-            Set<WorldObject> tops = matchesLocationClone.topObjs();
+            Set<WorldObject> tops = attachToClone.topObjs();
             for(WorldObject wo1 : tops){
                 if(wo1 instanceof RelativeWorldObject && (wo1).getId() == null){
                     ((RelativeWorldObject)wo1).setObj(wo);
@@ -336,10 +337,26 @@ public class World {
                 relobjs.getObjs().addAll(tops);
             } else {
                 //TODO: if all expressions have the same quantifier as the main quantifier, promote them to objects instead of expressions
-                relobjs.getExpressions().add(matchesLocationClone);
+                relobjs.getExpressions().add(attachToClone);
             }
         }
         return relobjs;
+    }
+
+    public LogicalExpression<WorldObject> attachWorldObjectsToRelation(LogicalExpression<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo){
+        LogicalExpression<WorldObject> logExp = new LogicalExpression<WorldObject>(null, toBeAttached.getOp());
+
+        Set<WorldObject> wos = toBeAttached.getObjs();
+        if(wos != null){
+            logExp = attachWorldObjectsToRelation(wos, attachTo, toBeAttached.getOp());
+        }
+
+        for(LogicalExpression<WorldObject> le : toBeAttached.getExpressions() ){
+            wos = toBeAttached.getObjs();
+            logExp.getExpressions().add(attachWorldObjectsToRelation(wos, le, le.getOp()));
+        }
+
+        return logExp;
     }
 
     /**
@@ -355,7 +372,7 @@ public class World {
                 throw new IllegalArgumentException("Debug: Nocando");
             }
         }
-        LogicalExpression<WorldObject> attached = attachWorldObjectsToRelation(toBeFiltered, theRelativeObjects);
+        LogicalExpression<WorldObject> attached = attachWorldObjectsToRelation(toBeFiltered, theRelativeObjects, LogicalExpression.Operator.OR);
 
         for(WorldObject wo : attached.topObjs()){
             RelativeWorldObject rwo = ((RelativeWorldObject)wo);
@@ -379,26 +396,6 @@ public class World {
      * @return
      */
     public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo, WorldObject woRel) {
-//        wo = new WorldObject(wo.getForm(), wo.getSize(), wo.getColor(), wo.getId());
-//        if(woRel instanceof RelativeWorldObject){
-//            if(((RelativeWorldObject) woRel).getRelativeTo() != null){
-//                if(woRel.getForm() != null){
-//                    if(!hasRelation((RelativeWorldObject)woRel)){
-//                        return false;
-//                    }
-//                } else {
-//                    Set<WorldObject> wobs = new HashSet<WorldObject>();
-//                    wobs.add(wo);
-//                    if(filterByRelation(wobs, ((RelativeWorldObject)woRel).getRelativeTo(), ((RelativeWorldObject) woRel).getRelation()).isEmpty()){
-//                        return false;
-//                    }
-//                }
-//            }
-//            woRel = new WorldObject(woRel.getForm(), woRel.getSize(), woRel.getColor(), woRel.getId());
-//        }
-//        if(woRel.getForm() == null){
-//            woRel.getId();     //debugging..
-//        }
         //Make sure both objects have the same dynamic type
         wo = new WorldObject(wo);
         woRel = new WorldObject(woRel);

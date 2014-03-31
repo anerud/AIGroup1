@@ -115,7 +115,7 @@ public class Interpreter {
 
             Set<WorldObject> objsDummy = new HashSet<WorldObject>();
             objsDummy.add(world.getHolding());
-            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(objsDummy, placedRelativeObjs);
+            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(objsDummy, placedRelativeObjs, LogicalExpression.Operator.OR);
 
             //NOTE: It's not possible to create one simple "ontop" PDDL goal for each possible placement which fulfils a relation unless the quantifier "THE" was used. //TODO: when "THE" is used, determine the exact possible relations.. or perhaps leave this to the planner
             // That is, in some cases it's up to the planner to make a situation possible.
@@ -173,11 +173,11 @@ public class Interpreter {
 
             LogicalExpression<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
             //Filter the objects since the move operation requires the first parameter to already exist in the world.
-            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects.topObjs()), LogicalExpression.Operator.OR);
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects.topObjs()), firstObjects.getOp());
             LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), null, null);
             //TODO perhaps make sure objects relative to themselves are avoided
 
-            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew.topObjs(), placedRelativeObjs); //TODO: should depend on the operators in filteredObjectsNew
+            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew, placedRelativeObjs); //TODO: should depend on the operators in filteredObjectsNew
 
 
             //Create PDDL goal
@@ -220,7 +220,7 @@ public class Interpreter {
                 return le;
             } else if(q.equals(Quantifier.ANY)){
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                return world.attachWorldObjectsToRelation(matchesArg1.getObjs(), matchesLocation);
+                return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
             }
             //For "ALL", it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
             Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);

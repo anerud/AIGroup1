@@ -45,6 +45,10 @@ public class World{
         this.holding = holding;
         this.stacks = stacks;
     }
+    
+    public int nObjectsOnTopOf(WorldObject o) {
+    	return stacks.get(this.columnOf(o)).indexOf(o);
+    }
 
     public WorldObject getHolding() {
         return holding;

@@ -44,6 +44,15 @@ public class LogicalExpression<T> implements Cloneable{
         return top;
     }
 
+    public void removeAll(Set<T> toBeRemoved) {
+        if(getObjs() != null){
+            getObjs().removeAll(toBeRemoved);
+        }
+        for(LogicalExpression<T> exp : expressions){
+            exp.removeAll(toBeRemoved);
+        }
+    }
+
     public enum Operator{
         OR, AND, NOT, NONE
     }

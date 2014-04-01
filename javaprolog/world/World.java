@@ -184,7 +184,7 @@ public class World{
             return false;
         }
         WorldObject top = topOfStack(woColumn);
-        if(top != null && !isValidRelation("ontop", holding, top)){
+        if(top != null && !isValidRelation(WorldConstraint.Relation.ONTOP, holding, top)){
             return false;
         }  //This assumes it's always ok to put stuff directly on the floor
         stacks.get(woColumn).addLast(holding);
@@ -192,16 +192,6 @@ public class World{
         return true;
     }
 
-    /**
-     *
-     * @param ontop
-     * @param holding
-     * @param top
-     * @return
-     */
-    public boolean isValidRelation(String ontop, WorldObject holding, WorldObject top) {
-        return true; //TODO
-    }
 
     /**
      *
@@ -242,9 +232,76 @@ public class World{
         return -1;
     }
 
+    public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1, LogicalExpression<WorldObject> woRel) {
+        if(woRel.getObjs() != null){
+            if(woRel.getOp().equals(LogicalExpression.Operator.AND)){
+                for(WorldObject wo : woRel.getObjs()){
+                    if(!isValidRelation(relation, obj1, wo)){
+                        return false;
+                    }
+                }
+                for(LogicalExpression<WorldObject> exp : woRel.getExpressions()){
+                    if(!isValidRelation(relation, obj1, exp)){
+                        return false;
+                    }
+                }
+            } else {
+                for(WorldObject wo : woRel.getObjs()){
+                    if(isValidRelation(relation, obj1, wo)){
+                        return true;
+                    }
+                }
+                for(LogicalExpression<WorldObject> exp : woRel.getExpressions()){
+                    if(isValidRelation(relation, obj1, exp)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1, WorldObject obj2) {
+        if(obj1.getId().equals(obj2.getId())) return false; //Cannot have a relation to itself
+        if(obj2 instanceof RelativeWorldObject && obj2.getForm() == null){
+            LogicalExpression<WorldObject> woRel = ((RelativeWorldObject) obj2).getRelativeTo();
+            return isValidRelation(relation, obj1, woRel);
+        }
+        String form1 = obj1.getForm();
+        String form2 = obj2.getForm();
+        String size1 = obj1.getSize();
+        String size2 = obj2.getSize();
+        if(form1 == null || form2 == null) return false;
+        if(relation.equals(WorldConstraint.Relation.ONTOP)){
+            if(form2.equals("box") || form2.equals("ball")) return false; //It's called "INSIDE" a box. Balls cannot support anything.
+            if(form1.equals("ball") && !(form2.equals("floor"))) return false;
+            if(form1.equals("")) return false;
+            if(size1.equals("large") && size2.equals("small")) return false;
+            if(form1.equals("box")){ //"Boxes can only be supported by tables or planks of the same size, but large boxes can also be supported by large bricks.". TODO: Not sure if this is the intended intepretation. Can a small box be placed on a large plank? Why not?
+                if(size1.equals("small") && size2.equals("small")){
+                    if(!(form2.equals("table") || form2.equals("plank"))) return false;
+                } else if(size1.equals("large") && size2.equals("large")){
+                    if(!(form2.equals("table") || form2.equals("plank") || form2.equals("brick"))) return false;
+                }
+            }
+        } else if(relation.equals(WorldConstraint.Relation.INSIDE)){
+            if(!form2.equals("box")) return false; //Stuff can only be "INSIDE" boxes.
+            if(size1.equals("large") && size2.equals("small")) return false;
+            if(form1.equals("pyramid") || form1.equals("plank")){
+                if(!(size2.equals("large") && size1.equals("small"))) return false; //Boxes cannot contain pyramids or planks of the same size.
+            }
+            if(form1.equals("box")){ //"Boxes can only be supported by tables or planks of the same size, but large boxes can also be supported by large bricks.".
+                if(!(size1.equals("small") && size2.equals("large"))) return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
-     * Ignores the objects in the top level of theRelativeObjects and makes an attachment of all combination of toBeAttached and attachTo.
+     * Ignores the objects in the top level of theRelativeObjects and makes an attachment of all combinations of toBeAttached and attachTo.
+     * If an attachment does not obey the physical laws of this world, the attachment is ignored.
      * @param toBeAttached
      * @param attachTo
      * @return
@@ -267,24 +324,31 @@ public class World{
                 objsClone.add(obj.clone());
             }
             LogicalExpression<WorldObject> attachToClone = new LogicalExpression<WorldObject>(objsClone, expClone, attachTo.getOp());
-//                    LogicalExpression<WorldObject> matchesLocationClone = matchesLocation.clone(); //shallow copy not sufficient.
 
             //set the non-relative object...
             Set<WorldObject> tops = attachToClone.topObjs();
+            Set<WorldObject> toBeRemoved = new HashSet<WorldObject>();
             for(WorldObject wo1 : tops){
                 if(wo1 instanceof RelativeWorldObject && (wo1).getId() == null){
-                    ((RelativeWorldObject)wo1).setObj(wo);
+                    if(isValidRelation(((RelativeWorldObject)wo1).getRelation(), wo, wo1)){
+                        ((RelativeWorldObject)wo1).setObj(wo);
+                    } else {
+                        toBeRemoved.add(wo1);
+                    }
                 }
             }
+            //Remove the relations which are invalid in this world
+            tops.removeAll(toBeRemoved);
+            attachToClone.removeAll(toBeRemoved);
 
             //Add..
-            if(tops.size() == 1){
+            int size = tops.size();
+            if(size == 1){
                 if(relobjs.getObjs() == null){
                     relobjs.setObjs(new HashSet<WorldObject>());
                 }
                 relobjs.getObjs().addAll(tops);
-            } else {
-                //TODO: if all expressions have the same quantifier as the main quantifier, promote them to objects instead of expressions
+            } else if(size > 1) {
                 relobjs.getExpressions().add(attachToClone);
             }
         }
@@ -479,7 +543,6 @@ public class World{
                 return stacks.get(col).get(row - 1).equals(woRel);
             }
         } else if(relation.equals(WorldConstraint.Relation.UNDER)) {
-//            return hasRelation(WorldConstraint.Relation.ONTOP, woRel, wo); //TODO: by "under", do we mean "directly under"?
             return hasRelation(WorldConstraint.Relation.ABOVE, woRel, wo);
         } else if(relation.equals(WorldConstraint.Relation.LEFTOF)) {
             return columnOf(wo) < columnOf(woRel);

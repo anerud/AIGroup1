@@ -58,17 +58,7 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testTakeObject6() throws Exception {
-        String[] alternatives = new String[factorial(3)];
-        String[] ids = {"m", "d", "f"};
-
-        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
-        int iter = 0;
-        for(LinkedList<String> l : list){
-            Iterator<String> it = l.iterator();
-            alternatives[iter] = "[(OR (holding " + it.next() + ") (holding " + it.next() + ") (holding " + it.next() + "))]";
-            iter++;
-        }
-        test("testTakeObject6", alternatives);
+        test("testTakeObject6", "[]");
     }
 
     @org.junit.Test
@@ -116,16 +106,13 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject3() throws Exception {
-        String[] alternatives = new String[] {"[(OR (INSIDE a m) (INSIDE a l) (INSIDE a k))]", "[(OR (INSIDE a m) (INSIDE a k) (INSIDE a l))]", "[(OR (INSIDE a l) (INSIDE a m) (INSIDE a k))]", "[(OR (INSIDE a l) (INSIDE a k) (INSIDE a m))]",
-                "[(OR (INSIDE a k) (INSIDE a l) (INSIDE a m))]", "[(OR (INSIDE a k) (INSIDE a m) (INSIDE a l))]"};
+        String[] alternatives = new String[] {"[(OR (INSIDE a l) (INSIDE a k))]", "[(OR (INSIDE a k) (INSIDE a l))]"};
         test("testMoveObject3", alternatives);
     }
 
     @org.junit.Test
     public void testMoveObject4() throws Exception {
-        String[] alternatives = new String[] {"[(OR (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)))]",
-                "[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP m floor)))]",
-                "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP m floor)))]", "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP l floor)))]"};
+        String[] alternatives = new String[] {"[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)))]"};
         test("testMoveObject4", alternatives);
     }
 
@@ -153,10 +140,8 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject6() throws Exception {
-        String[] alternatives = new String[] {"[(AND (OR (ONTOP b h) (ONTOP b g)) (OR (ONTOP a h) (ONTOP a g)))]", "[(AND (OR (ONTOP b h) (ONTOP b g)) (OR (ONTOP a g) (ONTOP a h)))]",
-                "[(AND (OR (ONTOP b g) (ONTOP b h)) (OR (ONTOP a g) (ONTOP a h)))]", "[(AND (OR (ONTOP b g) (ONTOP b h)) (OR (ONTOP a h) (ONTOP a g)))]",
-                "[(AND (OR (ONTOP a g) (ONTOP a h)) (OR (ONTOP b g) (ONTOP b h)))]", "[(AND (OR (ONTOP a g) (ONTOP a h)) (OR (ONTOP b h) (ONTOP b g)))]",
-                "[(AND (OR (ONTOP a h) (ONTOP a g)) (OR (ONTOP b g) (ONTOP b h)))]", "[(AND (OR (ONTOP a h) (ONTOP a g)) (OR (ONTOP b h) (ONTOP b g)))]"};
+        String[] alternatives = new String[] {"[(AND (ONTOP a g) (OR (ONTOP b h) (ONTOP b g)))]", "[(AND (ONTOP a g) (OR (ONTOP b g) (ONTOP b h)))]",
+                "[(AND (OR (ONTOP b h) (ONTOP b g)) (ONTOP a g))]", "[(AND (OR (ONTOP b g) (ONTOP b h)) (ONTOP a g))]"};
         test("testMoveObject6", alternatives);
     }
 
@@ -168,6 +153,11 @@ public class InterpreterTest {
                 "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e k) (INSIDE e l)))]",
                 "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e k) (INSIDE e l)))]"};
         test("testMoveObject7", alternatives);
+    }
+
+    @org.junit.Test
+    public void testMoveObject8() throws Exception {
+        test("testMoveObject8", "[]");
     }
 
 

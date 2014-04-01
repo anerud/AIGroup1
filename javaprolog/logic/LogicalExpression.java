@@ -150,6 +150,12 @@ public class LogicalExpression<T> implements Cloneable{
                     unified.getObjs().addAll(getObjs());
                 }
                 return unified;
+            } else if(unified.getOp().equals(Operator.OR) && getOp().equals(Operator.AND)){
+                if(getObjs() != null){
+                    unified.getObjs().addAll(getObjs());
+                }
+                unified.setOp(getOp());
+                return unified;
             } else {
                 //replace the expressions with the unified expression
                 getExpressions().clear();

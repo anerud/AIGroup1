@@ -6,6 +6,7 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -84,7 +85,77 @@ public class InterpreterTest {
         test("testMoveObject3", alternatives);
     }
 
+    @org.junit.Test
+    public void testMoveObject4() throws Exception {
+        String[] alternatives = new String[] {"[(OR (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)))]",
+                "[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP m floor)))]",
+                "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP m floor)))]", "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP m floor)) (INSIDE e (ONTOP l floor)))]"};
+        test("testMoveObject4", alternatives);
+    }
 
+    @org.junit.Test
+    public void testMoveObject5() throws Exception {
+        String[] alternatives = new String[] {"[]"};
+        test("testMoveObject5", alternatives);
+    }
+
+
+    @org.junit.Test
+    public void testMoveObject6() throws Exception {
+        String[] alternatives = new String[factorial(4)];
+        String[] ids = {"a g", "b h", "b g", "a h"};
+
+        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
+        int iter = 0;
+        for(LinkedList<String> l : list){
+            Iterator<String> it = l.iterator();
+            alternatives[iter] = "[(AND (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + "))]";
+            iter++;
+        }
+        test("testMoveObject6", alternatives);
+    }
+
+
+    @org.junit.Test
+    public void testMoveObject7() throws Exception {
+        String[] alternatives = new String[] {"[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE e l) (INSIDE f k)))]", "[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE f k) (INSIDE e l)))]",
+                "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE e l) (INSIDE f k)))]", "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE f k) (INSIDE e l)))]",
+                "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE f l) (INSIDE e k)))]", "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE e k) (INSIDE f l)))]",
+                "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE f l) (INSIDE e k)))]", "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE e k) (INSIDE f l)))]"};
+        test("testMoveObject7", alternatives);
+    }
+
+
+    private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
+        Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();
+        for(String s : strings){
+            LinkedList<String> stringsWithout = new LinkedList<String>(strings);
+            stringsWithout.remove(s);
+            Set<LinkedList<String>> permsWithout = null;
+            if(stringsWithout.size() == 1){
+                permsWithout = new HashSet<LinkedList<String>>();
+                stringsWithout.addFirst(s);
+                permsWithout.add(stringsWithout);
+            } else {
+                permsWithout = permutations(stringsWithout, s);
+            }
+            if(!first.equals("")){
+                for(LinkedList<String> l : permsWithout){
+                    l.addFirst(first);
+                }
+            }
+            perms.addAll(permsWithout);
+        }
+        return perms;
+    }
+
+    private int factorial(int number){
+        int fac = 1;
+        for(int i = 1; i <= number; i++){
+            fac *= i;
+        }
+        return fac;
+    }
 
 
     private void test(String file, String[] alternatives) throws IOException, PrologException, ParseException {

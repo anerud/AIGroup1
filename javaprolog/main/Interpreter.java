@@ -225,7 +225,7 @@ public class Interpreter {
             }
             //For "ALL", it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
             Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);
-            if(wobjs.isEmpty()){
+            if(wobjs.isEmpty() && !Shrdlite.debug){
                 throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
             }
             LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.AND);
@@ -264,7 +264,7 @@ public class Interpreter {
                 }
             }
             LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
-            if(relativeTo.isEmpty()){
+            if(relativeTo.isEmpty() && !Shrdlite.debug){
                 throw new InterpretationException("There are no objects which match the description '"  + n.getEntityNode().getChildren().toString() + ".");
             }
 
@@ -305,7 +305,7 @@ public class Interpreter {
 //            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1){
 //                throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
 //            } //This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
-            if(logObjs.isEmpty()) {
+            if(logObjs.isEmpty() && !Shrdlite.debug) {
                 throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
             }
             return logObjs;

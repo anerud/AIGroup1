@@ -30,17 +30,25 @@ public class Interpreter {
      */
     public Set<Goal> interpret(List<NTree> trees) throws InterpretationException {
         Set<Goal> goalsPerTree = new HashSet<>(trees.size());
+        Set<InterpretationException> exceptions = new HashSet<InterpretationException>();
         for(NTree tree : trees){
-            Goal g = tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
+            Goal g = null;
+            try{
+                g = tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
+            } catch(InterpretationException e){
+                exceptions.add(e);
+            }
             if(g != null){
-                goalsPerTree.add(g);//TODO: it now skips some trees if null..
+                goalsPerTree.add(g);
             }
         }
-//        for(Goal g : goalsPerTree){
-//            if(!goalsPerTree.get(0).equals(g)){
-//                throw new InterpretationException("Ambiguous sentence. Please be more precise.");
-//            }
-//        }                   //todo
+        if(goalsPerTree.isEmpty()){
+            if(!exceptions.isEmpty()){
+                //Take one of the exceptions and throw it.
+                throw exceptions.iterator().next();
+            }
+        }
+
         return goalsPerTree;
     }
 

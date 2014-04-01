@@ -4,9 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import main.Goal;
-
 import world.World;
-import world.WorldObject;
 
 public class WorldState implements AStarState {
 	
@@ -23,6 +21,11 @@ public class WorldState implements AStarState {
 	}
 	
 	private int computeHeuristic() {
+		/*
+		 * TODO: Identify the objects to move.
+		 * 	     Then calculate world.nObjectsOnTopOf(o)
+		 *  	 and add them to form the heuristic.
+		 */
 		return 0;
 	}
 	

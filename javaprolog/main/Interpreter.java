@@ -179,9 +179,10 @@ public class Interpreter {
 
             LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew, placedRelativeObjs); //TODO: should depend on the operators in filteredObjectsNew
 
+            LogicalExpression<WorldObject> simplified = attached.simplifyExpression();
 
             //Create PDDL goal
-            String pddlString = toPDDLString(attached, "");
+            String pddlString = toPDDLString(simplified, "");
             Goal goal = null;
             if(!pddlString.equals("")){
                 goal = new Goal(pddlString);

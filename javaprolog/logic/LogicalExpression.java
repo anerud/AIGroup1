@@ -110,4 +110,54 @@ public class LogicalExpression<T> implements Cloneable{
         return result;
     }
 
+    /**
+     * Simplifies this expression and removes unnecessary operators.
+     * Use the returned expression, as there is no guarantee for the state of this expression after calling this method. //TODO change so that this is not the case
+     */
+    public LogicalExpression<T> simplifyExpression(){
+        if(expressions.isEmpty()){
+            return this;
+        }
+        //First simplify all subexpressions
+        for(LogicalExpression<T> exp : expressions){
+            exp.simplifyExpression();
+        }
+        //Then simplify this expression..
+
+        //Do all expressions have the same operator?
+        Operator op = expressions.iterator().next().getOp();
+        boolean same = true;
+        for(LogicalExpression<T> exp : expressions){
+            if(exp.getOp() != op){
+                same = false;
+            }
+        }
+        LogicalExpression<T> unified = null;
+        if(same){
+            //put them all in the same expression
+            Set<T> objs = new HashSet<T>();
+            Set<LogicalExpression> exps = new HashSet<LogicalExpression>();
+            for(LogicalExpression<T> exp : expressions){
+                objs.addAll(exp.getObjs());
+                exps.addAll(exp.getExpressions());
+            }
+            unified = new LogicalExpression<T>(objs, exps, op);
+
+            //Is the operator of this expression the same as the unified expression?
+            if(unified.getOp().equals(getOp()) || getOp().equals(Operator.NONE)){
+                //merge this expression with the subexpression
+                if(getObjs() != null){
+                    unified.getObjs().addAll(getObjs());
+                }
+                return unified;
+            } else {
+                //replace the expressions with the unified expression
+                getExpressions().clear();
+                getExpressions().add(unified);
+                return this;
+            }
+        }
+        return this;
+    }
+
 }

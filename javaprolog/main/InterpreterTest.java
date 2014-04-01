@@ -7,7 +7,8 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 /**
  * Created by Roland on 2014-03-31.
@@ -71,9 +72,44 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject2() throws Exception {
-        test("testMoveObject2", "[(AND (ONTOP m floor) (ONTOP k floor) (ONTOP l floor))]");
+        String[] alternatives = new String[] {"[(AND (ONTOP m floor) (ONTOP k floor) (ONTOP l floor))]", "[(AND (ONTOP m floor) (ONTOP l floor) (ONTOP k floor))]", "[(AND (ONTOP k floor) (ONTOP m floor) (ONTOP l floor))]",
+                "[(AND (ONTOP k floor) (ONTOP l floor) (ONTOP m floor))]", "[(AND (ONTOP l floor) (ONTOP m floor) (ONTOP k floor))]", "[(AND (ONTOP l floor) (ONTOP k floor) (ONTOP m floor))]"};
+        test("testMoveObject2", alternatives);
     }
 
+    @org.junit.Test
+    public void testMoveObject3() throws Exception {
+        String[] alternatives = new String[] {"[(OR (INSIDE a m) (INSIDE a l) (INSIDE a k))]", "[(OR (INSIDE a m) (INSIDE a k) (INSIDE a l))]", "[(OR (INSIDE a l) (INSIDE a m) (INSIDE a k))]", "[(OR (INSIDE a l) (INSIDE a k) (INSIDE a m))]",
+                "[(OR (INSIDE a k) (INSIDE a l) (INSIDE a m))]", "[(OR (INSIDE a k) (INSIDE a m) (INSIDE a l))]"};
+        test("testMoveObject3", alternatives);
+    }
+
+
+
+
+    private void test(String file, String[] alternatives) throws IOException, PrologException, ParseException {
+        String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
+
+        PipedOutputStream pipeOut = new PipedOutputStream();
+        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+        System.setOut(new PrintStream(pipeOut));
+
+        Shrdlite.main(args);
+        pipeOut.close();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
+        String hupp = br.readLine();
+        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
+
+        boolean isis = false;
+        for(String s : alternatives){
+            if(jsout.equals(s)){
+                isis = true;
+                break;
+            }
+        }
+        assertTrue(isis);
+    }
 
 
     private void test(String file, String result) throws ParseException, IOException, PrologException {

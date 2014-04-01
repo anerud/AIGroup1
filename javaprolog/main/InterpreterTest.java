@@ -8,7 +8,6 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.util.*;
 
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 /**
@@ -19,6 +18,7 @@ public class InterpreterTest {
     public void setUp() throws Exception {
 
     }
+    
 
     @org.junit.After
     public void tearDown() throws Exception {

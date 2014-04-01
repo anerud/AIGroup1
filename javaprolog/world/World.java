@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by Roland on 2014-03-26.
  */
-public class World {
+public class World{
 
     private ArrayList<LinkedList<WorldObject>> stacks;
     private List<WorldConstraint> constraints;
@@ -112,6 +112,10 @@ public class World {
             return new WorldObject("floor", "floor", "floor", "floor");
         }
     }
+    
+    public void setHolding(WorldObject holding) {
+		this.holding = holding;
+	}
 
     /**
      *
@@ -480,4 +484,28 @@ public class World {
             return false;
         }
     }
+    
+    
+    public World clone(){
+    	ArrayList<LinkedList<WorldObject>> cStack = new ArrayList<LinkedList<WorldObject>>();
+    	for(LinkedList<WorldObject> s : stacks){
+    		cStack.add(new LinkedList<WorldObject>(s));
+    	}
+    	
+    	List<WorldConstraint> cCon = new LinkedList<WorldConstraint>(this.constraints);
+    	return new World(cStack,cCon,this.holding);
+    }
+
+    
+    /**
+     * TODO: Check all the rules of the world
+     * @param i
+     * @param holding
+     * @return
+     */
+	public boolean isPlaceable(int i, WorldObject holding) {
+		if(stacks.get(i).isEmpty()) return true;
+		
+		return true;
+	}
 }

@@ -475,11 +475,25 @@ public class World{
                 return stacks.get(col).get(row - 1).equals(woRel);
             }
         } else if(relation.equals(WorldConstraint.Relation.UNDER)) {
-            return hasRelation(WorldConstraint.Relation.ONTOP, woRel, wo); //TODO: by "under", do we mean "directly under"?
+//            return hasRelation(WorldConstraint.Relation.ONTOP, woRel, wo); //TODO: by "under", do we mean "directly under"?
+            return hasRelation(WorldConstraint.Relation.ABOVE, woRel, wo);
         } else if(relation.equals(WorldConstraint.Relation.LEFTOF)) {
             return columnOf(wo) < columnOf(woRel);
         } else if(relation.equals(WorldConstraint.Relation.RIGHTOF)){
             return hasRelation(WorldConstraint.Relation.LEFTOF, woRel, wo);
+        } else if (relation.equals(WorldConstraint.Relation.BESIDE)){
+            int col1 = columnOf(wo);
+            int col2 = columnOf(woRel);
+            return Math.abs(col1 - col2) == 1;
+        } else if(relation.equals(WorldConstraint.Relation.ABOVE)){
+            int col1 = columnOf(wo);
+            int col2 = columnOf(woRel);
+            if(col1 != col2){
+                return false;
+            }
+            int row1 = rowOf(wo);
+            int row2 = rowOf(woRel);
+            return row1 > row2;
         }
         return false;
     }

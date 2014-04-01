@@ -57,6 +57,41 @@ public class InterpreterTest {
     }
 
     @org.junit.Test
+    public void testTakeObject6() throws Exception {
+        String[] alternatives = new String[factorial(3)];
+        String[] ids = {"m", "d", "f"};
+
+        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
+        int iter = 0;
+        for(LinkedList<String> l : list){
+            Iterator<String> it = l.iterator();
+            alternatives[iter] = "[(OR (holding " + it.next() + ") (holding " + it.next() + ") (holding " + it.next() + "))]";
+            iter++;
+        }
+        test("testTakeObject6", alternatives);
+    }
+
+    @org.junit.Test
+    public void testTakeObject7() throws Exception {
+        String[] alternatives = new String[factorial(3)];
+        String[] ids = {"l", "e", "a"};
+
+        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
+        int iter = 0;
+        for(LinkedList<String> l : list){
+            Iterator<String> it = l.iterator();
+            alternatives[iter] = "[(OR (holding " + it.next() + ") (holding " + it.next() + ") (holding " + it.next() + "))]";
+            iter++;
+        }
+        test("testTakeObject7", alternatives);
+    }
+
+    @org.junit.Test
+    public void testTakeObject8() throws Exception {
+        test("testTakeObject8", "[(holding b)]");
+    }
+
+    @org.junit.Test
     public void testPutObject1() throws Exception {
         test("testPutObject1", "[(ONTOP e floor)]");
     }

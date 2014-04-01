@@ -175,9 +175,8 @@ public class Interpreter {
             //Filter the objects since the move operation requires the first parameter to already exist in the world.
             LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects.topObjs()), firstObjects.getOp());
             LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), null, null);
-            //TODO perhaps make sure objects relative to themselves are avoided
 
-            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew, placedRelativeObjs); //TODO: should depend on the operators in filteredObjectsNew
+            LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew, placedRelativeObjs);
 
             LogicalExpression<WorldObject> simplified = attached.simplifyExpression();
 

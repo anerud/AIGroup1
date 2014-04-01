@@ -133,7 +133,8 @@ public class LogicalExpression<T> implements Cloneable{
             }
         }
         LogicalExpression<T> unified = null;
-        if(same){
+        //Is the operator of this expression also the same as the unified expression?
+        if(same && (op.equals(getOp()) || getOp().equals(Operator.NONE))){
             //put them all in the same expression
             Set<T> objs = new HashSet<T>();
             Set<LogicalExpression> exps = new HashSet<LogicalExpression>();
@@ -143,25 +144,11 @@ public class LogicalExpression<T> implements Cloneable{
             }
             unified = new LogicalExpression<T>(objs, exps, op);
 
-            //Is the operator of this expression the same as the unified expression?
-            if(unified.getOp().equals(getOp()) || getOp().equals(Operator.NONE)){
-                //merge this expression with the subexpression
-                if(getObjs() != null){
-                    unified.getObjs().addAll(getObjs());
-                }
-                return unified;
-            } else if(unified.getOp().equals(Operator.OR) && getOp().equals(Operator.AND)){
-                if(getObjs() != null){
-                    unified.getObjs().addAll(getObjs());
-                }
-                unified.setOp(getOp());
-                return unified;
-            } else {
-                //replace the expressions with the unified expression
-                getExpressions().clear();
-                getExpressions().add(unified);
-                return this;
+            //merge this expression with the subexpression
+            if(getObjs() != null){
+                unified.getObjs().addAll(getObjs());
             }
+            return unified;
         }
         return this;
     }

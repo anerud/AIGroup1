@@ -100,28 +100,37 @@ public class InterpreterTest {
     }
 
 
+//    @org.junit.Test
+//    public void testMoveObject6() throws Exception {
+//        String[] alternatives = new String[factorial(4)];
+//        String[] ids = {"a g", "b h", "b g", "a h"};
+//
+//        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
+//        int iter = 0;
+//        for(LinkedList<String> l : list){
+//            Iterator<String> it = l.iterator();
+//            alternatives[iter] = "[(AND (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + "))]";
+//            iter++;
+//        }
+//        test("testMoveObject6", alternatives);
+//    }
+
     @org.junit.Test
     public void testMoveObject6() throws Exception {
-        String[] alternatives = new String[factorial(4)];
-        String[] ids = {"a g", "b h", "b g", "a h"};
-
-        Set<LinkedList<String>> list = new HashSet<LinkedList<String>>(permutations(new LinkedList<String>(Arrays.asList(ids)), ""));
-        int iter = 0;
-        for(LinkedList<String> l : list){
-            Iterator<String> it = l.iterator();
-            alternatives[iter] = "[(AND (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + ") (ONTOP " + it.next() + "))]";
-            iter++;
-        }
+        String[] alternatives = new String[] {"[(AND (OR (ONTOP b h) (ONTOP b g)) (OR (ONTOP a h) (ONTOP a g)))]", "[(AND (OR (ONTOP b h) (ONTOP b g)) (OR (ONTOP a g) (ONTOP a h)))]",
+                "[(AND (OR (ONTOP b g) (ONTOP b h)) (OR (ONTOP a g) (ONTOP a h)))]", "[(AND (OR (ONTOP b g) (ONTOP b h)) (OR (ONTOP a h) (ONTOP a g)))]",
+                "[(AND (OR (ONTOP a g) (ONTOP a h)) (OR (ONTOP b g) (ONTOP b h)))]", "[(AND (OR (ONTOP a g) (ONTOP a h)) (OR (ONTOP b h) (ONTOP b g)))]",
+                "[(AND (OR (ONTOP a h) (ONTOP a g)) (OR (ONTOP b g) (ONTOP b h)))]", "[(AND (OR (ONTOP a h) (ONTOP a g)) (OR (ONTOP b h) (ONTOP b g)))]"};
         test("testMoveObject6", alternatives);
     }
 
 
     @org.junit.Test
     public void testMoveObject7() throws Exception {
-        String[] alternatives = new String[] {"[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE e l) (INSIDE f k)))]", "[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE f k) (INSIDE e l)))]",
-                "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE e l) (INSIDE f k)))]", "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE f k) (INSIDE e l)))]",
-                "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE f l) (INSIDE e k)))]", "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE e k) (INSIDE f l)))]",
-                "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE f l) (INSIDE e k)))]", "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE e k) (INSIDE f l)))]"};
+        String[] alternatives = new String[] {"[(AND (OR (INSIDE e k) (INSIDE e l)) (OR (INSIDE f l) (INSIDE f k)))]", "[(AND (OR (INSIDE e k) (INSIDE e l)) (OR (INSIDE f k) (INSIDE f l)))]",
+                "[(AND (OR (INSIDE e l) (INSIDE e k)) (OR (INSIDE f l) (INSIDE f k)))]", "[(AND (OR (INSIDE e l) (INSIDE e k)) (OR (INSIDE f k) (INSIDE f l)))]",
+                "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e k) (INSIDE e l)))]",
+                "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e k) (INSIDE e l)))]"};
         test("testMoveObject7", alternatives);
     }
 

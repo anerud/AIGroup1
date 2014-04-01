@@ -42,7 +42,8 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testTakeObject3() throws Exception {
-        test("testTakeObject3", "[(OR (holding l) (holding j) (holding h) (holding c))]");
+        String[] alternatives = new String[] {"[(OR (holding l) (holding j) (holding h) (holding c))]", "[(OR (holding l) (holding j) (holding c) (holding h))]"};
+        test("testTakeObject3", alternatives);
     }
 
     @org.junit.Test

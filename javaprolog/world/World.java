@@ -234,66 +234,6 @@ public class World {
         return -1;
     }
 
-    /**
-     * For an object to be retained, all relations of a RelativeWorldObject or a WorldObject must be fulfilled in this world.
-     * @param toBeFiltered
-     * @return
-     */
-    public Set<WorldObject> filterByExistsInWorld(Set<WorldObject> toBeFiltered) {
-        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
-        for(WorldObject obj : toBeFiltered){
-            //Check that the object exists
-            Set<WorldObject> fil = getWorldObjects();
-            filterByMatch(fil, obj);
-            if(!fil.isEmpty()){
-                toBeRetained.add(obj);
-            }
-
-            //Now remove the ones that do not match the relation (if any)
-            if(obj instanceof RelativeWorldObject){
-                if(!hasRelation(((RelativeWorldObject)obj).getRelation(), obj, ((RelativeWorldObject) obj).getRelativeTo())){
-                    toBeRetained.remove(obj);
-                }
-            }
-        }
-        toBeFiltered.retainAll(toBeRetained);
-        return toBeFiltered;
-    }
-
-    public void filterByMatch(Set<WorldObject> toBeFiltered, WorldObject match) {
-        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
-        for(WorldObject wo : toBeFiltered){
-            if(wo.matchesPattern(match)){
-                toBeRetained.add(wo);
-            }
-        }
-        toBeFiltered.retainAll(toBeRetained);
-    }
-
-    /**
-     * Retains the objects in toBeFiltered which are "relation" to theRelativeObjects
-     * @param toBeFiltered
-     * @param theRelativeObjects
-     * @param relation
-     */
-    public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered, LogicalExpression<WorldObject> theRelativeObjects, WorldConstraint.Relation relation) {
-        if(theRelativeObjects.topObjs().iterator().next().getForm() == null){
-            throw new NullPointerException();
-        }
-        Set<WorldObject> toBeRetained = new HashSet<>();
-        for(WorldObject wo : toBeFiltered){
-            for(WorldObject obj : theRelativeObjects.topObjs()){
-                if(obj.getForm() == null && theRelativeObjects.getOp().equals(relation)){
-                    obj.setId(wo.getId()); obj.setColor(wo.getColor()); obj.setForm(wo.getForm()); obj.setSize(wo.getSize());
-                }
-            }
-            if(hasRelation(relation, wo, theRelativeObjects)){
-                toBeRetained.add(wo);
-            }
-        }
-        toBeFiltered.retainAll(toBeRetained);
-        return toBeFiltered;
-    }
 
     /**
      * Ignores the objects in the top level of theRelativeObjects and makes an attachment of all combination of toBeAttached and attachTo.
@@ -359,13 +299,122 @@ public class World {
         return logExp;
     }
 
+//    /**
+//     * For an object to be retained, all relations of a RelativeWorldObject or a WorldObject must be fulfilled in this world.
+//     * @param toBeFiltered
+//     * @return
+//     */
+//    public Set<WorldObject> filterByExistsInWorld(Set<WorldObject> toBeFiltered) {
+//        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+//        for(WorldObject obj : toBeFiltered){
+//            //Check that the object exists
+//            Set<WorldObject> fil = getWorldObjects();
+//            filterByMatch(fil, obj);
+//            if(!fil.isEmpty()){
+//                toBeRetained.add(obj);
+//            }
+//
+//            //Now remove the ones that do not match the relation (if any)
+//            if(obj instanceof RelativeWorldObject){
+//                if(!hasRelation(((RelativeWorldObject)obj).getRelation(), obj, ((RelativeWorldObject) obj).getRelativeTo())){
+//                    toBeRetained.remove(obj);
+//                }
+//            }
+//        }
+//        toBeFiltered.retainAll(toBeRetained);
+//        return toBeFiltered;
+//    }
+
+    /**
+     * Uses the operators in le to recursively determine if the objects exist in the world
+     * @param le
+     * @return
+     */
+    public Set<WorldObject> filterByExistsInWorld(LogicalExpression<WorldObject> le) {
+        Set<WorldObject> filtered = new HashSet<WorldObject>();
+        for(WorldObject wo : le.topObjs()){
+            filtered.add(new WorldObject(wo));
+        }
+        if(le.getOp().equals(LogicalExpression.Operator.AND)){
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(wo instanceof RelativeWorldObject){
+                        RelativeWorldObject rwo = ((RelativeWorldObject)wo);
+                        if(!hasRelation(rwo)){
+                            filtered.remove(new WorldObject(rwo));
+                        }
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> exp : le.getExpressions()){
+                filtered.retainAll(filterByExistsInWorld(exp));
+            }
+        } else {
+            Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(wo instanceof RelativeWorldObject){
+                        RelativeWorldObject rwo = ((RelativeWorldObject)wo);
+                        if(hasRelation(rwo)){
+                            toBeRetained.add(new WorldObject(rwo));
+                        }
+                    } else {
+                        toBeRetained.add(wo);
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> exp : le.getExpressions()){
+                toBeRetained.addAll(filterByExistsInWorld(exp));
+            }
+            filtered.retainAll(toBeRetained);
+        }
+        return filtered;
+    }
+
+    public void filterByMatch(Set<WorldObject> toBeFiltered, WorldObject match) {
+        Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+        for(WorldObject wo : toBeFiltered){
+            if(wo.matchesPattern(match)){
+                toBeRetained.add(wo);
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
+    }
+
+    /**
+     * Retains the objects in toBeFiltered which are "relation" to theRelativeObjects
+     * @param toBeFiltered
+     * @param theRelativeObjects
+     * @param relation
+     */
+    public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered, LogicalExpression<WorldObject> theRelativeObjects, WorldConstraint.Relation relation) {
+        if(theRelativeObjects.topObjs().iterator().next().getForm() == null){
+            throw new NullPointerException();
+        }
+        Set<WorldObject> toBeRetained = new HashSet<>();
+        for(WorldObject wo : toBeFiltered){
+            for(WorldObject obj : theRelativeObjects.topObjs()){
+                if(obj.getForm() == null && theRelativeObjects.getOp().equals(relation)){
+                    obj.setId(wo.getId()); obj.setColor(wo.getColor()); obj.setForm(wo.getForm()); obj.setSize(wo.getSize());
+                }
+            }
+            if(hasRelation(relation, wo, theRelativeObjects)){
+                toBeRetained.add(wo);
+            }
+        }
+        toBeFiltered.retainAll(toBeRetained);
+        return toBeFiltered;
+    }
+
     /**
      * Ignores the objects in the top level of theRelativeObjects and uses only their relation to determine which objects in toBeFiltered to retain.
+     * If used with the argument AND, all conditions in theRelativeObjects must be met for each WorldObject in toBeFiltered. If used with the argument OR, one of the
+     * conditions must be met for each object.
      * @param toBeFiltered
      * @param theRelativeObjects
      * @return
      */
-    public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered, LogicalExpression<WorldObject> theRelativeObjects) {
+    public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered, LogicalExpression<WorldObject> theRelativeObjects, LogicalExpression.Operator op) {
         Set<WorldObject> toBeFilteredCopy = new HashSet<WorldObject>(toBeFiltered);
         for(WorldObject wo : toBeFilteredCopy){
             if(wo instanceof RelativeWorldObject){
@@ -374,11 +423,22 @@ public class World {
         }
         LogicalExpression<WorldObject> attached = attachWorldObjectsToRelation(toBeFiltered, theRelativeObjects, LogicalExpression.Operator.OR);
 
-        for(WorldObject wo : attached.topObjs()){
-            RelativeWorldObject rwo = ((RelativeWorldObject)wo);
-            if(!hasRelation(rwo)){
-                toBeFilteredCopy.remove(new WorldObject(rwo));
+        if(op.equals(LogicalExpression.Operator.AND)){
+            for(WorldObject wo : attached.topObjs()){
+                RelativeWorldObject rwo = ((RelativeWorldObject)wo);
+                if(!hasRelation(rwo)){
+                    toBeFilteredCopy.remove(new WorldObject(rwo));
+                }
             }
+        } else {
+            Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
+            for(WorldObject wo : attached.topObjs()){
+                RelativeWorldObject rwo = ((RelativeWorldObject)wo);
+                if(hasRelation(rwo)){
+                    toBeRetained.add(new WorldObject(rwo));
+                }
+            }
+            toBeFilteredCopy.retainAll(toBeRetained);
         }
         return toBeFilteredCopy;
     }

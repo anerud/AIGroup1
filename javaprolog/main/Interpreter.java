@@ -60,7 +60,6 @@ public class Interpreter {
          * @return an empty string if there is nothing contained in the LogicalExpression
          */
         private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
-            //TODO: first remove redundant logic!
             StringBuilder pddlString = new StringBuilder();
             if(expression.size() > 1){
                 LogicalExpression.Operator op = expression.getOp();
@@ -148,8 +147,8 @@ public class Interpreter {
             LogicalExpression<WorldObject> filteredObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
 
             //Filter the objects since the take operation requires the relations to already exist in the world.
-            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(filteredObjects.topObjs()), LogicalExpression.Operator.OR);
-
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(filteredObjects), LogicalExpression.Operator.OR);
+//            world.filterByRelation()
             //Create PDDL goals
             //We can only hold one object, but if many objects are returned, the planner can choose the closest one.
 
@@ -181,7 +180,7 @@ public class Interpreter {
 
             LogicalExpression<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
             //Filter the objects since the move operation requires the first parameter to already exist in the world.
-            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects.topObjs()), firstObjects.getOp());
+            LogicalExpression<WorldObject> filteredObjectsNew = new LogicalExpression<>(world.filterByExistsInWorld(firstObjects), firstObjects.getOp());
             LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), null, null);
 
             LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(filteredObjectsNew, placedRelativeObjs);
@@ -214,7 +213,7 @@ public class Interpreter {
             LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
 //            WorldConstraint.Relation relation = n.getLocationNode().getRelationNode().getRelation();
             if(q.equals(Quantifier.THE)){
-                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);
+                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
                 if(wobjs.size() > 1){
                     if(!Shrdlite.debug){
                         throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
@@ -231,7 +230,7 @@ public class Interpreter {
                 return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
             }
             //For "ALL", it is not up to the planner to rearrange objects to create a situation (unlike any). We can therefore simply filter the objects.
-            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation);
+            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
             if(wobjs.isEmpty() && !Shrdlite.debug){
                 throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
             }

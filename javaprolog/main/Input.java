@@ -1,0 +1,111 @@
+package main;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import world.WorldObject;
+
+public class Input {
+
+	private String holding;
+
+	private List<String> utterance;
+
+	private List<List<String>> worldorginial;
+
+	private List<List<String>> examples;
+
+	private List<List<String>> world;
+
+	private Map<String, WorldObject> objects;
+
+	private String output;
+
+	private String goals;
+
+	private List<String> plans;
+
+	public Input() {
+		utterance = new LinkedList<>();
+		worldorginial = new LinkedList<>();
+		examples = new LinkedList<>();
+		world = new LinkedList<>();
+		objects = new HashMap<>();
+		plans = new LinkedList<>();
+	}
+
+	public List<String> getPlans() {
+		return plans;
+	}
+
+	public void setPlans(List<String> plans) {
+		this.plans = plans;
+	}
+
+	public void setGoals(String goal) {
+		this.goals = goal;
+	}
+
+	public String getGoals() {
+		return goals;
+	}
+
+	public String getOutput() {
+		return output;
+	}
+
+	public void setOutput(String output) {
+		this.output = output;
+	}
+
+	public String getHolding() {
+		return holding;
+	}
+
+	public void setHolding(String holding) {
+		this.holding = holding;
+	}
+
+	public List<String> getUtterance() {
+		return utterance;
+	}
+
+	public void setUtterance(List<String> utterance) {
+		this.utterance = utterance;
+	}
+
+	public List<List<String>> getExamples() {
+		return examples;
+	}
+
+	public void setExamples(List<List<String>> examples) {
+		this.examples = examples;
+	}
+
+	public List<List<String>> getWorld() {
+		return world;
+	}
+
+	public List<List<String>> getWorldorginial() {
+		return worldorginial;
+	}
+
+	public void setWorld(List<List<String>> world) {
+		this.world = world;
+	}
+
+	public void setWorldorginial(List<List<String>> worldorginial) {
+		this.worldorginial = worldorginial;
+	}
+
+	public Map<String, WorldObject> getObjects() {
+		return objects;
+	}
+
+	public void setObjects(Map<String, WorldObject> objects) {
+		this.objects = objects;
+	}
+
+}

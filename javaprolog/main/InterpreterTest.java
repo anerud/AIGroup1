@@ -1,9 +1,9 @@
 package main;
 
 import gnu.prolog.vm.PrologException;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonSyntaxException;
+
+import com.google.gson.Gson;
 
 import java.io.*;
 import java.util.*;
@@ -193,7 +193,7 @@ public class InterpreterTest {
     }
 
 
-    private void test(String file, String[] alternatives) throws IOException, PrologException, ParseException {
+    private void test(String file, String[] alternatives) throws IOException, PrologException, JsonSyntaxException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
         PipedOutputStream pipeOut = new PipedOutputStream();
@@ -205,7 +205,7 @@ public class InterpreterTest {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
         String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
+        String jsout= new Gson().fromJson(hupp, Input.class).getGoals();
 
         boolean isis = false;
         for(String s : alternatives){
@@ -218,7 +218,7 @@ public class InterpreterTest {
     }
 
 
-    private void test(String file, String result) throws ParseException, IOException, PrologException {
+    private void test(String file, String result) throws JsonSyntaxException, IOException, PrologException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
         PipedOutputStream pipeOut = new PipedOutputStream();
@@ -230,7 +230,7 @@ public class InterpreterTest {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(pipeIn));
         String hupp = br.readLine();
-        String jsout= (String)((JSONObject) JSONValue.parse(hupp)).get("goals");
+        String jsout= new Gson().fromJson(hupp, Input.class).getGoals();
         assertEquals(jsout, result);
     }
 

@@ -17,10 +17,9 @@ import main.Goal;
 import main.Interpreter;
 import main.Planner;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 import tree.*;
 import world.World;
@@ -28,83 +27,77 @@ import world.WorldObject;
 
 public class Shrdlite {
 
-    public static boolean debug;
+	public static boolean debug;
 
-    public static void main(String[] args) throws PrologException, ParseException, IOException {
-		JSONObject jsinput = null;
+	public static void main(String[] args) throws PrologException, JsonSyntaxException, IOException {
+
+		String jsinput = null;
 		if (args.length == 0) {
-			jsinput = (JSONObject) JSONValue.parse(readFromReader(new InputStreamReader(System.in)));
+			jsinput = readFromReader(new InputStreamReader(System.in));
 		} else {
-			jsinput = (JSONObject) JSONValue.parse(readFromReader(new FileReader(args[0])));
+			jsinput = readFromReader(new FileReader(args[0]));
 		}
-        if(args.length > 1 && args[1].equals("debug")){
-            debug = true;
-        }
-		JSONArray utterance = (JSONArray) jsinput.get("utterance");
-		JSONArray worldJSON = (JSONArray) jsinput.get("world");
-		String holdingId = (String) jsinput.get("holding");
-		JSONObject objsJSON = (JSONObject) jsinput.get("objects");
+		Input p = new Gson().fromJson(jsinput, Input.class);
 
-		ArrayList<LinkedList<WorldObject>> worldArr = new ArrayList<LinkedList<WorldObject>>(worldJSON.size());
-		HashMap<String, WorldObject> objsArr = new HashMap<String, WorldObject>();
+		if (args.length > 1 && args[1].equals("debug")) {
+			debug = true;
+		}
+
+		ArrayList<LinkedList<WorldObject>> worldArr = new ArrayList<LinkedList<WorldObject>>(p.getWorld().size());
 
 		PrintWriter log = new PrintWriter("Log.txt", "UTF-8");
 
-		for (Object o : objsJSON.keySet().toArray()) {
-			if (o instanceof String) {
-				HashMap<String, String> obj = (HashMap<String, String>) objsJSON.get(o);
-				WorldObject wo = new WorldObject(obj.get("form"), obj.get("size"), obj.get("color"), (String) o);
-				objsArr.put((String) o, wo);
-			}
+		for(String s : p.getObjects().keySet()){
+			p.getObjects().get(s).setId(s);
 		}
-        // Initialize holding object
-        WorldObject holding = objsArr.get(holdingId);
+		
+		// Initialize holding object
+		WorldObject holding = p.getObjects().get(p.getHolding());
 		// Initialize world
 		World world = new World(worldArr, holding);
 
-		for (int i = 0; i < worldJSON.size(); i++) {
+		for (int i = 0; i < p.getWorld().size(); i++) {
 			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
-			for (String s : (List<String>) worldJSON.get(i)) {
-				objList.add(objsArr.get(s));
+			for (String s : p.getWorld().get(i)) {
+				objList.add(p.getObjects().get(s));
 			}
 			worldArr.add(objList);
 		}
 
-		JSONObject result = new JSONObject();
-		result.put("utterance", utterance);
+		
+		Input result = new Input();
+		result.setUtterance(p.getUtterance());
 
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 
-		List<Term> trees = parser.parseSentence("command", utterance);
+		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
 		List<NTree> treeList = new ArrayList<NTree>();
 		for (Term t : trees) {
 			treeList.add(termsToTree((CompoundTerm) t, null));
-//			log.println(termsToTree((CompoundTerm) t, null).toString());
-			//log.println(t.toString());
+			// log.println(termsToTree((CompoundTerm) t, null).toString());
+			// log.println(t.toString());
 		}
 		if (trees.isEmpty()) {
-			result.put("output", "Parse error!");
+			result.setOutput("Parse error!");
 		} else {
 			List<Goal> goals = new ArrayList<Goal>();
-			
 
-			
 			Interpreter interpreter = new Interpreter(world);
 
-            try{
-                goals.addAll(interpreter.interpret(treeList));
-                if(debug){
-                    result.put("goals", goals.toString());
-                }
-            } catch (Interpreter.InterpretationException e) {
-                result.put("output", e.getMessage());
-            }
+			try {
+				goals.addAll(interpreter.interpret(treeList));
+				if (debug) {
+					result.setGoals(goals.toString());
+				}
+			} catch (Interpreter.InterpretationException e) {
+				result.setOutput(e.getMessage());
+			}
 
 			if (goals.isEmpty()) {
-                if(!result.containsKey("output")){
-				    result.put("output", "Interpretation error!");
-                }
+				if (result.getOutput() == null) {
+					result.setOutput("Interpretation error!");
+				}
 			} else if (goals.size() > 1) { // TODO: This can be OK as long as
 											// only one of the goals is
 											// reachable for the planner. If
@@ -113,7 +106,7 @@ public class Shrdlite {
 											// come from different parse trees,
 											// there is an ambiguity which needs
 											// a clarification question.
-				result.put("output", "Ambiguity error!");
+				result.setOutput("Ambiguity error!");
 
 			} else {
 				Planner planner = new Planner(world);
@@ -143,26 +136,24 @@ public class Shrdlite {
 																 * goals are
 																 * intended.
 																 */
-				result.put("plan", plan);
+				result.setPlans(plan);
 
 				if (plan.isEmpty()) {
-					result.put("output", "Planning error!");
+					result.setOutput("Planning error!");
 				} else {
-					result.put("output", "Success!");
+					result.setOutput("Success!");
 				}
 			}
 		}
 
-		System.out.print(result);
-
 		FileWriter fw = new FileWriter("./result.json");
-		String jsonString = result.toJSONString();
-		String pretty = com.cedarsoftware.util.io.JsonWriter.formatJson(jsonString);
+		String jsonString = new Gson().toJson(result);
+		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);
 		fw.write(pretty);
 		fw.close();
 
 		log.close();
-		
+		System.out.println(jsonString);
 	}
 
 	public static String readFromReader(Reader reader) throws IOException {

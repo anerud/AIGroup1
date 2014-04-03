@@ -11,6 +11,14 @@ public class WorldObject implements Cloneable{
      */
     public WorldObject(){}
 
+    public WorldObject(String form, String size, String color) {
+        this.form = form;
+        this.size = size;
+        this.color = color;
+        this.id = "";
+    }
+
+    
     public WorldObject(String form, String size, String color, String id) {
         this.form = form;
         this.size = size;

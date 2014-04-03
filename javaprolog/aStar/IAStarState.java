@@ -2,9 +2,9 @@ package aStar;
 
 import java.util.Collection;
 
-public interface AStarState extends Comparable<AStarState>{
+public interface IAStarState extends Comparable<IAStarState>{
 
-	public Collection<? extends AStarState> expand();
+	public Collection<? extends IAStarState> expand();
 	
 	public double getStateValue();
 	

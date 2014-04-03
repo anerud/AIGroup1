@@ -4,21 +4,21 @@ import java.util.PriorityQueue;
 
 public class AStar {
 	
-	private PriorityQueue<AStarState> q;
-	private AStarState currentState;
+	private PriorityQueue<IAStarState> q;
+	private IAStarState currentState;
 	
 	/**
 	 * Creates an AStar object with an empty priority queue
 	 */
 	public AStar() {
-		q = new PriorityQueue<AStarState>();
+		q = new PriorityQueue<IAStarState>();
 	}
 	
 	/**
 	 * Creates an AStar object with a starting point.
 	 * @param staringPoint
 	 */
-	public AStar(AStarState staringPoint) {
+	public AStar(IAStarState staringPoint) {
 		q = new PriorityQueue<>();
 		q.add(staringPoint);
 	}
@@ -40,7 +40,7 @@ public class AStar {
 	/**
 	 * @return the current state
 	 */
-	public AStarState getCurrentState(){
+	public IAStarState getCurrentState(){
 		return currentState;
 	}
 

@@ -24,16 +24,17 @@ public class AStar {
 	}
 	
 	/**
-	 * Polls the first object in the priority queue and expands it.
-	 * @return false if the queue is empty and true otherwise.
-	 * one can loop by:
-	 * while(iterate() || !getCurrentState().hasReachedGoal());
+	 * Runs the aStar algorithm until the goal is reached or
+	 * until the search space is explored.
+	 * @return false if the goal could not be reached. True if
+	 * the goal was reached.
 	 */
-	public boolean iterate(){
-		if(q.isEmpty()) return false;
-		currentState = q.poll();
-		q.addAll(currentState.expand());
-		return true;
+	public boolean run(){
+		while(!q.isEmpty() && !currentState.hasReachedGoal()) {
+			currentState = q.poll();
+			q.addAll(currentState.expand());
+		}
+		return currentState.hasReachedGoal();
 	}
 	
 	/**

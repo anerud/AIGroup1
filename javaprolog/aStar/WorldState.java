@@ -3,10 +3,14 @@ package aStar;
 import main.Goal;
 import world.World;
 
+<<<<<<< HEAD
 import java.util.Collection;
 import java.util.LinkedList;
 
 public class WorldState implements AStarState {
+=======
+public class WorldState implements IAStarState {
+>>>>>>> 820d78374173d7c0d7a53bd2b4017604bf2e96ca
 	
 	private int distance;
 	private int heuristic;
@@ -45,7 +49,7 @@ public class WorldState implements AStarState {
 	}
 
 	@Override
-	public int compareTo(AStarState o) {
+	public int compareTo(IAStarState o) {
 		//Here one can decide whether one wants FIFO or LILO behavior on queue.
 		if(this.getStateValue() - o.getStateValue() > 0){
 			return 1;
@@ -54,8 +58,8 @@ public class WorldState implements AStarState {
 	}
 
 	@Override
-	public Collection<? extends AStarState> expand() {
-		Collection<AStarState> l = new LinkedList<AStarState>();
+	public Collection<? extends IAStarState> expand() {
+		Collection<IAStarState> l = new LinkedList<IAStarState>();
 		if(world.getHolding() != null){
 			for(int i = 0;i<world.getStacks().size();i++){
 				if(world.isPlaceable(i,world.getHolding())){

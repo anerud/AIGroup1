@@ -9,7 +9,10 @@
 __pycache__
 
 .classpath
+<<<<<<< HEAD
 
 *.py
 
 cgi-bin/ajaxwrapper.py
+=======
+>>>>>>> parent of 65fbd64... chenged gitingeoneron

@@ -41,10 +41,10 @@ public class Shrdlite {
 
 		PrintWriter log = new PrintWriter("Log.txt", "UTF-8");
 
-		for(String s : p.getObjects().keySet()){
+		for (String s : p.getObjects().keySet()) {
 			p.getObjects().get(s).setId(s);
 		}
-		
+
 		// Initialize holding object
 		WorldObject holding = p.getObjects().get(p.getHolding());
 		// Initialize world
@@ -58,18 +58,21 @@ public class Shrdlite {
 			worldArr.add(objList);
 		}
 
-		
 		Input result = new Input();
 		result.setUtterance(p.getUtterance());
 
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
+		if (p.getQuestion() != null) {
+
+		} else {
+
+		}
+
 		List<NTree> treeList = new ArrayList<NTree>();
 		for (Term t : trees) {
 			treeList.add(termsToTree((CompoundTerm) t, null));
-			// log.println(termsToTree((CompoundTerm) t, null).toString());
-			// log.println(t.toString());
 		}
 		if (trees.isEmpty()) {
 			result.setOutput("Parse error!");
@@ -91,45 +94,13 @@ public class Shrdlite {
 				if (result.getOutput() == null) {
 					result.setOutput("Interpretation error!");
 				}
-			} else if (goals.size() > 1) { // TODO: This can be OK as long as
-											// only one of the goals is
-											// reachable for the planner. If
-											// more than one goal is reachable
-											// and a pair of reachable goals
-											// come from different parse trees,
-											// there is an ambiguity which needs
-											// a clarification question.
+			} else if (goals.size() > 1) {
 				result.setOutput("Ambiguity error!");
 
 			} else {
 				Planner planner = new Planner(world);
-				List<String> plan = planner.solve(goals.get(0)); /*
-																 * TODO: if we
-																 * have several
-																 * goals from
-																 * the same
-																 * tree, we
-																 * return the
-																 * solution to
-																 * the fastest
-																 * one which the
-																 * planner can
-																 * find a plan
-																 * for. If
-																 * ambiguities
-																 * arise from
-																 * the same
-																 * tree, it is
-																 * up to the
-																 * user to add
-																 * more
-																 * information
-																 * if more
-																 * specific
-																 * goals are
-																 * intended.
-																 */
-				result.setPlans(plan);
+				List<String> plan = planner.solve(goals.get(0));
+				result.setPlan(plan);
 
 				if (plan.isEmpty()) {
 					result.setOutput("Planning error!");
@@ -139,12 +110,12 @@ public class Shrdlite {
 			}
 		}
 
+		log.print(jsinput);
 		FileWriter fw = new FileWriter("./result.json");
 		String jsonString = new Gson().toJson(result);
-		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);
+		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
 		fw.write(pretty);
 		fw.close();
-
 		log.close();
 		System.out.println(jsonString);
 	}

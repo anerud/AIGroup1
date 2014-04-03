@@ -21,7 +21,7 @@ var ArmSpeed = 1000;   // pixels per second
 
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
-var UseSpeech = true;
+var UseSpeech = false;
 
 // There is no way of setting male/female voice,
 // so this is one way of having different voices for user/system:
@@ -70,7 +70,8 @@ var currentExample;
 var currentWorld;
 var currentPlan;
 var currentArmPosition;
-
+var currentQuestion;
+var lastUtterance;
 function stackWidth() {
     return CanvasWidth / currentWorld.world.length;
 }
@@ -428,13 +429,26 @@ function userInput() {
     disableInput();
 
     sayUtterance("user", userinput);
-
+	
+	
+	
     var ajaxdata = {'world': currentWorld.world,
                     'objects': currentWorld.objects,
                     'holding': currentWorld.holding,
                     'state': currentWorld.state,
-                    'utterance': userinput.split(/\s+/)
+                    'utterance': userinput.split(/\s+/),
+					'question' : currentQuestion,
                    };
+	if(currentQuestion){
+		ajaxdata.question.answer = userinput;
+		if(lastUtterance){
+			ajaxdata.utterance = lastUtterance;
+			lastUtterance = null;
+		}
+	}else{
+		lastUtterance = ajaxdata.utterance; 
+	}
+	
 
     $.ajax({
         url: AjaxScript,
@@ -447,18 +461,34 @@ function userInput() {
         systemPrompt();
     }).done(function(result) {
         try {
+			currentQuestion = null;
             result = JSON.parse(result);
+			if(result.question){
+				console.log(result.question);
+				sayUtterance("system", "A question from the server, did you mean: ");
+				var keys = Object.keys(result.question.questions);
+				for(var i = 0 ;i<keys.length;i++){
+					sayUtterance("system", keys[i] +" - " + result.question.questions[keys[i]]);
+				}
+				currentPlan = null;
+				currentQuestion = result.question;
+				enableInput();
+			}else{
+				debugResult(result);
+				sayUtterance("system", result.output);
+				if (result.state) {
+					currentWorld.state = result.state;
+				}
+				currentPlan = result.plan;
+				currentQuestion = null;
+				performPlan();
+			}
         } catch(err) {
 			console.log(result);
             alertError("JSON error222:" + err, result);
         }
-        debugResult(result);
-        sayUtterance("system", result.output);
-        if (result.state) {
-            currentWorld.state = result.state;
-        }
-        currentPlan = result.plan;
-        performPlan();
+		
+
     });
 }
 

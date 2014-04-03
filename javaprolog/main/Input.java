@@ -25,23 +25,33 @@ public class Input {
 
 	private String goals;
 
-	private List<String> plans;
-
+	private List<String> plan;
+	
+	private Question question;
+	
 	public Input() {
 		utterance = new LinkedList<>();
 		worldoriginal = new LinkedList<>();
 		examples = new LinkedList<>();
 		world = new LinkedList<>();
 		objects = new HashMap<>();
-		plans = new LinkedList<>();
+		plan = new LinkedList<>();
+	}
+	
+	public Question getQuestion() {
+		return question;
+	}
+	
+	public void setQuestion(Question question) {
+		this.question = question;
 	}
 
-	public List<String> getPlans() {
-		return plans;
+	public List<String> getPlan() {
+		return plan;
 	}
 
-	public void setPlans(List<String> plans) {
-		this.plans = plans;
+	public void setPlan(List<String> plan) {
+		this.plan = plan;
 	}
 
 	public void setGoals(String goal) {

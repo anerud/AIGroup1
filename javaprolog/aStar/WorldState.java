@@ -1,10 +1,14 @@
 package aStar;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import main.Goal;
 import world.World;
+import world.WorldObject;
 
 public class WorldState implements AStarState {
 	
@@ -12,21 +16,24 @@ public class WorldState implements AStarState {
 	private int heuristic;
 	private World world;
 	private Goal goal;
+	private List<String> actionsToGetHere;
+	private Set<WorldObject> objectsToMove;
 	private double heuristicWeight = 1;
-	public WorldState(World world, Goal goal, int distance){
+	public WorldState(World world, Goal goal, int distance, List<String> actionToGetHere){
 		this.world = world;
 		this.goal = goal;
 		this.distance = distance;
 		this.heuristic = computeHeuristic();
+		this.actionsToGetHere = actionToGetHere;
+		objectsToMove = goal.getPddlExpression().getObjs();
 	}
 	
 	private int computeHeuristic() {
-		/*
-		 * TODO: Identify the objects to move.
-		 * 	     Then calculate world.nObjectsOnTopOf(o)
-		 *  	 and add them to form the heuristic.
-		 */
-		return 0;
+		int h = 0;
+		for(WorldObject wo : objectsToMove) {
+			h += 2*world.nObjectsOnTopOf(wo);
+		}
+		return h;
 	}
 	
 	@Override
@@ -36,8 +43,8 @@ public class WorldState implements AStarState {
 	
 	@Override
 	public boolean hasReachedGoal() {
-		// TODO Auto-generated method stub
-		return false;
+		Set<WorldObject> s = world.filterByExistsInWorld(goal.getPddlExpression());
+		return s.size() >= 1;
 	}
 	
 	public void setHeuristicWeight(double heuristicWeight) {
@@ -56,13 +63,16 @@ public class WorldState implements AStarState {
 	@Override
 	public Collection<? extends AStarState> expand() {
 		Collection<AStarState> l = new LinkedList<AStarState>();
+		List<String> newList = new LinkedList<String>();
+		Collections.copy(newList, actionsToGetHere);
 		if(world.getHolding() != null){
 			for(int i = 0;i<world.getStacks().size();i++){
 				if(world.isPlaceable(i,world.getHolding())){
 					World w = world.clone();
 					w.getStacks().get(i).add(w.getHolding());
 					w.setHolding(null);
-					WorldState state = new WorldState(w, goal, this.distance+1);
+					newList.add("(drop " + i + ")");
+					WorldState state = new WorldState(w, goal, this.distance+1,newList);
 					l.add(state);
 				}
 			}
@@ -71,7 +81,8 @@ public class WorldState implements AStarState {
 				if(!world.getStacks().get(i).isEmpty()){
 					World w = world.clone();
 					w.setHolding(w.getStacks().get(i).pop());
-					WorldState state = new WorldState(w, goal, this.distance+1);
+					newList.add("(pick " + i + ")");
+					WorldState state = new WorldState(w, goal, this.distance+1,newList);
 					l.add(state);
 				}
 			}

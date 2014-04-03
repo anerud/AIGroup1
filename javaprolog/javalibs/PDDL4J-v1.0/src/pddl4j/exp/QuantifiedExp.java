@@ -30,15 +30,11 @@
 
 package pddl4j.exp;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.Variable;
+
+import java.util.*;
 
 /**
  * This abstract class is extended by all quantified expression.

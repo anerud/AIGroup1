@@ -1,11 +1,11 @@
 package main;
 
+import world.WorldObject;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import world.WorldObject;
 
 public class Input {
 
@@ -13,7 +13,7 @@ public class Input {
 
 	private List<String> utterance;
 
-	private List<List<String>> worldorginial;
+	private List<List<String>> worldoriginal;
 
 	private List<List<String>> examples;
 
@@ -29,7 +29,7 @@ public class Input {
 
 	public Input() {
 		utterance = new LinkedList<>();
-		worldorginial = new LinkedList<>();
+		worldoriginal = new LinkedList<>();
 		examples = new LinkedList<>();
 		world = new LinkedList<>();
 		objects = new HashMap<>();
@@ -88,16 +88,16 @@ public class Input {
 		return world;
 	}
 
-	public List<List<String>> getWorldorginial() {
-		return worldorginial;
+	public List<List<String>> getWorldoriginal() {
+		return worldoriginal;
 	}
 
 	public void setWorld(List<List<String>> world) {
 		this.world = world;
 	}
 
-	public void setWorldorginial(List<List<String>> worldorginial) {
-		this.worldorginial = worldorginial;
+	public void setWorldoriginal(List<List<String>> worldoriginal) {
+		this.worldoriginal = worldoriginal;
 	}
 
 	public Map<String, WorldObject> getObjects() {

@@ -30,40 +30,20 @@
 
 package pddl4j.graphplan;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-
-import pddl4j.ErrorManager;
-import pddl4j.PDDLObject;
-import pddl4j.Parser;
-import pddl4j.RequireKey;
-import pddl4j.Source;
+import pddl4j.*;
 import pddl4j.ErrorManager.Message;
-import pddl4j.InvalidExpException;
-import pddl4j.exp.AndExp;
-import pddl4j.exp.AtomicFormula;
-import pddl4j.exp.Exp;
-import pddl4j.exp.ExpID;
-import pddl4j.exp.InitEl;
-import pddl4j.exp.Literal;
-import pddl4j.exp.NotAtomicFormula;
-import pddl4j.exp.NotExp;
-import pddl4j.exp.term.Substitution;
-import pddl4j.exp.term.Variable;
-import pddl4j.exp.term.Term;
+import pddl4j.exp.*;
 import pddl4j.exp.action.Action;
 import pddl4j.exp.action.ActionDef;
 import pddl4j.exp.action.ActionID;
 import pddl4j.exp.fcomp.FCompExp;
 import pddl4j.exp.term.Constant;
+import pddl4j.exp.term.Substitution;
+import pddl4j.exp.term.Term;
+import pddl4j.exp.term.Variable;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * This class implements the graphplan planner as an example of the pddl4j

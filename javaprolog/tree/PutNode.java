@@ -2,7 +2,7 @@ package tree;
 
 import main.Interpreter;
 
-import java.util.*;
+import java.util.LinkedList;
 
 public class PutNode extends Node {
 

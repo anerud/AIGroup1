@@ -3,27 +3,21 @@ package main;
 // Then test from the command line:
 // java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. main.Shrdlite < ../examples/medium.json
 
-import gnu.prolog.term.*;
-import gnu.prolog.vm.PrologException;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import main.DCGParser;
-import main.Goal;
-import main.Interpreter;
-import main.Planner;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
+import gnu.prolog.term.AtomTerm;
+import gnu.prolog.term.CompoundTerm;
+import gnu.prolog.term.Term;
+import gnu.prolog.vm.PrologException;
 import tree.*;
 import world.World;
 import world.WorldObject;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Shrdlite {
 

@@ -30,13 +30,13 @@
 
 package pddl4j.exp;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.Variable;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This interface is implemented by all expression of the PDDL language.

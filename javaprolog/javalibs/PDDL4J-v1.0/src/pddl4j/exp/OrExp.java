@@ -30,12 +30,12 @@
 
 package pddl4j.exp;
 
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Variable;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This generic class is implemented by all disjunctive PDDL expression.

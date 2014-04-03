@@ -30,13 +30,13 @@
 
 package pddl4j.graphplan;
 
+import pddl4j.exp.AtomicFormula;
+import pddl4j.exp.term.Term;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import pddl4j.exp.AtomicFormula;
-import pddl4j.exp.term.Term;
 
 /**
  * This class implements a layered plan.

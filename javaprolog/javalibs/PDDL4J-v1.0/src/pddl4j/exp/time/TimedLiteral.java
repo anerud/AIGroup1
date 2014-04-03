@@ -30,14 +30,14 @@
 
 package pddl4j.exp.time;
 
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import pddl4j.exp.Literal;
 import pddl4j.exp.fexp.Number;
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements a timed literal used in initial state definition of the

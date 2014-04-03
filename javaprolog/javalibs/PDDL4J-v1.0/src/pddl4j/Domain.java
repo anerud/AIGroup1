@@ -30,16 +30,16 @@
 
 package pddl4j;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Set;
-
 import pddl4j.exp.AtomicFormula;
 import pddl4j.exp.action.ActionDef;
 import pddl4j.exp.term.Constant;
 import pddl4j.exp.type.Type;
 import pddl4j.exp.type.TypeSet;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This interface defines the accessible methods from a domain.

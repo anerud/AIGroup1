@@ -30,14 +30,14 @@
 
 package pddl4j.exp;
 
+import pddl4j.exp.term.Substitution;
+import pddl4j.exp.term.Term;
+import pddl4j.exp.term.Variable;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import pddl4j.exp.term.Substitution;
-import pddl4j.exp.term.Term;
-import pddl4j.exp.term.Variable;
 
 /**
  * This class is implemented by all implication expression of the PDDL langage.

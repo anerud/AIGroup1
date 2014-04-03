@@ -30,13 +30,13 @@
 
 package pddl4j.exp.action;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Iterator;
-
 import pddl4j.exp.AndExp;
 import pddl4j.exp.Exp;
 import pddl4j.exp.term.Term;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements a strips action of the pddl language.

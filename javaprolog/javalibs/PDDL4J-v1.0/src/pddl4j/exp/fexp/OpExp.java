@@ -30,14 +30,14 @@
 
 package pddl4j.exp.fexp;
 
-import java.util.Iterator;
-
 import pddl4j.EvaluationException;
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.TermID;
 import pddl4j.exp.type.Type;
 import pddl4j.exp.type.TypeSet;
+
+import java.util.Iterator;
 
 /**
  * This class implements an arithmetic function.

@@ -1,22 +1,15 @@
 package main;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.ListIterator;
-
-import gnu.prolog.database.PrologTextLoaderError;
-import gnu.prolog.io.TermWriter;
 import gnu.prolog.term.AtomTerm;
 import gnu.prolog.term.CompoundTerm;
-import gnu.prolog.term.IntegerTerm;
 import gnu.prolog.term.Term;
 import gnu.prolog.term.VariableTerm;
-import gnu.prolog.vm.Environment;
+import gnu.prolog.vm.*;
 import gnu.prolog.vm.Interpreter;
-import gnu.prolog.vm.Interpreter.Goal;
-import gnu.prolog.vm.PrologCode;
-import gnu.prolog.vm.PrologException;
-import gnu.prolog.vm.TermConstants;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 public class DCGParser {
     private static final String prologParserFile = "dcg_parser.pl";

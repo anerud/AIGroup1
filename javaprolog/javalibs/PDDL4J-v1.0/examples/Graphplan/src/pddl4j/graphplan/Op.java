@@ -30,9 +30,9 @@
 
 package pddl4j.graphplan;
 
-import java.util.BitSet;
-
 import pddl4j.exp.AtomicFormula;
+
+import java.util.BitSet;
 
 /**
  * This class implements the internal representation of an operator for the

@@ -36,15 +36,8 @@ package pddl4j.tests;
 import pddl4j.exp.AndExp;
 import pddl4j.exp.AtomicFormula;
 import pddl4j.exp.ExistsExp;
-import pddl4j.exp.Exp;
 import pddl4j.exp.ForallExp;
-import pddl4j.exp.ImplyExp;
-import pddl4j.exp.NotAtomicFormula;
-import pddl4j.exp.NotExp;
-import pddl4j.exp.OrExp;
-import pddl4j.exp.term.Constant;
 import pddl4j.exp.term.Variable;
-import pddl4j.exp.type.Type;
 
 public class TestCNF {
 

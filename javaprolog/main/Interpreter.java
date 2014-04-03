@@ -1,11 +1,15 @@
 package main;
-import java.util.*;
-
 
 import logic.LogicalExpression;
 import logic.Quantifier;
 import tree.*;
-import world.*;
+import world.RelativeWorldObject;
+import world.World;
+import world.WorldObject;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class Interpreter {

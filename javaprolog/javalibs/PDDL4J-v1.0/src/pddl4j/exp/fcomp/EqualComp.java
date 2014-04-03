@@ -30,9 +30,6 @@
 
 package pddl4j.exp.fcomp;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-
 import pddl4j.EvaluationException;
 import pddl4j.exp.InitEl;
 import pddl4j.exp.fexp.Number;
@@ -41,6 +38,9 @@ import pddl4j.exp.term.Constant;
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.TermID;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements the equality comparaison function add of the pddl

@@ -30,14 +30,10 @@
 
 package pddl4j.exp.term;
 
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.term.Substitution.Binding;
+
+import java.io.Serializable;
+import java.util.*;
 
 
 /**

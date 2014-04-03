@@ -1,14 +1,14 @@
 package main;
 
-import gnu.prolog.vm.PrologException;
-import com.google.gson.JsonSyntaxException;
-
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import gnu.prolog.vm.PrologException;
 
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Roland on 2014-03-31.

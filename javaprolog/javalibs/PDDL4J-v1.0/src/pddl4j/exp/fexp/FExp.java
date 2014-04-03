@@ -30,21 +30,11 @@
 
 package pddl4j.exp.fexp;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.EvaluationException;
-import pddl4j.exp.term.AbstractTerm;
-import pddl4j.exp.term.BindingException;
-import pddl4j.exp.term.Substitution;
-import pddl4j.exp.term.Term;
-import pddl4j.exp.term.TermID;
-import pddl4j.exp.term.Variable;
+import pddl4j.exp.term.*;
 import pddl4j.exp.type.TypeSet;
+
+import java.util.*;
 
 /**
  * This class implements a function expression in the PDDL language.

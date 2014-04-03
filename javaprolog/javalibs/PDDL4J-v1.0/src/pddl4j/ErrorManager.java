@@ -32,14 +32,7 @@ package pddl4j;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * This class implements the error manager used by the parser and java pddl

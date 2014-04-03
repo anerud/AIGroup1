@@ -30,11 +30,11 @@
 
 package pddl4j.exp.cond;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-
 import pddl4j.exp.Exp;
 import pddl4j.exp.term.Substitution;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements an "always" conditional expression of the PDDL langage.

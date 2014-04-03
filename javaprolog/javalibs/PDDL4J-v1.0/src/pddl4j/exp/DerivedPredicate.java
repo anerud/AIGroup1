@@ -30,13 +30,13 @@
 
 package pddl4j.exp;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.Variable;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class implements a derived predicate of the PDDL language.

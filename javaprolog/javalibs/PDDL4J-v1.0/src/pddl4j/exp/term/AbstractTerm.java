@@ -30,15 +30,15 @@
 
 package pddl4j.exp.term;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.AbstractExp;
 import pddl4j.exp.ExpID;
 import pddl4j.exp.type.Type;
 import pddl4j.exp.type.TypeSet;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /** 
  * This abstract class implements the common part of all term used in PDDL language.

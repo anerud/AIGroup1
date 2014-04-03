@@ -1,14 +1,7 @@
 package main;
+
 import logic.LogicalExpression;
-import org.omg.PortableInterceptor.HOLDING;
-import pddl4j.Domain;
-import pddl4j.PDDLObject;
-import pddl4j.Parser;
-import pddl4j.Problem;
-import pddl4j.exp.AtomicFormula;
-import pddl4j.exp.Exp;
 import world.RelativeWorldObject;
-import world.World;
 import world.WorldObject;
 
 /**

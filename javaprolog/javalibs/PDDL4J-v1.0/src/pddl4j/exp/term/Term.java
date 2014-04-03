@@ -30,10 +30,10 @@
 
 package pddl4j.exp.term;
 
-import java.util.Map;
-
 import pddl4j.exp.Exp;
 import pddl4j.exp.type.TypeSet;
+
+import java.util.Map;
 
 /**
  * This interface define all the method applicable to a PDDL term.

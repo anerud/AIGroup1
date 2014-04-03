@@ -30,13 +30,13 @@
 
 package pddl4j.exp.term;
 
+import pddl4j.exp.type.Type;
+import pddl4j.exp.type.TypeSet;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import pddl4j.exp.type.Type;
-import pddl4j.exp.type.TypeSet;
 
 /**
  * This class implements a variable.

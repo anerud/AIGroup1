@@ -30,12 +30,12 @@
 
 package pddl4j.exp.fexp;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import pddl4j.exp.term.TermID;
 import pddl4j.exp.type.Type;
 import pddl4j.exp.type.TypeSet;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements a number in the PDDL langage.

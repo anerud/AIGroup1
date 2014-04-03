@@ -30,12 +30,12 @@
 
 package pddl4j.exp;
 
+import pddl4j.exp.term.Substitution;
+import pddl4j.exp.term.Variable;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import pddl4j.exp.term.Substitution;
-import pddl4j.exp.term.Variable;
 
 /**
  * This abstract generic class is implemented by all conjunctive PDDL expression.

@@ -30,17 +30,12 @@
 
 package pddl4j.exp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.TermID;
 import pddl4j.exp.term.Variable;
+
+import java.util.*;
 
 /**
  * This class implements a atomic formula of the PDDL langage.

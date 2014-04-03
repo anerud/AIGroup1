@@ -23,11 +23,11 @@
 
 package pddl4j.exp.assign;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class implements the assign operation "scale" of the pddl language.

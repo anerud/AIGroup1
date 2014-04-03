@@ -30,12 +30,11 @@
 
 package pddl4j.exp.action;
 
+import pddl4j.exp.term.Term;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
-import pddl4j.exp.term.Term;
 
 /**
  * This interface is implemented by all type of action defined in the PDDL

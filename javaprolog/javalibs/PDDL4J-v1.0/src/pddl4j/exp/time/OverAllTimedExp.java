@@ -30,10 +30,10 @@
 
 package pddl4j.exp.time;
 
+import pddl4j.exp.Exp;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import pddl4j.exp.Exp;
 
 /**
  * This class implements an "over all" timed expression of the PDDL language.

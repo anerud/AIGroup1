@@ -23,10 +23,10 @@
 
 package pddl4j.exp;
 
-import java.util.Iterator;
-
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
+
+import java.util.Iterator;
 
 /**
  * This class implements negative atomic formula of the PDDL language.

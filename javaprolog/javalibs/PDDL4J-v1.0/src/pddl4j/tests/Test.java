@@ -33,19 +33,12 @@
 
 package pddl4j.tests;
 
+import pddl4j.*;
+import pddl4j.ErrorManager.Message;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Iterator;
 import java.util.Properties;
-
-import pddl4j.ErrorManager;
-import pddl4j.PDDLObject;
-import pddl4j.Parser;
-import pddl4j.ParserException;
-import pddl4j.RequireKey;
-import pddl4j.Source;
-import pddl4j.ErrorManager.Message;
-import pddl4j.exp.action.ActionDef;
 
 public class Test {
 

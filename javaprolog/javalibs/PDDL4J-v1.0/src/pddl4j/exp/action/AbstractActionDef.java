@@ -31,11 +31,11 @@
 package pddl4j.exp.action;
 
 
+import pddl4j.exp.term.Term;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import pddl4j.exp.term.Term;
 
 /**
  * This class implements the common structures and method shares by all PDDL

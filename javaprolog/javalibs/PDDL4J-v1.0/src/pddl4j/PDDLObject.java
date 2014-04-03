@@ -30,26 +30,16 @@
 
 package pddl4j;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import pddl4j.exp.AndExp;
-import pddl4j.exp.AtomicFormula;
-import pddl4j.exp.DerivedPredicate;
-import pddl4j.exp.Exp;
-import pddl4j.exp.InitEl;
+import pddl4j.exp.*;
 import pddl4j.exp.action.ActionDef;
 import pddl4j.exp.fexp.FHead;
 import pddl4j.exp.metric.MetricExp;
+import pddl4j.exp.term.Constant;
 import pddl4j.exp.type.Type;
 import pddl4j.exp.type.TypeSet;
-import pddl4j.exp.term.Constant;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * This class implements a PDDL object that represente a planning domain either

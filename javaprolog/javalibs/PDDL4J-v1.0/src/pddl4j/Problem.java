@@ -30,15 +30,15 @@
 
 package pddl4j;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
-
 import pddl4j.exp.Exp;
 import pddl4j.exp.InitEl;
 import pddl4j.exp.metric.MetricExp;
 import pddl4j.exp.term.Constant;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This interface defines the accessible methods from a problem.

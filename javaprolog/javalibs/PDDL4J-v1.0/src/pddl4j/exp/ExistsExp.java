@@ -30,10 +30,10 @@
 
 package pddl4j.exp;
 
+import pddl4j.exp.term.Variable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import pddl4j.exp.term.Variable;
 
 /**
  * This class implements an existential expression of the PDDL language.

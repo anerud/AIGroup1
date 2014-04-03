@@ -30,17 +30,17 @@
 
 package pddl4j.exp.assign;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import pddl4j.exp.AbstractExp;
 import pddl4j.exp.ExpID;
 import pddl4j.exp.term.Substitution;
 import pddl4j.exp.term.Term;
 import pddl4j.exp.term.TermID;
 import pddl4j.exp.term.Variable;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class implements an assign operation of the PDDL language.

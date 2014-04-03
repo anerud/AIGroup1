@@ -1,10 +1,10 @@
 package aStar;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import main.Goal;
 import world.World;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 public class WorldState implements AStarState {
 	

@@ -64,10 +64,15 @@ public class Shrdlite {
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
-		if (p.getQuestion() != null) {
-
+		if (p.getQuestion() != null && p.getQuestion().getAnswer() != null) {
+			String q = p.getQuestion().getQuestions().get(p.getQuestion().getAnswer());
+			if (q != null) {
+				//TODO: Fått svar på frågan, q är den valda frågan!
+			}else{
+				//TODO: Fått dåligt svar på frågan
+			}
 		} else {
-
+			//TODO: Ingen fråga ställd!
 		}
 
 		List<NTree> treeList = new ArrayList<NTree>();

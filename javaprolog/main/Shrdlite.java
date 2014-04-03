@@ -73,8 +73,7 @@ public class Shrdlite {
 		JSONObject result = new JSONObject();
 		result.put("utterance", utterance);
 
-		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
-
+		DCGParser parser = new DCGParser("..\\shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", utterance);
 
 		List<NTree> treeList = new ArrayList<NTree>();

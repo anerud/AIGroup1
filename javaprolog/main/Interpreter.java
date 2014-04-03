@@ -227,7 +227,7 @@ public class Interpreter {
                 return le;
             } else { //ANY, AND
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                //this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous! If not, it is not appropriate to enumerate all possibilities. It is then better that quantifiers are retained in the pddl. That is, we need to introduce second order logic in the pddl. Without it, the expressions will be insanely big.
+                //this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous!
                 return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
             }
 //            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);

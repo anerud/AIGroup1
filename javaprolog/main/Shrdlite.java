@@ -69,7 +69,6 @@ public class Shrdlite {
 		result.setUtterance(p.getUtterance());
 
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
-
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
 		List<NTree> treeList = new ArrayList<NTree>();

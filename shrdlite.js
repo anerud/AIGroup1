@@ -478,7 +478,7 @@ function sayUtterance(participant, utterance, silent) {
             for (var attr in Voices[participant]) {
                 speech[attr] = Voices[participant][attr];
             }
-            console.log("SPEAKING: " + utterance);
+            console.log("speakING: " + utterance);
             //window.speechSynthesis.speak(speech);
         } catch(err) {
         }

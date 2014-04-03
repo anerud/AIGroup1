@@ -1,42 +1,106 @@
 package main;
+import logic.LogicalExpression;
+import org.omg.PortableInterceptor.HOLDING;
 import pddl4j.Domain;
 import pddl4j.PDDLObject;
 import pddl4j.Parser;
 import pddl4j.Problem;
 import pddl4j.exp.AtomicFormula;
 import pddl4j.exp.Exp;
+import world.RelativeWorldObject;
+import world.World;
+import world.WorldObject;
 
 /**
  * Wraps a pddl expression Exp. A goal is a logical expression (Exp) which describes the desired relationship between objects in the world.
  */
 public class Goal {
 
-    public String getPddlExpressionStr() {
-        return pddlExpressionStr;
+    public enum Action{
+        MOVE, PUT, TAKE
     }
 
-    private String pddlExpressionStr;
-    private Exp pddlExpression;
+    private LogicalExpression<WorldObject> pddlExpression;
+    private Action action;
+    private String pddlString;
 
-    public Goal(Exp pddlExpression){   //TODO: use this constructor instead
+    public Goal(LogicalExpression<WorldObject> pddlExpression, Action action){
         this.pddlExpression = pddlExpression;
+        this.action = action;
     }
 
-    public Goal(String pddlExpression){
-        this.pddlExpressionStr = pddlExpression;
+    public Goal(String pddlString){
+        this.pddlString = pddlString;
     }
 
-	@Override
-	public String toString() {
-		return pddlExpressionStr;//TODO pddlExpression.toString();
-	}
+
+    @Override
+    public String toString(){
+        return toPDDLString();
+    }
+
+    public String toPDDLString(){
+        if(pddlString != null){
+            return pddlString;
+        }
+        if(action.equals(Action.TAKE)){
+            return toPDDLString(pddlExpression, "holding ");
+        } else {
+            return toPDDLString(pddlExpression, "");
+        }
+    }
+
+    /**
+     * Recursively builds a PDDL expression from a LogicalExpression
+     * @param expression
+     * @return an empty string if there is nothing contained in the LogicalExpression
+     */
+    private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
+        StringBuilder pddlString = new StringBuilder();
+        if(expression.size() > 1){
+            LogicalExpression.Operator op = expression.getOp();
+            pddlString.append("(" + op.toString() + " ");
+            if(expression.getObjs() != null){
+                for(WorldObject obj : expression.getObjs()){
+                    if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
+                        RelativeWorldObject relObj = (RelativeWorldObject)obj;
+                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
+                    } else {
+                        if(singlePredicate.equals("")){
+                            pddlString.append(obj.getId());
+                        } else {
+                            pddlString.append("(" + singlePredicate + obj.getId() + ") ");}
+
+                    }
+                }
+            }
+            for(LogicalExpression exp : expression.getExpressions()){
+                pddlString.append(toPDDLString(exp, singlePredicate) + " "); //Recursively build string
+            }
+            //Remove last extra space
+            pddlString.deleteCharAt(pddlString.length() - 1);
+            pddlString.append(")");
+        } else if (expression.size() == 1) {
+            //Assume the RelativeWorldobject in question is at the top level of the expression
+            WorldObject wo = expression.getObjs().iterator().next();
+            if(wo instanceof RelativeWorldObject && ((RelativeWorldObject)wo).getRelativeTo() != null){
+                RelativeWorldObject relObj = (RelativeWorldObject)wo;
+                pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
+            } else {
+                if(singlePredicate.equals("")){
+                    pddlString.append(wo.getId());
+                } else {
+                    pddlString.append("(" + singlePredicate + wo.getId() + ")");
+                }
+            }
+        }
+        return pddlString.toString();
+    }
 
 
-
-    public Exp getPddlExpression() {
+    public LogicalExpression<WorldObject> getPddlExpression() {
         return pddlExpression;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -45,9 +109,8 @@ public class Goal {
 
         Goal goal = (Goal) o;
 
+        if (action != goal.action) return false;
         if (pddlExpression != null ? !pddlExpression.equals(goal.pddlExpression) : goal.pddlExpression != null)
-            return false;
-        if (pddlExpressionStr != null ? !pddlExpressionStr.equals(goal.pddlExpressionStr) : goal.pddlExpressionStr != null)
             return false;
 
         return true;
@@ -55,23 +118,8 @@ public class Goal {
 
     @Override
     public int hashCode() {
-        int result = pddlExpressionStr != null ? pddlExpressionStr.hashCode() : 0;
-        result = 31 * result + (pddlExpression != null ? pddlExpression.hashCode() : 0);
+        int result = pddlExpression != null ? pddlExpression.hashCode() : 0;
+        result = 31 * result + (action != null ? action.hashCode() : 0);
         return result;
     }
 }
-
-//TODO: Integrate properly with the library. Some random example code:
-//        this.formula = new AtomicFormula(predicate);
-//        formula.add();
-//        PDDLObject pddl = new PDDLObject();
-//        Exp goal = pddl.getGoal();
-
-// Creates an instance of the java pddl parser
-//        Parser parser = new Parser(options);
-//        Domain domain = parser.parse(new File(args[0]));
-//        Problem problem = parser.parse(new File(args[1]));
-//        PDDLObject obj = parser.link(domain, problem);
-
-//    private final AtomicFormula formula;
-//Goal should be an atomic formula? Instead of internal represenation?

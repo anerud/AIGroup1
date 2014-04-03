@@ -55,53 +55,6 @@ public class Interpreter {
     private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{
 
         /**
-         * Recursively builds a PDDL expression from a LogicalExpression
-         * @param expression
-         * @return an empty string if there is nothing contained in the LogicalExpression
-         */
-        private String toPDDLString(LogicalExpression<WorldObject> expression, String singlePredicate) {
-            StringBuilder pddlString = new StringBuilder();
-            if(expression.size() > 1){
-                LogicalExpression.Operator op = expression.getOp();
-                pddlString.append("(" + op.toString() + " ");
-                if(expression.getObjs() != null){
-                    for(WorldObject obj : expression.getObjs()){
-                        if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
-                            RelativeWorldObject relObj = (RelativeWorldObject)obj;
-                            pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
-                        } else {
-                            if(singlePredicate.equals("")){
-                                pddlString.append(obj.getId());
-                            } else {
-                                pddlString.append("(" + singlePredicate + obj.getId() + ") ");}
-
-                        }
-                    }
-                }
-                for(LogicalExpression exp : expression.getExpressions()){
-                    pddlString.append(toPDDLString(exp, singlePredicate) + " "); //Recursively build string
-                }
-                //Remove last extra space
-                pddlString.deleteCharAt(pddlString.length() - 1);
-                pddlString.append(")");
-            } else if (expression.size() == 1) {
-                //Assume the RelativeWorldobject in question is at the top level of the expression
-                WorldObject wo = expression.getObjs().iterator().next();
-                if(wo instanceof RelativeWorldObject && ((RelativeWorldObject)wo).getRelativeTo() != null){
-                    RelativeWorldObject relObj = (RelativeWorldObject)wo;
-                    pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
-                } else {
-                    if(singlePredicate.equals("")){
-                        pddlString.append(wo.getId());
-                    } else {
-                        pddlString.append("(" + singlePredicate + wo.getId() + ")");
-                    }
-                }
-            }
-            return pddlString.toString();
-        }
-
-        /**
          * The put operation only operates on objects of the form "it". That is, "it" refers to the object currently being held.
          * Note that most usages of put as input to main.Shrdlite translates to move operations here and not put operations.
          * @param n
@@ -127,12 +80,10 @@ public class Interpreter {
             //NOTE: It's not possible to create one simple "ontop" PDDL goal for each possible placement which fulfils a relation unless the quantifier "THE" was used. //TODO: when "THE" is used, determine the exact possible relations.. or perhaps leave this to the planner
             // That is, in some cases it's up to the planner to make a situation possible.
             //Create PDDL goals
-            String pddlString = toPDDLString(attached, "");
             Goal goal = null;
-            if(!pddlString.equals("")){
-                goal = new Goal(pddlString);
+            if(!(attached.size() == 0)){
+                goal = new Goal(attached, Goal.Action.PUT);
             }
-
 			return goal;
 		}
 
@@ -160,10 +111,9 @@ public class Interpreter {
                 }
             }
 
-            String pddlString = toPDDLString(filteredObjectsNew, "holding ");
             Goal goal = null;
-            if(!pddlString.equals("")){
-                goal = new Goal(pddlString);
+            if(!(filteredObjectsNew.size() == 0)){
+                goal = new Goal(filteredObjectsNew, Goal.Action.TAKE);
             }
             return goal;
         }
@@ -188,15 +138,12 @@ public class Interpreter {
             LogicalExpression<WorldObject> simplified = attached.simplifyExpression();
 
             //Create PDDL goal
-            String pddlString = toPDDLString(simplified, "");
             Goal goal = null;
-            if(!pddlString.equals("")){
-                goal = new Goal(pddlString);
+            if(!(attached.size() == 0)){
+                goal = new Goal(simplified, Goal.Action.MOVE);
             }
-
             return goal;
 		}
-    	
     }
 
     private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
@@ -227,7 +174,7 @@ public class Interpreter {
                 return le;
             } else { //ANY, AND
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                //this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous! If not, it is not appropriate to enumerate all possibilities. It is then better that quantifiers are retained in the pddl. That is, we need to introduce second order logic in the pddl. Without it, the expressions will be insanely big.
+                //this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous!
                 return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
             }
 //            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);

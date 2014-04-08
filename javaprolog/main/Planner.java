@@ -6,6 +6,7 @@ import world.World;
 import world.WorldObject;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Planner {
@@ -17,7 +18,7 @@ public class Planner {
 	}
 
 	public List<String> solve(Goal goal){
-        WorldState ws = new WorldState(world, goal, 0, null);
+        WorldState ws = new WorldState(world, goal, new LinkedList<String>());
         AStar astar = new AStar(ws);
         if(astar.run()){
             return ((WorldState)astar.getCurrentState()).getBestActionsToGetHere();

@@ -639,6 +639,21 @@ public class World{
     	return new World(cStack,cCon,this.holding);
     }
 
+    public String getRepresentString(){
+    	StringBuilder sb = new StringBuilder();
+    	if(holding!=null){
+    		sb.append(holding.getId());
+    	}
+    	sb.append(".");
+    	for(LinkedList<WorldObject> wl : stacks){
+    		for(WorldObject wo : wl){
+    			sb.append(wo.getId());
+    			sb.append(",");
+    		}
+    		sb.append(".");
+    	}
+    	return sb.toString();
+    }
     
     /**
      * @param columnIndex

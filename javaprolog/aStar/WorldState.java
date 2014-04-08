@@ -20,7 +20,6 @@ public class WorldState implements IAStarState {
      *
      * @param world
      * @param goal
-     * @param bestDistanceToGetHere
      * @param actionToGetHere if null, this is assumed to be the initial state
      */
     public WorldState(World world, Goal goal, List<String> actionToGetHere){

@@ -679,7 +679,20 @@ public class World{
             return (s.size() != 1) && holding.getId().equals(s.iterator().next().getId());
         }
         if(op.equals(LogicalExpression.Operator.AND)){
-            return s.size() == (le.getObjs() == null ? 0 : le.getObjs().size()) + le.getExpressions().size(); //TODO: for this to work, there can be no empty expressions..
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(!s.contains(new WorldObject(wo))){
+                        return false;
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> le2 : le.getExpressions()){
+                Goal g = new Goal(le2, goal.getAction());
+                if(!isGoalFulFilled(g)){
+                    return false;
+                }
+            }
+            return true;
         }
         return s.size() >= 1;
     }

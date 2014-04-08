@@ -64,7 +64,7 @@ public class WorldState implements IAStarState {
 
 	@Override
 	public int compareTo(IAStarState o) {
-		//Here one can decide whether one wants FIFO or LILO behavior on queue.     // <--- Same thing, different name
+		//Here one can decide whether one wants FIFO or LIFO behavior on queue.
 		if(this.getStateValue() - o.getStateValue() > 0){
 			return 1;
 		}

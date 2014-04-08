@@ -30,6 +30,16 @@ public class WorldState implements IAStarState {
 		this.bestDistanceToGetHere = bestDistanceToGetHere;
 		this.distanceToGoHeuristic = 0; //computeHeuristic();
 		this.bestActionsToGetHere = actionToGetHere == null ? new ArrayList<String>() : actionToGetHere;
+
+        //Debug
+        if(bestActionsToGetHere.size() == 3){
+            if(bestActionsToGetHere.get(1).equals("pick 9")){
+                String hupp = "drop " + bestActionsToGetHere.get(0).split(" ")[1];
+                if(bestActionsToGetHere.get(2).equals(hupp)){
+                    bestActionsToGetHere.size();
+                }
+            }
+        }
 	}
 	
 	private int computeHeuristic() {     //TODO: this will not work.. The heuristic below is not a lower bound.
@@ -68,6 +78,7 @@ public class WorldState implements IAStarState {
 		if(this.getStateValue() - o.getStateValue() > 0){
 			return 1;
 		}
+        if(this.getStateValue() == o.getStateValue()) return 0;
 		return -1;
 	}
 
@@ -80,8 +91,16 @@ public class WorldState implements IAStarState {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
 
 		if(world.getHolding() != null){
-			for(int i = 0; i<world.getStacks().size(); i++){
+            for(int i = 0; i<world.getStacks().size(); i++){
                 World w = world.clone();
+
+                //Debug
+                if(bestActionsToGetHere.size() == 2){
+                    if(bestActionsToGetHere.get(1).equals("pick 9")){
+//                        String hupp = "drop " + bestActionsToGetHere.get(0).split(" ")[1];
+                        bestActionsToGetHere.size();
+                    }
+                }
                 if(w.drop(i)){
                     List<String> newList = new LinkedList<String>(bestActionsToGetHere);
                     newList.add("drop " + i);

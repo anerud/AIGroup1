@@ -185,7 +185,7 @@ public class World{
             return false;
         }
         WorldObject top = topOfStack(woColumn);
-        if(top != null && !isValidRelation(WorldConstraint.Relation.ONTOP, holding, top)){
+        if(top != null && !(top.getForm().equals("box") ? isValidRelation(WorldConstraint.Relation.INSIDE, holding, top) : isValidRelation(WorldConstraint.Relation.ONTOP, holding, top))){
             return false;
         }  //This assumes it's always ok to put stuff directly on the floor
         stacks.get(woColumn).addLast(holding);

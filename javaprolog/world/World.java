@@ -664,7 +664,7 @@ public class World{
             return (s.size() != 1) && holding.getId().equals(s.iterator().next().getId());
         }
         if(op.equals(LogicalExpression.Operator.AND)){
-            return s.size() == le.getObjs().size() + le.getExpressions().size(); //TODO: for this to work, there can be no empty expressions..
+            return s.size() == (le.getObjs() == null ? 0 : le.getObjs().size()) + le.getExpressions().size(); //TODO: for this to work, there can be no empty expressions..
         }
         return s.size() >= 1;
     }

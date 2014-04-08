@@ -24,7 +24,7 @@ public class Shrdlite {
 	public static boolean debug;
 
 	public static void main(String[] args) throws PrologException, JsonSyntaxException, IOException {
-
+		long start = System.currentTimeMillis();
 		String jsinput = null;
 		if (args.length == 0) {
 			jsinput = readFromReader(new InputStreamReader(System.in));
@@ -121,7 +121,14 @@ public class Shrdlite {
 		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
 		fw.write(pretty);
 		fw.close();
+		
+		long end = System.currentTimeMillis();
+		log.println(start);
+		log.println(end);
+		log.println(end-start);
 		log.close();
+		
+		
 		System.out.println(jsonString);
 	}
 

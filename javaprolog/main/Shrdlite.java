@@ -6,6 +6,8 @@ package main;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.sun.org.apache.xml.internal.utils.NSInfo;
+
 import gnu.prolog.term.AtomTerm;
 import gnu.prolog.term.CompoundTerm;
 import gnu.prolog.term.Term;
@@ -23,8 +25,9 @@ public class Shrdlite {
 
 	public static boolean debug;
 
-	public static void main(String[] args) throws PrologException, JsonSyntaxException, IOException {
+	public static void main(String[] args) throws FileNotFoundException {
 		long start = System.currentTimeMillis();
+		try {
 		String jsinput = null;
 		if (args.length == 0) {
 			jsinput = readFromReader(new InputStreamReader(System.in));
@@ -103,10 +106,11 @@ public class Shrdlite {
 				result.setOutput("Ambiguity error!");
 
 			} else {
+				log.println(goals.get(0).toString());
 				Planner planner = new Planner(world);
 				List<String> plan = planner.solve(goals.get(0));
 				result.setPlan(plan);
-
+				log.println("number of states checked: " + World.nStatesChecked);
 				if (plan.isEmpty()) {
 					result.setOutput("Planning error!");
 				} else {
@@ -130,6 +134,15 @@ public class Shrdlite {
 		
 		
 		System.out.println(jsonString);
+		} catch (Exception e) {
+			PrintWriter asdf = new PrintWriter("errorlog.txt");
+			asdf.println(e.getMessage());
+			long end = System.currentTimeMillis();
+			asdf.println(start);
+			asdf.println(end);
+			asdf.println(end-start);
+			asdf.close();
+		}
 	}
 
 	public static String readFromReader(Reader reader) throws IOException {

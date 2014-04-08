@@ -14,10 +14,10 @@ var DialogueHistory = 100;    // max nr. utterances
 var FloorThickness = 10;     // pixels
 var WallSeparation = 4;     // pixels
 var ArmSize = 0.2;         // of stack width
-var AnimationPause = 0.1; // seconds
-var PromptPause = 0.5;   // seconds
-var AjaxTimeout = 5;    // seconds
-var ArmSpeed = 1000;   // pixels per second
+var AnimationPause = 0.0; // seconds
+var PromptPause = 0.0;   // seconds
+var AjaxTimeout = 50;    // seconds
+var ArmSpeed = 4000;   // pixels per second
 
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
@@ -429,9 +429,9 @@ function userInput() {
     disableInput();
 
     sayUtterance("user", userinput);
-	
-	
-	
+
+
+
     var ajaxdata = {'world': currentWorld.world,
                     'objects': currentWorld.objects,
                     'holding': currentWorld.holding,
@@ -446,9 +446,9 @@ function userInput() {
 			lastUtterance = null;
 		}
 	}else{
-		lastUtterance = ajaxdata.utterance; 
+		lastUtterance = ajaxdata.utterance;
 	}
-	
+
 
     $.ajax({
         url: AjaxScript,
@@ -487,7 +487,7 @@ function userInput() {
 			console.log(result);
             alertError("JSON error222:" + err, result);
         }
-		
+
 
     });
 }

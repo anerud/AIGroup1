@@ -18,7 +18,6 @@ public class InterpreterTest {
     public void setUp() throws Exception {
 
     }
-    
 
     @org.junit.After
     public void tearDown() throws Exception {
@@ -86,7 +85,6 @@ public class InterpreterTest {
         test("testPutObject1", "[(ONTOP e floor)]");
     }
 
-
     @org.junit.Test
     public void testPutObject2() throws Exception {
         test("testPutObject2", "[(UNDER e f)]");
@@ -121,7 +119,6 @@ public class InterpreterTest {
         String[] alternatives = new String[] {"[]"};
         test("testMoveObject5", alternatives);
     }
-
 
 //    @org.junit.Test
 //    public void testMoveObject6() throws Exception {
@@ -160,7 +157,6 @@ public class InterpreterTest {
         test("testMoveObject8", "[]");
     }
 
-
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
         Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();
         for(String s : strings){
@@ -192,7 +188,6 @@ public class InterpreterTest {
         return fac;
     }
 
-
     private void test(String file, String[] alternatives) throws IOException, PrologException, JsonSyntaxException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
@@ -217,7 +212,6 @@ public class InterpreterTest {
         assertTrue(isis);
     }
 
-
     private void test(String file, String result) throws JsonSyntaxException, IOException, PrologException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
@@ -233,8 +227,4 @@ public class InterpreterTest {
         String jsout= new Gson().fromJson(hupp, Input.class).getGoals();
         assertEquals(jsout, result);
     }
-
-
-
-
 }

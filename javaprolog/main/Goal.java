@@ -13,12 +13,17 @@ public class Goal {
         MOVE, PUT, TAKE
     }
 
-    private LogicalExpression<WorldObject> pddlExpression;
+    private LogicalExpression<WorldObject> expression;
+
+    public Action getAction() {
+        return action;
+    }
+
     private Action action;
     private String pddlString;
 
-    public Goal(LogicalExpression<WorldObject> pddlExpression, Action action){
-        this.pddlExpression = pddlExpression;
+    public Goal(LogicalExpression<WorldObject> expression, Action action){
+        this.expression = expression;
         this.action = action;
     }
 
@@ -37,9 +42,9 @@ public class Goal {
             return pddlString;
         }
         if(action.equals(Action.TAKE)){
-            return toPDDLString(pddlExpression, "holding ");
+            return toPDDLString(expression, "holding ");
         } else {
-            return toPDDLString(pddlExpression, "");
+            return toPDDLString(expression, "");
         }
     }
 
@@ -91,8 +96,8 @@ public class Goal {
     }
 
 
-    public LogicalExpression<WorldObject> getPddlExpression() {
-        return pddlExpression;
+    public LogicalExpression<WorldObject> getExpression() {
+        return expression;
     }
 
     @Override
@@ -103,7 +108,7 @@ public class Goal {
         Goal goal = (Goal) o;
 
         if (action != goal.action) return false;
-        if (pddlExpression != null ? !pddlExpression.equals(goal.pddlExpression) : goal.pddlExpression != null)
+        if (expression != null ? !expression.equals(goal.expression) : goal.expression != null)
             return false;
 
         return true;
@@ -111,7 +116,7 @@ public class Goal {
 
     @Override
     public int hashCode() {
-        int result = pddlExpression != null ? pddlExpression.hashCode() : 0;
+        int result = expression != null ? expression.hashCode() : 0;
         result = 31 * result + (action != null ? action.hashCode() : 0);
         return result;
     }

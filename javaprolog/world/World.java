@@ -1,6 +1,7 @@
 package world;
 
 import logic.LogicalExpression;
+import main.Goal;
 
 import java.util.*;
 
@@ -166,7 +167,7 @@ public class World{
      */
     public boolean pick(int woColumn) {
         WorldObject top = topOfStack(woColumn);
-        if(holding == null && top!= null){
+        if(holding == null && !top.getForm().equals("floor")){
             holding = top;
             stacks.get(woColumn).removeLast();
             return true;
@@ -177,7 +178,7 @@ public class World{
     /**
      * Drops the object being held at the specified column
      * @param woColumn
-     * @return true if the operation was successful
+     * @return true if the operation was successful. If false is returned, it means the world state is unchanged.
      */
     public boolean drop(int woColumn) {
         if(holding == null){
@@ -218,7 +219,7 @@ public class World{
      * Indexed from 0 where 0 means the object is on the floor and 1 means one step above the floor, etc.
      * Relations are ignored for RelativeWorldObjects.
      * @param wo
-     * @return
+     * @return -1 if the object is not contained in this world or if the object is the floor
      */
     private int rowOf(WorldObject wo) {
         if(wo instanceof RelativeWorldObject){
@@ -531,29 +532,30 @@ public class World{
         //Make sure both objects have the same dynamic type
         wo = new WorldObject(wo);
         woRel = new WorldObject(woRel);
+        int col1 = columnOf(wo);
+        if(col1 == -1){
+            return false; //The object does not exist in this world and cannot have a relation to anything
+        }
         if(wo.getForm() == null || woRel.getForm() == null){
             throw new NullPointerException();
         }
         if(relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE)){
-            int col = columnOf(wo);
             int row = rowOf(wo);
             if(row == 0){
                 return woRel.getForm().equals("floor");
             } else {
-                return stacks.get(col).get(row - 1).equals(woRel);
+                return stacks.get(col1).get(row - 1).equals(woRel);
             }
         } else if(relation.equals(WorldConstraint.Relation.UNDER)) {
             return hasRelation(WorldConstraint.Relation.ABOVE, woRel, wo);
         } else if(relation.equals(WorldConstraint.Relation.LEFTOF)) {
-            return columnOf(wo) < columnOf(woRel);
+            return col1 < columnOf(woRel);
         } else if(relation.equals(WorldConstraint.Relation.RIGHTOF)){
             return hasRelation(WorldConstraint.Relation.LEFTOF, woRel, wo);
         } else if (relation.equals(WorldConstraint.Relation.BESIDE)){
-            int col1 = columnOf(wo);
             int col2 = columnOf(woRel);
             return Math.abs(col1 - col2) == 1;
         } else if(relation.equals(WorldConstraint.Relation.ABOVE)){
-            int col1 = columnOf(wo);
             int col2 = columnOf(woRel);
             if(col1 != col2){
                 return false;
@@ -639,14 +641,31 @@ public class World{
 
     
     /**
-     * TODO: Check all the rules of the world
-     * @param i
+     * @param columnIndex
      * @param holding
      * @return
      */
-	public boolean isPlaceable(int i, WorldObject holding) {
-		if(stacks.get(i).isEmpty()) return true;
-		
-		return true;
+	public boolean isPlaceable(int columnIndex, WorldObject holding) {
+		WorldObject wo = topOfStack(columnIndex);
+        return isValidRelation(WorldConstraint.Relation.ONTOP, holding, wo);
 	}
+
+    public boolean isGoalFulFilled(Goal goal) {
+        LogicalExpression<WorldObject> le = goal.getExpression();
+        LogicalExpression.Operator op = le.getOp();
+        Set<WorldObject> s = filterByExistsInWorld(le);
+        if(goal.getAction().equals(Goal.Action.TAKE)){
+            if(holding == null) return false;
+            if(op.equals(LogicalExpression.Operator.OR)){
+                for(WorldObject wo : s){
+                    if(wo.getId().equals(holding.getId())) return true;
+                }
+            }
+            return (s.size() != 1) && holding.getId().equals(s.iterator().next().getId());
+        }
+        if(op.equals(LogicalExpression.Operator.AND)){
+            return s.size() == le.getObjs().size() + le.getExpressions().size(); //TODO: for this to work, there can be no empty expressions..
+        }
+        return s.size() >= 1;
+    }
 }

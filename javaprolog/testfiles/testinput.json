@@ -1,7 +1,7 @@
 { 
-    "world": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
+    "world": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m"]],
     "worldoriginal": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
-    "holding": null,
+    "holding": "f",
     "objects": {
         "a": { "form":"brick",   "size":"large",  "color":"green" },
         "b": { "form":"brick",   "size":"small",  "color":"white" },
@@ -18,5 +18,5 @@
         "m": { "form":"box",     "size":"small",  "color":"blue"  }
     },
     "utterance":
-        ["put", "a", "ball", "on", "a", "ball"]
+        ["put", "it", "on", "the", "floor"]
 }

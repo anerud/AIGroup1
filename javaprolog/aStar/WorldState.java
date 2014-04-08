@@ -1,10 +1,6 @@
 package aStar;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import main.Goal;
 import world.World;
@@ -12,25 +8,33 @@ import world.WorldObject;
 
 public class WorldState implements IAStarState {
 
-	private int distance;
-	private int heuristic;
+	private int bestDistanceToGetHere; //Best found so far, considering we are using dijkstra..
+
+    private List<String> bestActionsToGetHere; //Best found so far, considering we are using dijkstra..
+	private int distanceToGoHeuristic;
+	private double heuristicWeight = 1;
+
 	private World world;
 	private Goal goal;
-	private List<String> actionsToGetHere;
-	private Set<WorldObject> objectsToMove;
-	private double heuristicWeight = 1;
-	public WorldState(World world, Goal goal, int distance, List<String> actionToGetHere){
+
+    /**
+     *
+     * @param world
+     * @param goal
+     * @param bestDistanceToGetHere
+     * @param actionToGetHere if null, this is assumed to be the initial state
+     */
+    public WorldState(World world, Goal goal, int bestDistanceToGetHere, List<String> actionToGetHere){
 		this.world = world;
 		this.goal = goal;
-		this.distance = distance;
-		this.heuristic = computeHeuristic();
-		this.actionsToGetHere = actionToGetHere;
-		objectsToMove = goal.getPddlExpression().getObjs();
+		this.bestDistanceToGetHere = bestDistanceToGetHere;
+		this.distanceToGoHeuristic = 0; //computeHeuristic();
+		this.bestActionsToGetHere = actionToGetHere == null ? new ArrayList<String>() : actionToGetHere;
 	}
 	
-	private int computeHeuristic() {
+	private int computeHeuristic() {     //TODO: this will not work.. The heuristic below is not a lower bound.
 		int h = 0;
-		for(WorldObject wo : objectsToMove) {
+		for(WorldObject wo : goal.getExpression().getObjs()) {
 			h += 2*world.nObjectsOnTopOf(wo);
 		}
 		return h;
@@ -38,54 +42,62 @@ public class WorldState implements IAStarState {
 	
 	@Override
 	public double getStateValue() {
-		return this.distance + this.heuristic*heuristicWeight;
+		return this.bestDistanceToGetHere + this.distanceToGoHeuristic *heuristicWeight;
 	}
 	
 	@Override
 	public boolean hasReachedGoal() {
-		Set<WorldObject> s = world.filterByExistsInWorld(goal.getPddlExpression());
-		return s.size() >= 1;
+        return world.isGoalFulFilled(goal);
 	}
 	
 	public void setHeuristicWeight(double heuristicWeight) {
 		this.heuristicWeight = heuristicWeight;
 	}
 
+    public List<String> getBestActionsToGetHere() {
+        return bestActionsToGetHere;
+    }
+
+    public void setBestActionsToGetHere(List<String> bestActionsToGetHere) {
+        this.bestActionsToGetHere = bestActionsToGetHere;
+    }
+
 	@Override
 	public int compareTo(IAStarState o) {
-		//Here one can decide whether one wants FIFO or LILO behavior on queue.
+		//Here one can decide whether one wants FIFO or LILO behavior on queue.     // <--- Same thing, different name
 		if(this.getStateValue() - o.getStateValue() > 0){
 			return 1;
 		}
 		return -1;
 	}
 
+    /**
+     * TODO: don't check the same state more than once
+     * @return
+     */
 	@Override
 	public Collection<? extends IAStarState> expand() {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
-		List<String> newList = new LinkedList<String>();
-		Collections.copy(newList, actionsToGetHere);
 
 		if(world.getHolding() != null){
-			for(int i = 0;i<world.getStacks().size();i++){
-				if(world.isPlaceable(i,world.getHolding())){
-					World w = world.clone();
-					w.getStacks().get(i).add(w.getHolding());
-					w.setHolding(null);
-					newList.add("(drop " + i + ")");
-					WorldState state = new WorldState(w, goal, this.distance+1,newList);
-					l.add(state);
-				}
+			for(int i = 0; i<world.getStacks().size(); i++){
+                World w = world.clone();
+                if(w.drop(i)){
+                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    newList.add("drop " + i);
+                    WorldState state = new WorldState(w, goal, this.bestDistanceToGetHere +1, newList);
+                    l.add(state);
+                }
 			}
-		}else{
+		} else {
 			for(int i = 0;i<world.getStacks().size();i++){
-				if(!world.getStacks().get(i).isEmpty()){
-					World w = world.clone();
-					w.setHolding(w.getStacks().get(i).pop());
-					newList.add("(pick " + i + ")");
-					WorldState state = new WorldState(w, goal, this.distance+1,newList);
-					l.add(state);
-				}
+                World w = world.clone();
+                if(w.pick(i)){
+                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    newList.add("pick " + i);
+                    WorldState state = new WorldState(w, goal, this.bestDistanceToGetHere +1, newList);
+                    l.add(state);
+                }
 			}
 		}
 		return l;

@@ -29,11 +29,11 @@ public class AStar {
 	 * @return false if the goal could not be reached. True if
 	 * the goal was reached.
 	 */
-	public boolean run(){
-		while(!q.isEmpty() && !currentState.hasReachedGoal()) {
+	public boolean run(){ //TODO: dijkstra... this is Breadth first
+		do {
 			currentState = q.poll();
 			q.addAll(currentState.expand());
-		}
+		} while (!q.isEmpty() && !currentState.hasReachedGoal());
 		return currentState.hasReachedGoal();
 	}
 	

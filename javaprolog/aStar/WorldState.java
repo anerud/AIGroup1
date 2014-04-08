@@ -2,6 +2,7 @@ package aStar;
 
 import java.util.*;
 
+import logic.LogicalExpression;
 import main.Goal;
 import world.World;
 import world.WorldObject;
@@ -14,6 +15,7 @@ public class WorldState implements IAStarState {
 	private int distanceToGoHeuristic;
 	private World world;
 	private Goal goal;
+	private Set<WorldObject> objectsToMove;
 	private static Set<String> visitedWorld = new HashSet<String>();
 	
     /**
@@ -25,22 +27,22 @@ public class WorldState implements IAStarState {
     public WorldState(World world, Goal goal, List<String> actionToGetHere){
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = 0; //computeHeuristic();
+		this.distanceToGoHeuristic = computeHeuristic();
 		this.bestActionsToGetHere = actionToGetHere;
 	}
 	
 	private int computeHeuristic() {     //TODO: this will not work.. The heuristic below is not a lower bound.
-		int h = 0;
-		for(WorldObject wo : goal.getExpression().getObjs()) {
-			h += 2*world.nObjectsOnTopOf(wo);
+		LogicalExpression<WorldObject> asdf = goal.getExpression();
+		for(WorldObject wo : asdf.getObjs()) {
+			//Do something here
 		}
-		return h;
+		return 0;
 	}
 	
 	
 	@Override
 	public double getStateValue() {
-		return bestActionsToGetHere.size() + this.distanceToGoHeuristic *heuristicWeight;
+		return bestActionsToGetHere.size() + this.distanceToGoHeuristic*heuristicWeight;
 	}
 	
 	@Override
@@ -63,10 +65,9 @@ public class WorldState implements IAStarState {
 	@Override
 	public int compareTo(IAStarState o) {
 		//Here one can decide whether one wants FIFO or LIFO behavior on queue.
-		if(this.getStateValue() - o.getStateValue() > 0){
+		if(this.getStateValue() - o.getStateValue() >= 0){
 			return 1;
 		}
-        if(this.getStateValue() == o.getStateValue()) return 0;
 		return -1;
 	}
 

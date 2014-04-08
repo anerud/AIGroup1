@@ -16,7 +16,16 @@ public class WorldState implements IAStarState {
 	private World world;
 	private Goal goal;
 	private Set<WorldObject> objectsToMove;
-	private static Set<String> visitedWorld = new HashSet<String>();
+
+    public static Set<String> getVisitedWorld() {
+        return visitedWorld;
+    }
+
+    public static void setVisitedWorld(Set<String> visitedWorld) {
+        WorldState.visitedWorld = visitedWorld;
+    }
+
+    private static Set<String> visitedWorld = new HashSet<String>();
 	
     /**
      *

@@ -345,7 +345,15 @@ public class World {
 				if (!(size1.equals("small") && size2.equals("large")))
 					return false;
 			}
-		}
+		} else if (relation.equals(WorldConstraint.Relation.UNDER)){
+            if(form1.equals("ball")){
+                return false; //Balls cannot support anything
+            }
+        } else if (relation.equals(WorldConstraint.Relation.ABOVE)){
+            if(form2.equals("ball")){
+                return false; //Balls cannot support anything
+            }
+        }
 		return true;
 	}
 

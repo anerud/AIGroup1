@@ -1,8 +1,10 @@
 package main;
 
+import aStar.WorldState;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import gnu.prolog.vm.PrologException;
+import world.WorldObject;
 
 import java.io.*;
 import java.util.*;
@@ -21,7 +23,7 @@ public class InterpreterTest {
 
     @org.junit.After
     public void tearDown() throws Exception {
-
+        //WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
     }
 
     @org.junit.Test
@@ -87,7 +89,7 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testPutObject2() throws Exception {
-        test("testPutObject2", "[(UNDER e f)]");
+        test("testPutObject2", "[]");
     }
 
     @org.junit.Test
@@ -210,6 +212,7 @@ public class InterpreterTest {
             }
         }
         assertTrue(isis);
+        pipeIn.close();
     }
 
     private void test(String file, String result) throws JsonSyntaxException, IOException, PrologException {
@@ -226,5 +229,6 @@ public class InterpreterTest {
         String hupp = br.readLine();
         String jsout= new Gson().fromJson(hupp, Input.class).getGoals();
         assertEquals(jsout, result);
+        pipeIn.close();
     }
 }

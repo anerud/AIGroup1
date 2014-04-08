@@ -8,7 +8,6 @@ import world.WorldObject;
 
 public class WorldState implements IAStarState {
 
-	private int bestDistanceToGetHere; //Best found so far, considering we are using dijkstra..
 
     private List<String> bestActionsToGetHere; //Best found so far, considering we are using dijkstra..
 	private double heuristicWeight = 1;
@@ -42,7 +41,7 @@ public class WorldState implements IAStarState {
 	
 	@Override
 	public double getStateValue() {
-		return this.bestDistanceToGetHere + this.distanceToGoHeuristic *heuristicWeight;
+		return bestActionsToGetHere.size() + this.distanceToGoHeuristic *heuristicWeight;
 	}
 	
 	@Override

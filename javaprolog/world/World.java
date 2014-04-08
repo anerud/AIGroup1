@@ -472,8 +472,7 @@ public class World {
 	 * @param le
 	 * @return
 	 */
-	public Set<WorldObject> filterByExistsInWorld(
-			LogicalExpression<WorldObject> le) {
+	public Set<WorldObject> filterByExistsInWorld(LogicalExpression<WorldObject> le) {
 		Set<WorldObject> filtered = new HashSet<WorldObject>();
 		for (WorldObject wo : le.topObjs()) {
 			filtered.add(new WorldObject(wo));
@@ -490,7 +489,14 @@ public class World {
 				}
 			}
 			for (LogicalExpression<WorldObject> exp : le.getExpressions()) {
-				filtered.retainAll(filterByExistsInWorld(exp));
+                Set<WorldObject> to = new HashSet<WorldObject>();
+                for (WorldObject wo : exp.topObjs()) {
+                    to.add(new WorldObject(wo));
+                }
+				to.removeAll(filterByExistsInWorld(exp));
+                for(WorldObject wo : to){
+                    filtered.remove(new WorldObject(wo));
+                }
 			}
 		} else {
 			Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
@@ -753,6 +759,7 @@ public class World {
 			}
 			sb.append(".");
 		}
+
 		return sb.toString();
 	}
 

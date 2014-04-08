@@ -16,7 +16,7 @@ var WallSeparation = 4;     // pixels
 var ArmSize = 0.2;         // of stack width
 var AnimationPause = 0.0; // seconds
 var PromptPause = 0.0;   // seconds
-var AjaxTimeout = 50;    // seconds
+var AjaxTimeout = 500;    // seconds
 var ArmSpeed = 4000;   // pixels per second
 
 // This only has effect in the latest versions of Chrome and Safari,

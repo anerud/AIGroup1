@@ -27,7 +27,7 @@ public class WorldState implements IAStarState {
     public WorldState(World world, Goal goal, List<String> actionToGetHere){
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = computeHeuristic();
+		this.distanceToGoHeuristic = 0; //TODO computeHeuristic();
 		this.bestActionsToGetHere = actionToGetHere;
 	}
 	
@@ -72,7 +72,6 @@ public class WorldState implements IAStarState {
 	}
 
     /**
-     * TODO: don't check the same state more than once
      * @return
      */
 	@Override
@@ -82,7 +81,7 @@ public class WorldState implements IAStarState {
             for(int i = 0; i<world.getStacks().size(); i++){
                 World w = world.clone();
                 if(w.drop(i) && !visitedWorld.contains(w.getRepresentString())){
-                	visitedWorld.add(w.getRepresentString());
+                    visitedWorld.add(w.getRepresentString());
                     List<String> newList = new LinkedList<String>(bestActionsToGetHere);
                     newList.add("drop " + i);
                     WorldState state = new WorldState(w, goal, newList);

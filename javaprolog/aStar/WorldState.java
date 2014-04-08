@@ -27,7 +27,7 @@ public class WorldState implements IAStarState {
 		this.world = world;
 		this.goal = goal;
 		this.distanceToGoHeuristic = 0; //computeHeuristic();
-		this.bestActionsToGetHere = actionToGetHere == null ? new ArrayList<String>() : actionToGetHere;
+		this.bestActionsToGetHere = actionToGetHere;
 	}
 	
 	private int computeHeuristic() {     //TODO: this will not work.. The heuristic below is not a lower bound.

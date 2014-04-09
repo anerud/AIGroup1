@@ -32,7 +32,7 @@ public class Interpreter {
      * @param trees the parse tree
      * @return a list of goals
      */
-    public Set<Goal> interpret(List<NTree> trees) throws InterpretationException {
+    public Set<Goal> interpret(List<NTree> trees) throws InterpretationException, CloneNotSupportedException {
         Set<Goal> goalsPerTree = new HashSet<>(trees.size());
         Set<InterpretationException> exceptions = new HashSet<InterpretationException>();
         for(NTree tree : trees){
@@ -130,7 +130,7 @@ public class Interpreter {
          * @throws InterpretationException
          */
 		@Override
-		public Goal visit(MoveNode n, Set<WorldObject> worldObjects) throws InterpretationException {
+		public Goal visit(MoveNode n, Set<WorldObject> worldObjects) throws InterpretationException, CloneNotSupportedException {
 
             LogicalExpression<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects, null);
             //Filter the objects since the move operation requires the first parameter to already exist in the world.
@@ -207,17 +207,13 @@ public class Interpreter {
             for(LogicalExpression<WorldObject> le : relativeTo.getExpressions()){
                 Set<WorldObject> wRelObjs = new HashSet<WorldObject>();
                 for(WorldObject wo : le.getObjs()){
-                    Set<WorldObject> s = new HashSet<WorldObject>();
-                    s.add(wo);
-                    wRelObjs.add(new RelativeWorldObject(new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+                    wRelObjs.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
                 }
                 expNew.add(new LogicalExpression(wRelObjs, le.getExpressions(),le.getOp()));
             }
             if(relativeTo.getObjs() != null){
                 for(WorldObject wo : relativeTo.getObjs()){
-                    Set<WorldObject> s = new HashSet<WorldObject>();
-                    s.add(wo);
-                    objsNew.add(new RelativeWorldObject(new LogicalExpression<WorldObject>(s, LogicalExpression.Operator.NONE), n.getRelationNode().getRelation()));
+                    objsNew.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
                 }
             }
             LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();

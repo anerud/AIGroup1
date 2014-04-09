@@ -297,7 +297,7 @@ public class World {
 		if (obj1.getId().equals(obj2.getId()))
 			return false; // Cannot have a relation to itself
 		if (obj2 instanceof RelativeWorldObject && obj2.getForm() == null) {
-			LogicalExpression<WorldObject> woRel = ((RelativeWorldObject) obj2)
+			WorldObject woRel = ((RelativeWorldObject) obj2)
 					.getRelativeTo();
 			return isValidRelation(relation, obj1, woRel);
 		}
@@ -669,11 +669,21 @@ public class World {
 		return false;
 	}
 
+    /**
+     * All relations must exist (even the ones of the objects relativeTo, etc.) for this method to return true
+     * @param obj
+     * @return
+     */
 	public boolean hasRelation(RelativeWorldObject obj) {
 		if (obj.getForm() == null) {
 			throw new NullPointerException(); // This method does NOT support
 												// nullpointers...
 		}
+        if(obj.getRelativeTo() instanceof RelativeWorldObject){
+            if(!hasRelation((RelativeWorldObject)obj.getRelativeTo())){
+                return false;
+            }
+        }
 		return hasRelation(obj.getRelation(), obj, obj.getRelativeTo());
 	}
 

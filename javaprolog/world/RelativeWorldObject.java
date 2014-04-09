@@ -8,20 +8,20 @@ import logic.LogicalExpression;
 public class RelativeWorldObject extends WorldObject {
 
     private WorldConstraint.Relation relation;
-    private LogicalExpression<WorldObject> relativeTo;
+    private WorldObject relativeTo;
 
-    public RelativeWorldObject(WorldObject obj, LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
+    public RelativeWorldObject(WorldObject obj, WorldObject relativeTo, WorldConstraint.Relation relation) {
         super(obj.getForm(), obj.getSize(), obj.getColor(), obj.getId());
         this.relativeTo = relativeTo;
         this.relation = relation;
     }
 
-    public RelativeWorldObject(LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
+    public RelativeWorldObject(WorldObject relativeTo, WorldConstraint.Relation relation) {
         this.relativeTo = relativeTo;
         this.relation = relation;
     }
 
-    public RelativeWorldObject(String form, String size, String color, String id, LogicalExpression<WorldObject> relativeTo, WorldConstraint.Relation relation) {
+    public RelativeWorldObject(String form, String size, String color, String id, WorldObject relativeTo, WorldConstraint.Relation relation) {
         super(form, size, color, id);
         this.relativeTo = relativeTo;
         this.relation = relation;
@@ -47,11 +47,11 @@ public class RelativeWorldObject extends WorldObject {
         this.relation = relation;
     }
 
-    public LogicalExpression<WorldObject> getRelativeTo() {
+    public WorldObject getRelativeTo() {
         return relativeTo;
     }
 
-    public void setRelativeTo(LogicalExpression<WorldObject> relativeTo) {
+    public void setRelativeTo(WorldObject relativeTo) {
         this.relativeTo = relativeTo;
     }
 

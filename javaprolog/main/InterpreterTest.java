@@ -23,7 +23,7 @@ public class InterpreterTest {
 
     @org.junit.After
     public void tearDown() throws Exception {
-        WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
+        //WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
     }
 
     @org.junit.Test
@@ -94,7 +94,8 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject1() throws Exception {
-        test("testMoveObject1", "[(INSIDE e (ONTOP k floor))]");
+        String[] alternatives = new String[] {"[(AND (INSIDE e k) (ONTOP k floor))]", "[(AND (ONTOP k floor) (INSIDE e k))]"};
+        test("testMoveObject1", alternatives);
     }
 
     @org.junit.Test
@@ -190,7 +191,7 @@ public class InterpreterTest {
         return fac;
     }
 
-    private void test(String file, String[] alternatives) throws IOException, PrologException, JsonSyntaxException {
+    private void test(String file, String[] alternatives) throws IOException, PrologException, JsonSyntaxException, CloneNotSupportedException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
         PipedOutputStream pipeOut = new PipedOutputStream();
@@ -215,7 +216,7 @@ public class InterpreterTest {
         pipeIn.close();
     }
 
-    private void test(String file, String result) throws JsonSyntaxException, IOException, PrologException {
+    private void test(String file, String result) throws JsonSyntaxException, IOException, PrologException, CloneNotSupportedException {
         String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
 
         PipedOutputStream pipeOut = new PipedOutputStream();

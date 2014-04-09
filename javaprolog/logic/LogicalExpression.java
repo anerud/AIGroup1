@@ -1,5 +1,8 @@
 package logic;
 
+import sun.rmi.runtime.Log;
+import world.WorldObject;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -118,45 +121,126 @@ public class LogicalExpression<T> implements Cloneable{
 
     /**
      * Simplifies this expression and removes unnecessary operators.
-     * Use the returned expression, as there is no guarantee for the state of this expression after calling this method. //TODO change so that this is not the case
      */
-    public LogicalExpression<T> simplifyExpression(){
-        if(expressions.isEmpty()){
+    public LogicalExpression<T> simplifyExpression() throws CloneNotSupportedException {
+        if(this.expressions.isEmpty()){
             return this;
         }
         //First simplify all subexpressions
-        for(LogicalExpression<T> exp : expressions){
+        for(LogicalExpression<T> exp : this.expressions){
             exp.simplifyExpression();
         }
         //Then simplify this expression..
 
-        //Do all expressions have the same operator?
-        Operator op = expressions.iterator().next().getOp();
-        boolean same = true;
-        for(LogicalExpression<T> exp : expressions){
-            if(exp.getOp() != op){
-                same = false;
-            }
-        }
-        LogicalExpression<T> unified = null;
-        //Is the operator of this expression also the same as the unified expression?
-        if(same && (op.equals(getOp()) || getOp().equals(Operator.NONE))){
+        //First remove unnecessary leading operators
+        LogicalExpression<T> currentExp = this;
+        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
+            //In this case, we can delete the top operator
             //put them all in the same expression
-            Set<T> objs = new HashSet<T>();
-            Set<LogicalExpression> exps = new HashSet<LogicalExpression>();
-            for(LogicalExpression<T> exp : expressions){
-                objs.addAll(exp.getObjs());
-                exps.addAll(exp.getExpressions());
-            }
-            unified = new LogicalExpression<T>(objs, exps, op);
-
-            //merge this expression with the subexpression
-            if(getObjs() != null){
-                unified.getObjs().addAll(getObjs());
-            }
-            return unified;
+            currentExp = currentExp.getExpressions().iterator().next();
+//            while((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
+//            }
         }
+        //Can we simplify more?
+        if(currentExp.getExpressions().isEmpty()){
+            this.objs = currentExp.getObjs();
+            this.expressions = currentExp.getExpressions();
+            this.op = currentExp.getOp();
+            return this;
+        }
+
+        //Promote all subexpressions which are the same as this expression
+        Operator op = currentExp.getOp();
+        Set<LogicalExpression> toBeAdded = new HashSet<LogicalExpression>();
+        for(LogicalExpression<T> exp : currentExp.getExpressions()){
+            if(exp.getOp().equals(op)){
+                if(exp.getObjs() != null){
+                    currentExp.getObjs().addAll(exp.getObjs());
+                }
+                toBeAdded.addAll(exp.getExpressions());
+            }
+        }
+        currentExp.getExpressions().addAll(toBeAdded);
+
+        //If this is an AND operator, invert the relationship to create a disjunctive normal form.
+        if(currentExp.getOp().equals(Operator.AND)){
+            Set<LogicalExpression> newExps = new HashSet<LogicalExpression>();
+            for(LogicalExpression<T> exp : currentExp.getExpressions()){
+                if(exp.getOp().equals(Operator.OR)){
+                    currentExp.setOp(Operator.OR);
+                    if(newExps.isEmpty()){
+                        //add all expressions without OR to a new LogicalExpression
+                        Set<LogicalExpression> lset = new HashSet<LogicalExpression>();
+                        for(LogicalExpression<T> le : currentExp.getExpressions()){
+                            if(!le.getOp().equals(Operator.OR)){
+                                lset.add(le);
+                            }
+                        }
+                        LogicalExpression<T> toAdd = new LogicalExpression<>(currentExp.getObjs(), lset, Operator.AND);
+                        if(!toAdd.isEmpty()){
+                            newExps.add(toAdd);
+                        }
+                    }
+                    Set<LogicalExpression> newExpsNew = new HashSet<LogicalExpression>();
+                    if(exp.getObjs() != null){
+                        for(T t : exp.getObjs()){
+                            if(newExps.isEmpty()){
+                                Set<T> ns = new HashSet<T>();
+                                ns.add(t);
+                                newExpsNew.add(new LogicalExpression<T>(ns, Operator.AND));
+                            } else {
+                                for(LogicalExpression le : newExps){
+                                    LogicalExpression copy = le.clone();
+                                    if(copy.getObjs() != null){
+                                        copy.getObjs().add(t);
+                                    }
+                                    newExpsNew.add(new LogicalExpression<T>(copy.getObjs(), copy.getExpressions(), Operator.AND));
+                                }
+                            }
+                        }
+                    }
+                    for(LogicalExpression t : exp.getExpressions()){
+                        if(newExps.isEmpty()){
+                            Set<T> ns = new HashSet<T>();
+                            Set<LogicalExpression> nles = new HashSet<>();
+                            nles.add(t);
+                            newExpsNew.add(new LogicalExpression<T>(ns, nles, Operator.AND));
+                        } else {
+                            for(LogicalExpression le : newExps){
+                                LogicalExpression copy = le.clone();
+                                copy.getExpressions().add(t);
+                                newExpsNew.add(new LogicalExpression<T>(copy.getObjs(), copy.getExpressions(), Operator.AND));
+                            }
+                        }
+                    }
+                    newExps = newExpsNew;
+                }
+            }
+            if(!newExps.isEmpty()){
+                currentExp.setObjs(null); //All objects were moved to an expression
+                currentExp.setExpressions(newExps);
+            }
+        }
+
+        //TODO: remove subexpressions which are identical
+
+        //Can it be further simplified?
+//        if(((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1) || same2 && ()){
+//            return currentExp.simplifyExpression();
+//        }
+        this.objs = currentExp.getObjs();
+        this.expressions = currentExp.getExpressions();
+        this.op = currentExp.getOp();
         return this;
+    }
+
+
+    @Override
+    public LogicalExpression<T> clone() throws CloneNotSupportedException {
+        LogicalExpression<T> le = (LogicalExpression<T>) super.clone();
+        le.setExpressions(new HashSet<LogicalExpression>(le.getExpressions()));
+        le.setObjs(new HashSet<T>(le.getObjs()));
+        return le;
     }
 
 }

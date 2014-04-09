@@ -54,5 +54,5 @@ public abstract class Node {
 	
 	public abstract <R,A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException;
 	
-	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg) throws Interpreter.InterpretationException;
+	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg) throws Interpreter.InterpretationException, CloneNotSupportedException;
 }

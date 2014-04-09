@@ -62,7 +62,7 @@ public class Goal {
                 for(WorldObject obj : expression.getObjs()){
                     if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
                         RelativeWorldObject relObj = (RelativeWorldObject)obj;
-                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ") "); //Recursively build string
+                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() + " " + relObj.getRelativeTo().getId() + ") ");
                     } else {
                         if(singlePredicate.equals("")){
                             pddlString.append(obj.getId());
@@ -83,7 +83,7 @@ public class Goal {
             WorldObject wo = expression.getObjs().iterator().next();
             if(wo instanceof RelativeWorldObject && ((RelativeWorldObject)wo).getRelativeTo() != null){
                 RelativeWorldObject relObj = (RelativeWorldObject)wo;
-                pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + toPDDLString(relObj.getRelativeTo(), singlePredicate) + ")");  //Recursively build string
+                pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + relObj.getRelativeTo().getId() + ")");
             } else {
                 if(singlePredicate.equals("")){
                     pddlString.append(wo.getId());

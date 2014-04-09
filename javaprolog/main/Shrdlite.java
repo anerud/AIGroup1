@@ -25,7 +25,7 @@ public class Shrdlite {
 
 	public static boolean debug;
 
-	public static void main(String[] args) throws IOException, PrologException {
+	public static void main(String[] args) throws IOException, PrologException, CloneNotSupportedException {
 		long start = System.currentTimeMillis();
 //		try {
 		String jsinput = null;

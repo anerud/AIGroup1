@@ -4,7 +4,9 @@ import java.util.*;
 
 import logic.LogicalExpression;
 import main.Goal;
+import world.RelativeWorldObject;
 import world.World;
+import world.WorldConstraint;
 import world.WorldObject;
 
 public class WorldState implements IAStarState {
@@ -31,26 +33,81 @@ public class WorldState implements IAStarState {
      *
      * @param world
      * @param goal
-     * @param actionToGetHere if null, this is assumed to be the initial state
+     * @param actionToGetHere
      */
     public WorldState(World world, Goal goal, List<String> actionToGetHere){
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = 0; //TODO computeHeuristic();
+		this.distanceToGoHeuristic = computeHeuristic(goal.getExpression()).size()*2;
 		this.bestActionsToGetHere = actionToGetHere;
 	}
-	
-	private int computeHeuristic() {     //TODO: this will not work.. The heuristic below is not a lower bound.
-		LogicalExpression<WorldObject> asdf = goal.getExpression();
-		for(WorldObject wo : asdf.getObjs()) {
-			//Do something here
-		}
-		return 0;
+
+    //TODO: delete and do properly
+	private Set<WorldObject> computeHeuristic(LogicalExpression<WorldObject> le) {
+        Set<WorldObject> minObjsToMove = new HashSet<WorldObject>();
+        if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()) {
+                    minObjsToMove.addAll(minObjsToMove(wo));
+                }
+            }
+            for(LogicalExpression<WorldObject> le2 : le.getExpressions()){
+                minObjsToMove.addAll(computeHeuristic(le2));
+            }
+        }
+		return minObjsToMove;
 	}
-	
+
+    //TODO: delete and do properly
+    private Set<WorldObject> minObjsToMove(WorldObject wo) {
+        int sum = 0;
+        Set<WorldObject> minObjs = new HashSet<>(world.objectsAbove(wo));
+        if(!(wo instanceof RelativeWorldObject)){
+            return minObjs;
+        }
+        RelativeWorldObject woRel = (RelativeWorldObject)wo;
+        LogicalExpression<WorldObject> relativeTo = woRel.getRelativeTo();
+        LogicalExpression.Operator op = relativeTo.getOp();
+        if(op.equals(LogicalExpression.Operator.AND) || relativeTo.size() <= 1){
+            switch (woRel.getRelation()) {
+                case ONTOP:
+                    for(WorldObject wo2 : relativeTo.getObjs()){
+                        if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, wo2)){
+                            minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
+                            minObjs.addAll(world.objectsAbove(new WorldObject(wo2)));
+                            minObjs.add(new WorldObject(wo));
+                        }
+                    }
+                    break;
+                case INSIDE:
+                    for(WorldObject wo2 : relativeTo.getObjs()){
+                        if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, wo2)){
+                            minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
+                            minObjs.addAll(world.objectsAbove(new WorldObject(wo2)));
+                            minObjs.add(new WorldObject(wo));
+                        }
+                    }
+                    break;
+                case ABOVE:
+                    break;
+                case UNDER:
+                    break;
+                case BESIDE:
+                    break;
+                case LEFTOF:
+                    break;
+                case RIGHTOF:
+                    break;
+            }
+        }
+        return minObjs;
+    }
 	
 	@Override
 	public double getStateValue() {
+        if(this.distanceToGoHeuristic*heuristicWeight > 0){
+            this.getClass();
+        }
 		return bestActionsToGetHere.size() + this.distanceToGoHeuristic*heuristicWeight;
 	}
 	

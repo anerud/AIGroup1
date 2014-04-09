@@ -25,9 +25,9 @@ public class Shrdlite {
 
 	public static boolean debug;
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException, PrologException {
 		long start = System.currentTimeMillis();
-		try {
+//		try {
 		String jsinput = null;
 		if (args.length == 0) {
 			jsinput = readFromReader(new InputStreamReader(System.in));
@@ -70,12 +70,12 @@ public class Shrdlite {
 		if (p.getQuestion() != null && p.getQuestion().getAnswer() != null) {
 			String q = p.getQuestion().getQuestions().get(p.getQuestion().getAnswer());
 			if (q != null) {
-				//TODO: Fått svar på frågan, q är den valda frågan!
+				//TODO: Fï¿½tt svar pï¿½ frï¿½gan, q ï¿½r den valda frï¿½gan!
 			}else{
-				//TODO: Fått dåligt svar på frågan
+				//TODO: Fï¿½tt dï¿½ligt svar pï¿½ frï¿½gan
 			}
 		} else {
-			//TODO: Ingen fråga ställd!
+			//TODO: Ingen frï¿½ga stï¿½lld!
 		}
 
 		List<NTree> treeList = new ArrayList<NTree>();
@@ -134,15 +134,15 @@ public class Shrdlite {
 		
 		
 		System.out.println(jsonString);
-		} catch (Exception e) {
-			PrintWriter asdf = new PrintWriter("errorlog.txt");
-			asdf.println(e.getMessage());
-			long end = System.currentTimeMillis();
-			asdf.println(start);
-			asdf.println(end);
-			asdf.println(end-start);
-			asdf.close();
-		}
+//		} catch (Exception e) {
+//			PrintWriter asdf = new PrintWriter("errorlog.txt");
+//			asdf.println(e.getMessage());
+//			long end = System.currentTimeMillis();
+//			asdf.println(start);
+//			asdf.println(end);
+//			asdf.println(end-start);
+//			asdf.close();
+//		}
 	}
 
 	public static String readFromReader(Reader reader) throws IOException {

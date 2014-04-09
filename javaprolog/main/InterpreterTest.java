@@ -23,7 +23,7 @@ public class InterpreterTest {
 
     @org.junit.After
     public void tearDown() throws Exception {
-        //WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
+        WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
     }
 
     @org.junit.Test

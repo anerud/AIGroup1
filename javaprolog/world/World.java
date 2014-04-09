@@ -822,4 +822,12 @@ public class World {
         }
         return s.size() >= 1;
     }
+
+    public List<WorldObject> objectsAbove(WorldObject wo) {
+        if(columnOf(wo) == -1 || isOntopOfStack(wo)){
+            return new LinkedList<WorldObject>();
+        }
+        LinkedList<WorldObject> st = stacks.get(columnOf(wo));
+        return st.subList(st.indexOf(wo) + 1, st.size() - 1);
+    }
 }

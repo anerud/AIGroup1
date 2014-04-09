@@ -159,6 +159,17 @@ public class InterpreterTest {
         test("testMoveObject8", "[]");
     }
 
+    @org.junit.Test
+    public void testMoveObject9() throws Exception {
+        test("testMoveObject9", "[]"); //TODO
+    }
+
+    @org.junit.Test
+    public void testMoveObject10() throws Exception {
+        test("testMoveObject10", "[]"); //TODO
+    }
+
+
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
         Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();
         for(String s : strings){

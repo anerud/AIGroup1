@@ -13,6 +13,8 @@ import java.util.Set;
  */
 public class LogicalExpression<T> implements Cloneable{
 
+    private static final int MAXIMUM_CLAUSES = 1000;
+
     /**
      *
      * @return the total number of objects in this expressions
@@ -132,7 +134,7 @@ public class LogicalExpression<T> implements Cloneable{
             return this;
         }
         //First simplify all subexpressions
-        for(LogicalExpression<T> exp : this.expressions){
+        for(LogicalExpression<T> exp : this.expressions){ //TODO: make sure all subexpressions are either cnf or dnf: not a mixture!
             exp.simplifyExpression();
         }
         //Then simplify this expression..
@@ -172,6 +174,9 @@ public class LogicalExpression<T> implements Cloneable{
         for(LogicalExpression<T> exp : currentExp.getExpressions()){
             if(exp.getOp().equals(op)){
                 if(exp.getObjs() != null){
+                    if(currentExp.getObjs() == null && !exp.getObjs().isEmpty()){
+                        currentExp.setObjs(new HashSet<T>());
+                    }
                     currentExp.getObjs().addAll(exp.getObjs());
                 }
                 toBeAdded.addAll(exp.getExpressions());
@@ -179,63 +184,72 @@ public class LogicalExpression<T> implements Cloneable{
         }
         currentExp.getExpressions().addAll(toBeAdded);
 
-        //If this is an AND operator, invert the relationship to create a disjunctive normal form.
+        //If this is an AND operator, invert the relationship to create a disjunctive normal form (if practical).
         if(currentExp.getOp().equals(Operator.AND)){
-            Set<LogicalExpression> newExps = new HashSet<LogicalExpression>();
-            for(LogicalExpression<T> exp : currentExp.getExpressions()){
-                if(exp.getOp().equals(Operator.OR)){
-                    currentExp.setOp(Operator.OR);
-                    if(newExps.isEmpty()){
-                        //add all expressions without OR to a new LogicalExpression
-                        Set<LogicalExpression> lset = new HashSet<LogicalExpression>();
-                        for(LogicalExpression<T> le : currentExp.getExpressions()){
-                            if(!le.getOp().equals(Operator.OR)){
-                                lset.add(le);
+            //First see if it is practical to convert..
+            int size = currentExp.getObjs() == null ? 1 : currentExp.getObjs().size() == 0 ? 1 : currentExp.getObjs().size();
+            for(LogicalExpression<WorldObject> le : currentExp.getExpressions()){
+                if(le.getOp().equals(Operator.OR)){
+                    size *= le.getExpressions().size() + le.getObjs().size();
+                }
+            }
+            if(size < MAXIMUM_CLAUSES){ //less than 1000 clauses
+                Set<LogicalExpression> newExps = new HashSet<LogicalExpression>();
+                for(LogicalExpression<T> exp : currentExp.getExpressions()){
+                    if(exp.getOp().equals(Operator.OR)){
+                        currentExp.setOp(Operator.OR);
+                        if(newExps.isEmpty()){
+                            //add all expressions without OR to a new LogicalExpression
+                            Set<LogicalExpression> lset = new HashSet<LogicalExpression>();
+                            for(LogicalExpression<T> le : currentExp.getExpressions()){
+                                if(!le.getOp().equals(Operator.OR)){
+                                    lset.add(le);
+                                }
+                            }
+                            LogicalExpression<T> toAdd = new LogicalExpression<>(currentExp.getObjs(), lset, Operator.AND);
+                            if(!toAdd.isEmpty()){
+                                newExps.add(toAdd);
                             }
                         }
-                        LogicalExpression<T> toAdd = new LogicalExpression<>(currentExp.getObjs(), lset, Operator.AND);
-                        if(!toAdd.isEmpty()){
-                            newExps.add(toAdd);
+                        Set<LogicalExpression> newExpsNew = new HashSet<LogicalExpression>();
+                        if(exp.getObjs() != null){
+                            for(T t : exp.getObjs()){
+                                if(newExps.isEmpty()){
+                                    Set<T> ns = new HashSet<T>();
+                                    ns.add(t);
+                                    newExpsNew.add(new LogicalExpression<T>(ns, Operator.AND));
+                                } else {
+                                    for(LogicalExpression le : newExps){
+                                        LogicalExpression copy = le.clone();
+                                        if(copy.getObjs() != null){
+                                            copy.getObjs().add(t);
+                                        }
+                                        newExpsNew.add(new LogicalExpression<T>(copy.getObjs(), copy.getExpressions(), Operator.AND));
+                                    }
+                                }
+                            }
                         }
-                    }
-                    Set<LogicalExpression> newExpsNew = new HashSet<LogicalExpression>();
-                    if(exp.getObjs() != null){
-                        for(T t : exp.getObjs()){
+                        for(LogicalExpression t : exp.getExpressions()){
                             if(newExps.isEmpty()){
                                 Set<T> ns = new HashSet<T>();
-                                ns.add(t);
-                                newExpsNew.add(new LogicalExpression<T>(ns, Operator.AND));
+                                Set<LogicalExpression> nles = new HashSet<>();
+                                nles.add(t);
+                                newExpsNew.add(new LogicalExpression<T>(ns, nles, Operator.AND));
                             } else {
                                 for(LogicalExpression le : newExps){
                                     LogicalExpression copy = le.clone();
-                                    if(copy.getObjs() != null){
-                                        copy.getObjs().add(t);
-                                    }
+                                    copy.getExpressions().add(t);
                                     newExpsNew.add(new LogicalExpression<T>(copy.getObjs(), copy.getExpressions(), Operator.AND));
                                 }
                             }
                         }
+                        newExps = newExpsNew;
                     }
-                    for(LogicalExpression t : exp.getExpressions()){
-                        if(newExps.isEmpty()){
-                            Set<T> ns = new HashSet<T>();
-                            Set<LogicalExpression> nles = new HashSet<>();
-                            nles.add(t);
-                            newExpsNew.add(new LogicalExpression<T>(ns, nles, Operator.AND));
-                        } else {
-                            for(LogicalExpression le : newExps){
-                                LogicalExpression copy = le.clone();
-                                copy.getExpressions().add(t);
-                                newExpsNew.add(new LogicalExpression<T>(copy.getObjs(), copy.getExpressions(), Operator.AND));
-                            }
-                        }
-                    }
-                    newExps = newExpsNew;
                 }
-            }
-            if(!newExps.isEmpty()){
-                currentExp.setObjs(null); //All objects were moved to an expression
-                currentExp.setExpressions(newExps);
+                if(!newExps.isEmpty()){
+                    currentExp.setObjs(null); //All objects were moved to an expression
+                    currentExp.setExpressions(newExps);
+                }
             }
         }
 

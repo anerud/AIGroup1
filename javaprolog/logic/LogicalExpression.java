@@ -136,15 +136,13 @@ public class LogicalExpression<T> implements Cloneable{
             exp.simplifyExpression();
         }
         //Then simplify this expression..
+        LogicalExpression<T> currentExp = this;
 
         //First remove unnecessary leading operators
-        LogicalExpression<T> currentExp = this;
         if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
             //In this case, we can delete the top operator
             //put them all in the same expression
             currentExp = currentExp.getExpressions().iterator().next();
-//            while((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
-//            }
         }
         //Then remove all empty expressions
         if(!currentExp.getExpressions().isEmpty()){
@@ -155,6 +153,10 @@ public class LogicalExpression<T> implements Cloneable{
                 }
             }
             currentExp.getExpressions().removeAll(toBeRemoved);
+        }
+        //Then remove unnecessary leading operators again..
+        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
+            currentExp = currentExp.getExpressions().iterator().next();
         }
         //Can we simplify more?
         if(currentExp.getExpressions().isEmpty()){

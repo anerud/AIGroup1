@@ -5,5 +5,4 @@ package main;
  */
 public class PDDLParser {
 
-
 }

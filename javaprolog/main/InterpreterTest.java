@@ -23,7 +23,7 @@ public class InterpreterTest {
 
     @org.junit.After
     public void tearDown() throws Exception {
-        //WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
+        WorldState.setVisitedWorld(new HashSet<String>()); //Remove this to speed up the process..
     }
 
     @org.junit.Test
@@ -94,7 +94,7 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject1() throws Exception {
-        String[] alternatives = new String[] {"[(AND (INSIDE e k) (ONTOP k floor))]", "[(AND (ONTOP k floor) (INSIDE e k))]"};
+        String[] alternatives = new String[] {"[(INSIDE e (ONTOP k floor))]"};
         test("testMoveObject1", alternatives);
     }
 
@@ -140,18 +140,17 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject6() throws Exception {
-        String[] alternatives = new String[] {"[(AND (ONTOP a g) (OR (ONTOP b h) (ONTOP b g)))]", "[(AND (ONTOP a g) (OR (ONTOP b g) (ONTOP b h)))]",
-                "[(AND (OR (ONTOP b h) (ONTOP b g)) (ONTOP a g))]", "[(AND (OR (ONTOP b g) (ONTOP b h)) (ONTOP a g))]"};
+        String[] alternatives = new String[] {"[(AND (ONTOP a g) (ONTOP b h))]", "[(AND (ONTOP b h) (ONTOP a g))]"};
         test("testMoveObject6", alternatives);
     }
 
 
     @org.junit.Test
     public void testMoveObject7() throws Exception {
-        String[] alternatives = new String[] {"[(AND (OR (INSIDE e k) (INSIDE e l)) (OR (INSIDE f l) (INSIDE f k)))]", "[(AND (OR (INSIDE e k) (INSIDE e l)) (OR (INSIDE f k) (INSIDE f l)))]",
-                "[(AND (OR (INSIDE e l) (INSIDE e k)) (OR (INSIDE f l) (INSIDE f k)))]", "[(AND (OR (INSIDE e l) (INSIDE e k)) (OR (INSIDE f k) (INSIDE f l)))]",
-                "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f l) (INSIDE f k)) (OR (INSIDE e k) (INSIDE e l)))]",
-                "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e l) (INSIDE e k)))]", "[(AND (OR (INSIDE f k) (INSIDE f l)) (OR (INSIDE e k) (INSIDE e l)))]"};
+        String[] alternatives = new String[] {"[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE e l) (INSIDE f k)))]", "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE e l) (INSIDE f k)))]",
+                "[(OR (AND (INSIDE e k) (INSIDE f l)) (AND (INSIDE f k) (INSIDE e l)))]", "[(OR (AND (INSIDE f l) (INSIDE e k)) (AND (INSIDE f k) (INSIDE e l)))]",
+                "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE e k) (INSIDE f l)))]", "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE e k) (INSIDE f l)))]",
+                "[(OR (AND (INSIDE e l) (INSIDE f k)) (AND (INSIDE f l) (INSIDE e k)))]", "[(OR (AND (INSIDE f k) (INSIDE e l)) (AND (INSIDE f l) (INSIDE e k)))]"};
         test("testMoveObject7", alternatives);
     }
 

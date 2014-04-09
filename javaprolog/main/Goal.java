@@ -61,8 +61,7 @@ public class Goal {
             if(expression.getObjs() != null){
                 for(WorldObject obj : expression.getObjs()){
                     if(obj instanceof RelativeWorldObject && ((RelativeWorldObject)obj).getRelativeTo() != null){
-                        RelativeWorldObject relObj = (RelativeWorldObject)obj;
-                        pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() + " " + relObj.getRelativeTo().getId() + ") ");
+                        pddlString.append(buildRelativeToPddlString(obj) + " ");
                     } else {
                         if(singlePredicate.equals("")){
                             pddlString.append(obj.getId());
@@ -82,8 +81,7 @@ public class Goal {
             //Assume the RelativeWorldobject in question is at the top level of the expression
             WorldObject wo = expression.getObjs().iterator().next();
             if(wo instanceof RelativeWorldObject && ((RelativeWorldObject)wo).getRelativeTo() != null){
-                RelativeWorldObject relObj = (RelativeWorldObject)wo;
-                pddlString.append("(" + relObj.getRelation().toString() + " " + relObj.getId() +" " + relObj.getRelativeTo().getId() + ")");
+                pddlString.append(buildRelativeToPddlString(wo));
             } else {
                 if(singlePredicate.equals("")){
                     pddlString.append(wo.getId());
@@ -93,6 +91,14 @@ public class Goal {
             }
         }
         return pddlString.toString();
+    }
+
+    private String buildRelativeToPddlString(WorldObject wo){
+        String relativeToString = wo.getId();
+        if(wo instanceof RelativeWorldObject){
+            return "(" + ((RelativeWorldObject) wo).getRelation().toString() + " " + wo.getId() + " " + buildRelativeToPddlString(((RelativeWorldObject) wo).getRelativeTo()) + ")";
+        }
+        return relativeToString;
     }
 
 

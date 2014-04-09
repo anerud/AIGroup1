@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface IAStarState extends Comparable<IAStarState>{
 
-	public Collection<? extends IAStarState> expand();
+	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException;
 	
 	public double getStateValue();
 	

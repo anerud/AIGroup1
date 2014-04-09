@@ -29,7 +29,7 @@ public class AStar {
 	 * @return false if the goal could not be reached. True if
 	 * the goal was reached.
 	 */
-	public boolean run(){
+	public boolean run() throws CloneNotSupportedException {
 		do {
 			currentState = q.poll();
 			q.addAll(currentState.expand());

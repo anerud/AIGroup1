@@ -100,6 +100,10 @@ public class Goal {
         return expression;
     }
 
+    public void setExpression(LogicalExpression<WorldObject> expression) {
+        this.expression = expression;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

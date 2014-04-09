@@ -39,6 +39,8 @@ public class Interpreter {
             Goal g = null;
             try{
                 g = tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
+                world.removeImpossibleLogic(g.getExpression());
+                g.getExpression().simplifyExpression();
             } catch(InterpretationException e){
                 exceptions.add(e);
             }

@@ -676,8 +676,7 @@ public class World {
      */
 	public boolean hasRelation(RelativeWorldObject obj) {
 		if (obj.getForm() == null) {
-			throw new NullPointerException(); // This method does NOT support
-												// nullpointers...
+			throw new NullPointerException();
 		}
         if(obj.getRelativeTo() instanceof RelativeWorldObject){
             if(!hasRelation((RelativeWorldObject)obj.getRelativeTo())){
@@ -801,36 +800,57 @@ public class World {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        LogicalExpression<WorldObject> le = goal.getExpression();
-        LogicalExpression.Operator op = le.getOp();
-        Set<WorldObject> s = filterByExistsInWorld(le);
         if(goal.getAction().equals(Goal.Action.TAKE)){
-            if(holding == null) return false;
-            if(op.equals(LogicalExpression.Operator.OR)){
-                for(WorldObject wo : s){
-                    if(wo.getId().equals(holding.getId())) return true;
-                }
-            }
-            return (s.size() != 1) && holding.getId().equals(s.iterator().next().getId());
+            Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
+            return this.holding == null ? false : wos.contains(holding);
+        } else {
+            return existsInWorld(goal.getExpression());
         }
-        if(op.equals(LogicalExpression.Operator.AND)){
+    }
+
+    public boolean existsInWorld(WorldObject wo) {
+        if(wo instanceof RelativeWorldObject){
+            return hasRelation((RelativeWorldObject)wo);
+        } else {
+            if(columnOf(wo) != -1 || (holding == null ? false : holding.getId().equals(wo.getId()))) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param le
+     * @return
+     */
+    public boolean existsInWorld(LogicalExpression<WorldObject> le) {
+        if(le.getOp().equals(LogicalExpression.Operator.AND)){
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()){
-                    if(!s.contains(new WorldObject(wo))){
+                    if(!existsInWorld(wo)){
                         return false;
                     }
                 }
             }
-            for(LogicalExpression<WorldObject> le2 : le.getExpressions()){
-                Goal g = new Goal(le2, goal.getAction());
-                if(!isGoalFulFilled(g)){
+            for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
+                if(!existsInWorld(le1)){
                     return false;
                 }
             }
             return true;
+        } else {
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(existsInWorld(wo)){
+                        return true;
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
+                if(existsInWorld(le1)){
+                    return true;
+                }
+            }
+            return false;
         }
-        return s.size() >= 1;
     }
 
     public List<WorldObject> objectsAbove(WorldObject wo) {
@@ -839,5 +859,46 @@ public class World {
         }
         LinkedList<WorldObject> st = stacks.get(columnOf(wo));
         return st.subList(st.indexOf(wo) + 1, st.size() - 1);
+    }
+
+    /**
+     * Removes logic which is impossible in this world. For example, two objects cannot be placed in a box.
+     * @param expression
+     * @return null if the expression is entirely impossible.
+     */
+    public void removeImpossibleLogic(LogicalExpression<WorldObject> expression) throws CloneNotSupportedException {
+        if(expression.getOp().equals(LogicalExpression.Operator.AND)){
+            if(expression.getObjs() != null){
+                HashMap<WorldObject, WorldObject> map = new HashMap<>();
+                for(WorldObject wo : expression.getObjs()){
+                    if(wo instanceof RelativeWorldObject){
+                        if(((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.ONTOP) || ((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.INSIDE)){
+                            WorldObject existing = map.get(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()));
+                            if(existing != null && !existing.equals(new WorldObject(wo))){
+                                //Something has already been placed here
+                                expression.setExpressions(new HashSet<LogicalExpression>());
+                                expression.setObjs(new HashSet<WorldObject>());
+                                return;
+                            } else {
+                                if(!((RelativeWorldObject) wo).getRelativeTo().getId().equals("floor")){
+                                    map.put(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()), new WorldObject(wo));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Set<LogicalExpression<WorldObject>> toBeAdded = new HashSet<LogicalExpression<WorldObject>>();
+        for(LogicalExpression<WorldObject> le : expression.getExpressions()){
+            LogicalExpression<WorldObject> leClone = le.clone();
+            removeImpossibleLogic(leClone);
+            if(!le.isEmpty()){
+                toBeAdded.add(leClone);
+            }
+        }
+        expression.getExpressions().clear();
+        expression.getExpressions().addAll(toBeAdded);
     }
 }

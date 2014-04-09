@@ -53,6 +53,11 @@ public class LogicalExpression<T> implements Cloneable{
         }
     }
 
+    public boolean isDnf() {
+        //TODO: implement
+        return true;
+    }
+
     public enum Operator{
         OR, AND, NOT, NONE
     }
@@ -140,6 +145,16 @@ public class LogicalExpression<T> implements Cloneable{
             currentExp = currentExp.getExpressions().iterator().next();
 //            while((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
 //            }
+        }
+        //Then remove all empty expressions
+        if(!currentExp.getExpressions().isEmpty()){
+            Set<LogicalExpression> toBeRemoved = new HashSet<>();
+            for(LogicalExpression<T> le : currentExp.getExpressions()){
+                if(le.size() == 0){
+                    toBeRemoved.add(le);
+                }
+            }
+            currentExp.getExpressions().removeAll(toBeRemoved);
         }
         //Can we simplify more?
         if(currentExp.getExpressions().isEmpty()){

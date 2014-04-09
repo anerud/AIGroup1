@@ -35,73 +35,104 @@ public class WorldState implements IAStarState {
      * @param goal
      * @param actionToGetHere
      */
-    public WorldState(World world, Goal goal, List<String> actionToGetHere){
+    public WorldState(World world, Goal goal, List<String> actionToGetHere) throws CloneNotSupportedException {
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = 0; //computeHeuristic(goal.getExpression()).size()*2;
+		this.distanceToGoHeuristic = computeHeuristic(goal.getExpression()).size()*2;
+//        //debug
+//        if(distanceToGoHeuristic > 0){
+//            this.getClass();
+//        }
 		this.bestActionsToGetHere = actionToGetHere;
 	}
 
-//    //TODO: delete and do properly
-//	private Set<WorldObject> computeHeuristic(LogicalExpression<WorldObject> le) {
-//        Set<WorldObject> minObjsToMove = new HashSet<WorldObject>();
-//        if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
-//            if(le.getObjs() != null){
-//                for(WorldObject wo : le.getObjs()) {
-//                    minObjsToMove.addAll(minObjsToMove(wo));
-//                }
-//            }
-//            for(LogicalExpression<WorldObject> le2 : le.getExpressions()){ //om underuttrycken är OR, måste vi kolla alla kombinationer av returvärden och jämföra dessa. Orimligt. Vi måste alltså ha dnf.
-//                minObjsToMove.addAll(computeHeuristic(le2));
-//            }
-//        }
-//		return minObjsToMove;
-//	}
-//
-//    //TODO: delete and do properly
-//    private Set<WorldObject> minObjsToMove(WorldObject wo) {
-//        int sum = 0;
-//        Set<WorldObject> minObjs = new HashSet<>(world.objectsAbove(wo));
-//        if(!(wo instanceof RelativeWorldObject)){
-//            return minObjs;
-//        }
-//        RelativeWorldObject woRel = (RelativeWorldObject)wo;
-//        LogicalExpression<WorldObject> relativeTo = woRel.getRelativeTo();
-//        LogicalExpression.Operator op = relativeTo.getOp();
-//        if(op.equals(LogicalExpression.Operator.AND) || relativeTo.size() <= 1){
-//            switch (woRel.getRelation()) {
-//                case ONTOP:
-//                    for(WorldObject wo2 : relativeTo.getObjs()){
-//                        if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, wo2)){
-//                            minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
-//                            minObjs.addAll(world.objectsAbove(new WorldObject(wo2)));
-//                            minObjs.add(new WorldObject(wo));
-//                        }
-//                    }
-//                    break;
-//                case INSIDE:
-//                    for(WorldObject wo2 : relativeTo.getObjs()){
-//                        if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, wo2)){
-//                            minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
-//                            minObjs.addAll(world.objectsAbove(new WorldObject(wo2)));
-//                            minObjs.add(new WorldObject(wo));
-//                        }
-//                    }
-//                    break;
-//                case ABOVE:
-//                    break;
-//                case UNDER:
-//                    break;
-//                case BESIDE:
-//                    break;
-//                case LEFTOF:
-//                    break;
-//                case RIGHTOF:
-//                    break;
-//            }
-//        }
-//        return minObjs;
-//    }
+    /**
+     * Only supports dnf expressions. If not dnf, an empty set is returned.
+     * @param le
+     * @return
+     */
+
+	private Set<WorldObject> computeHeuristic(LogicalExpression<WorldObject> le) throws CloneNotSupportedException {
+        if(!le.isDnf()){
+            return new HashSet<WorldObject>();
+        }
+        if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
+            Set<WorldObject> minObjsToMove = new HashSet<WorldObject>();
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()) {
+                    minObjsToMove.addAll(minObjsToMove(wo));
+                }
+            } //Note that the expression is simplified and dnf, so we do not need to check the logicalexpressions..
+            return minObjsToMove;
+        } else {
+            //return the smallest set
+            Set<WorldObject> smallestSet = new HashSet<WorldObject>();
+            boolean first = true;
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()) {
+                    Set<WorldObject> thisSet = minObjsToMove(wo);
+                    if(first){
+                        smallestSet = thisSet;
+                        first = false;
+                    } else if(thisSet.size() < smallestSet.size()){
+                        smallestSet = thisSet;
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
+                //This is an AND expression
+                Set<WorldObject> thisSet = computeHeuristic(le1);
+                if(first){
+                    smallestSet = thisSet;
+                    first = false;
+                } else if(thisSet.size() < smallestSet.size()){
+                    smallestSet = thisSet;
+                }
+            }
+            return smallestSet;
+        }
+	}
+
+    private Set<WorldObject> minObjsToMove(WorldObject wo) {
+        Set<WorldObject> minObjs = new HashSet<>();
+        if(!(wo instanceof RelativeWorldObject)){
+            minObjs = new HashSet<>(world.objectsAbove(wo));
+            return minObjs;
+        }
+        WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
+
+        if(woRel instanceof RelativeWorldObject){
+            minObjs.addAll(minObjsToMove(woRel));
+        }
+
+        switch (((RelativeWorldObject)wo).getRelation()) {
+            case ONTOP:
+                    if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, woRel)){
+                        minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
+                        minObjs.addAll(world.objectsAbove(new WorldObject(woRel)));
+                        minObjs.add(new WorldObject(wo));
+                    }
+                break;
+            case INSIDE:
+                if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, woRel)){
+                    minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
+                    minObjs.addAll(world.objectsAbove(new WorldObject(woRel)));
+                    minObjs.add(new WorldObject(wo));
+                }
+                break;
+            case ABOVE:
+                break;
+            case UNDER:
+                break;
+            case BESIDE:
+                break;
+            case LEFTOF:
+                break;
+            case RIGHTOF:
+                break;
+        }
+        return minObjs;
+    }
 	
 	@Override
 	public double getStateValue() {
@@ -141,7 +172,7 @@ public class WorldState implements IAStarState {
      * @return
      */
 	@Override
-	public Collection<? extends IAStarState> expand() {
+	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
 		if(world.getHolding() != null){
             for(int i = 0; i<world.getStacks().size(); i++){

@@ -13,7 +13,7 @@ public class WorldState implements IAStarState {
 
 
     private List<String> actionsToGetHere; //Best found so far, considering we are using dijkstra..
-	private double heuristicWeight = 2;
+	private double heuristicWeight = 20;
 	private int heuristicValue;
 	private World world;
 	private Goal goal;
@@ -119,8 +119,16 @@ public class WorldState implements IAStarState {
                 }
                 break;
             case ABOVE:
+            	if(!world.hasRelation(WorldConstraint.Relation.ABOVE, wo, woRel)) {
+            		minObjs.addAll(world.objectsAbove(wo));
+            		minObjs.add(wo);
+            	}
                 break;
             case UNDER:
+            	if(!world.hasRelation(WorldConstraint.Relation.UNDER, wo, woRel)) {
+            		minObjs.addAll(world.objectsAbove(woRel));
+            		minObjs.add(woRel);
+            	}
                 break;
             case BESIDE:
                 break;

@@ -55,20 +55,20 @@ public class WorldState implements IAStarState {
             return new HashSet<WorldObject>();
         }
         if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
-            Set<WorldObject> minObjsToMove = new HashSet<WorldObject>();
+            Set<WorldObject> minObjsToMoveSet = new HashSet<WorldObject>();
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    minObjsToMove.addAll(minObjsToMove(wo));
+                    minObjsToMoveSet.addAll(calculateMinObjsToMove(wo));
                 }
             } //Note that the expression is simplified and dnf, so we do not need to check the logicalexpressions..
-            return minObjsToMove;
+            return minObjsToMoveSet;
         } else {
             //return the smallest set
             Set<WorldObject> smallestSet = new HashSet<WorldObject>();
             boolean first = true;
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    Set<WorldObject> thisSet = minObjsToMove(wo);
+                    Set<WorldObject> thisSet = calculateMinObjsToMove(wo);
                     if(first){
                         smallestSet = thisSet;
                         first = false;
@@ -91,7 +91,7 @@ public class WorldState implements IAStarState {
         }
 	}
 
-    private Set<WorldObject> minObjsToMove(WorldObject wo) {
+    private Set<WorldObject> calculateMinObjsToMove(WorldObject wo) {
         Set<WorldObject> minObjs = new HashSet<>();
         if(!(wo instanceof RelativeWorldObject)){
             minObjs = new HashSet<>(world.objectsAbove(wo));
@@ -100,7 +100,7 @@ public class WorldState implements IAStarState {
         WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
 
         if(woRel instanceof RelativeWorldObject){
-            minObjs.addAll(minObjsToMove(woRel));
+            minObjs.addAll(calculateMinObjsToMove(woRel));
         }
 
         switch (((RelativeWorldObject)wo).getRelation()) {

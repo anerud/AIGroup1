@@ -18,6 +18,14 @@ public class WorldState implements IAStarState {
 	private World world;
 	private Goal goal;
 	private Set<WorldObject> objectsToMove;
+	private IHeuristic<WorldState> asdasdasd = new IHeuristic<WorldState>() {
+		
+		@Override
+		public double h(WorldState state, Goal goal) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+	};
 
     public static Set<String> getVisitedWorld() {
         return visitedWorld;

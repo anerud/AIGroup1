@@ -2,9 +2,8 @@ package aStar;
 
 import main.Goal;
 
-public interface IHeuristic {
+public interface IHeuristic<E extends IAStarState> {
 	
-	double h(IAStarState state , Goal goal);
+	double h(E state , Goal goal);
 	
-
 }

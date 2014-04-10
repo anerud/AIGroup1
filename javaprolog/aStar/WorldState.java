@@ -12,20 +12,13 @@ import world.WorldObject;
 public class WorldState implements IAStarState {
 
 
-    private List<String> bestActionsToGetHere; //Best found so far, considering we are using dijkstra..
+    private List<String> actionsToGetHere; //Best found so far, considering we are using dijkstra..
 	private double heuristicWeight = 2;
-	private int distanceToGoHeuristic;
+	private int heuristicValue;
 	private World world;
 	private Goal goal;
 	private Set<WorldObject> objectsToMove;
-	private IHeuristic<WorldState> asdasdasd = new IHeuristic<WorldState>() {
-		
-		@Override
-		public double h(WorldState state, Goal goal) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-	};
+	private IHeuristic<WorldState> heuristic = new HeuristicONE();
 
     public static Set<String> getVisitedWorld() {
         return visitedWorld;
@@ -46,12 +39,9 @@ public class WorldState implements IAStarState {
     public WorldState(World world, Goal goal, List<String> actionToGetHere) throws CloneNotSupportedException {
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = computeHeuristic(goal.getExpression()).size()*2;
-//        //debug
-//        if(distanceToGoHeuristic > 0){
-//            this.getClass();
-//        }
-		this.bestActionsToGetHere = actionToGetHere;
+		this.heuristicValue = (int) heuristic.h(this, goal);
+		this.heuristicValue = computeHeuristic(goal.getExpression()).size()*2;
+		this.actionsToGetHere = actionToGetHere;
 	}
 
     /**
@@ -141,10 +131,14 @@ public class WorldState implements IAStarState {
         }
         return minObjs;
     }
+    
+    public Goal getGoal(){
+    	return this.goal;
+    }
 	
 	@Override
 	public double getStateValue() {
-		return bestActionsToGetHere.size() + this.distanceToGoHeuristic*heuristicWeight;
+		return actionsToGetHere.size() + this.heuristicValue*heuristicWeight;
 	}
 	
 	@Override
@@ -156,12 +150,12 @@ public class WorldState implements IAStarState {
 		this.heuristicWeight = heuristicWeight;
 	}
 
-    public List<String> getBestActionsToGetHere() {
-        return bestActionsToGetHere;
+    public List<String> getActionsToGetHere() {
+        return actionsToGetHere;
     }
 
-    public void setBestActionsToGetHere(List<String> bestActionsToGetHere) {
-        this.bestActionsToGetHere = bestActionsToGetHere;
+    public void setActionsToGetHere(List<String> bestActionsToGetHere) {
+        this.actionsToGetHere = bestActionsToGetHere;
     }
 
 	@Override
@@ -184,7 +178,7 @@ public class WorldState implements IAStarState {
                 World w = world.clone();
                 if(w.drop(i) && !visitedWorld.contains(w.getRepresentString())){
                     visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    List<String> newList = new LinkedList<String>(actionsToGetHere);
                     newList.add("drop " + i);
                     WorldState state = new WorldState(w, goal, newList);
                     l.add(state);
@@ -195,7 +189,7 @@ public class WorldState implements IAStarState {
                 World w = world.clone();
                 if(w.pick(i) && !visitedWorld.contains(w.getRepresentString())){
                 	visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    List<String> newList = new LinkedList<String>(actionsToGetHere);
                     newList.add("pick " + i);
                     WorldState state = new WorldState(w, goal, newList);
                     l.add(state);

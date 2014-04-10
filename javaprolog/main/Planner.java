@@ -21,7 +21,7 @@ public class Planner {
         WorldState ws = new WorldState(world, goal, new LinkedList<String>());
         AStar astar = new AStar(ws);
         if(astar.run()){
-            return ((WorldState)astar.getCurrentState()).getBestActionsToGetHere();
+            return ((WorldState)astar.getCurrentState()).getActionsToGetHere();
         }
         List<String> plan = new ArrayList<String>();
         return plan;

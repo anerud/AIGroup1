@@ -14,13 +14,14 @@ public class Goal {
     }
 
     private LogicalExpression<WorldObject> expression;
+    private Action action;
+    private String pddlString;
 
     public Action getAction() {
         return action;
     }
 
-    private Action action;
-    private String pddlString;
+  
 
     public Goal(LogicalExpression<WorldObject> expression, Action action){
         this.expression = expression;

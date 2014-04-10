@@ -169,6 +169,14 @@ public class InterpreterTest {
         test("testMoveObject10", "[]"); //TODO
     }
 
+    @org.junit.Test
+    public void testMoveObject11() throws Exception {
+        String[] alternatives = new String[] {"[(OR (ONTOP k (ONTOP g (ONTOP c (ONTOP a floor)))) (ONTOP i (ONTOP g (ONTOP c (ONTOP a floor)))))]",
+                "[(OR (ONTOP i (ONTOP g (ONTOP c (ONTOP a floor)))) (ONTOP k (ONTOP g (ONTOP c (ONTOP a floor)))))]"};
+        test("testMoveObject11", alternatives);
+    }
+
+
 
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
         Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();

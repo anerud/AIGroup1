@@ -28,7 +28,7 @@ public class TakeNode extends Node {
 	}
 
 	@Override
-	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
+	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException, CloneNotSupportedException {
 		return v.visit(this, arg);
 	}
 

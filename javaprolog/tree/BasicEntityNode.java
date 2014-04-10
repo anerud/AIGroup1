@@ -42,7 +42,7 @@ public class BasicEntityNode extends Node {
 	}
 
     @Override
-    public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException {
+    public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException, CloneNotSupportedException {
         return v.visit(this, arg, arg2);
     }
 

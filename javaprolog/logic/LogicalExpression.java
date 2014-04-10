@@ -104,28 +104,6 @@ public class LogicalExpression<T> implements Cloneable{
         this.op = op;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LogicalExpression that = (LogicalExpression) o;
-
-        if (expressions != null ? !expressions.equals(that.expressions) : that.expressions != null) return false;
-        if (objs != null ? !objs.equals(that.objs) : that.objs != null) return false;
-        if (op != that.op) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = objs != null ? objs.hashCode() : 0;
-        result = 31 * result + (expressions != null ? expressions.hashCode() : 0);
-        result = 31 * result + (op != null ? op.hashCode() : 0);
-        return result;
-    }
-
     /**
      * Simplifies this expression and removes unnecessary operators.
      */
@@ -137,6 +115,11 @@ public class LogicalExpression<T> implements Cloneable{
         for(LogicalExpression<T> exp : this.expressions){ //TODO: make sure all subexpressions are either cnf or dnf: not a mixture!
             exp.simplifyExpression();
         }
+        //Since the expressions have changed, some of them might be equal now. We therefore readd them to the set to ensure the set properties are still retained.
+        Set<LogicalExpression> refreshed = new HashSet<>();
+        refreshed.addAll(this.expressions);
+        this.expressions = refreshed;
+
         //Then simplify this expression..
         LogicalExpression<T> currentExp = this;
 
@@ -171,6 +154,7 @@ public class LogicalExpression<T> implements Cloneable{
         //Promote all subexpressions which are the same as this expression
         Operator op = currentExp.getOp();
         Set<LogicalExpression> toBeAdded = new HashSet<LogicalExpression>();
+        Set<LogicalExpression> toBeRemoved = new HashSet<LogicalExpression>();
         for(LogicalExpression<T> exp : currentExp.getExpressions()){
             if(exp.getOp().equals(op)){
                 if(exp.getObjs() != null){
@@ -180,8 +164,10 @@ public class LogicalExpression<T> implements Cloneable{
                     currentExp.getObjs().addAll(exp.getObjs());
                 }
                 toBeAdded.addAll(exp.getExpressions());
+                toBeRemoved.add(exp);
             }
         }
+        currentExp.getExpressions().removeAll(toBeRemoved);
         currentExp.getExpressions().addAll(toBeAdded);
 
         //If this is an AND operator, invert the relationship to create a disjunctive normal form (if practical).
@@ -253,7 +239,7 @@ public class LogicalExpression<T> implements Cloneable{
             }
         }
 
-        //TODO: remove subexpressions which are identical
+        //oldTODO: "remove subexpressions which are identical..". This is probably done automatically
 
         //Can it be further simplified?
 //        if(((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1) || same2 && ()){
@@ -274,4 +260,26 @@ public class LogicalExpression<T> implements Cloneable{
         return le;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LogicalExpression that = (LogicalExpression) o;
+
+        if (expressions != null ? !expressions.equals(that.expressions) : that.expressions != null) return false;
+        if (objs != null ? !objs.equals(that.objs) : that.objs != null) return false;
+        if (op != that.op) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = objs != null ? objs.hashCode() : 0;
+        result = 31 * result + (expressions != null ? expressions.hashCode() : 0);
+        result = 31 * result + (op != null ? op.hashCode() : 0);
+        return result;
+    }
 }

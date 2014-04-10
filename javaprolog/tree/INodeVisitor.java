@@ -4,11 +4,11 @@ import main.Interpreter;
 
 public interface INodeVisitor<R, A, A2> {
 
-	public R visit(BasicEntityNode n, A a, A2 a2) throws Interpreter.InterpretationException;
+	public R visit(BasicEntityNode n, A a, A2 a2) throws Interpreter.InterpretationException, CloneNotSupportedException;
 
-	public R visit(RelativeEntityNode n, A a, A2 a2) throws Interpreter.InterpretationException;
+	public R visit(RelativeEntityNode n, A a, A2 a2) throws Interpreter.InterpretationException, CloneNotSupportedException;
 
-	public R visit(RelativeNode n, A a, A2 a2) throws Interpreter.InterpretationException;
+	public R visit(RelativeNode n, A a, A2 a2) throws Interpreter.InterpretationException, CloneNotSupportedException;
 
 	public R visit(FloorNode n, A a, A2 a2);
 

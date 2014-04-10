@@ -71,7 +71,7 @@ public class Interpreter {
          * @throws InterpretationException
          */
 		@Override
-		public Goal visit(PutNode n, Set<WorldObject> worldObjects) throws InterpretationException {
+		public Goal visit(PutNode n, Set<WorldObject> worldObjects) throws InterpretationException, CloneNotSupportedException {
             if(world.getHolding() == null){
                 throw new InterpretationException("You are not holding anything!");
             }
@@ -96,7 +96,7 @@ public class Interpreter {
 		}
 
         @Override
-        public Goal visit(TakeNode n, Set<WorldObject> worldObjects) throws InterpretationException {
+        public Goal visit(TakeNode n, Set<WorldObject> worldObjects) throws InterpretationException, CloneNotSupportedException {
         	//is the (handempty) precondition fulfilled?
             if(world.getHolding() != null){
                 throw new InterpretationException("You need to put down what you are holding first."); //TODO: the planner should perhaps actually just put the object down by itself first..
@@ -157,12 +157,12 @@ public class Interpreter {
     private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
 
         @Override
-        public LogicalExpression<WorldObject> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException, CloneNotSupportedException {
 			return n.getObjectNode().accept(this, worldObjects, n.getQuantifierNode().getQuantifier());
         }
 
         @Override
-        public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException, CloneNotSupportedException {
             Quantifier q = n.getQuantifierNode().getQuantifier();
             LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
             LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
@@ -202,8 +202,10 @@ public class Interpreter {
          * @throws InterpretationException
          */
         @Override
-        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException {
+        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException, CloneNotSupportedException {
             LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, worldObjects == null ? world.getWorldObjects() : worldObjects, Quantifier.ANY);
+
+            relativeTo.simplifyExpression();
 
             //Convert tops to RelativeWorldObjects
             Set<WorldObject> objsNew = new HashSet<WorldObject>();

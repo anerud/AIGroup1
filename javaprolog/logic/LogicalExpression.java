@@ -3,7 +3,9 @@ package logic;
 import sun.rmi.runtime.Log;
 import world.WorldObject;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -42,6 +44,21 @@ public class LogicalExpression<T> implements Cloneable{
         }
         for(LogicalExpression le : expressions){
             top.addAll(le.topObjs());
+        }
+        return top;
+    }
+
+    /**
+     * This method, unlike topObjs, allows for duplicate entries
+     * @return
+     */
+    public List<T> topObjsList() {
+        List<T> top = new ArrayList<>();
+        if(objs != null){
+            top.addAll(objs);
+        }
+        for(LogicalExpression le : expressions){
+            top.addAll(le.topObjsList());
         }
         return top;
     }

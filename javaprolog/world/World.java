@@ -367,12 +367,10 @@ public class World {
 	 * @param attachTo
 	 * @return
 	 */
-	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(
-			Set<WorldObject> toBeAttached,
-			LogicalExpression<WorldObject> attachTo,
-			LogicalExpression.Operator op) {
-		LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(
-				null, op);
+	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(Set<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo, LogicalExpression.Operator op) {
+
+
+        LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, op);
 		for (WorldObject wo : toBeAttached) {
 			// clone..
 			Set<WorldObject> objsClone = new HashSet<WorldObject>();
@@ -393,12 +391,11 @@ public class World {
 					objsClone, expClone, attachTo.getOp());
 
 			// set the non-relative object...
-			Set<WorldObject> tops = attachToClone.topObjs();
+			List<WorldObject> tops = attachToClone.topObjsList(); //Funkar inte..
 			Set<WorldObject> toBeRemoved = new HashSet<WorldObject>();
 			for (WorldObject wo1 : tops) {
 				if (wo1 instanceof RelativeWorldObject && (wo1).getId() == null) {
-					if (isValidRelation(
-							((RelativeWorldObject) wo1).getRelation(), wo, wo1)) {
+					if (isValidRelation(((RelativeWorldObject) wo1).getRelation(), wo, wo1)) {
 						((RelativeWorldObject) wo1).setObj(wo);
 					} else {
 						toBeRemoved.add(wo1);
@@ -423,24 +420,18 @@ public class World {
 		return relobjs;
 	}
 
-	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(
-			LogicalExpression<WorldObject> toBeAttached,
-			LogicalExpression<WorldObject> attachTo) {
+	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(LogicalExpression<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo) {
 		LogicalExpression<WorldObject> logExp = new LogicalExpression<WorldObject>(
 				null, toBeAttached.getOp());
 
 		Set<WorldObject> wos = toBeAttached.getObjs();
 		if (wos != null) {
-			logExp = attachWorldObjectsToRelation(wos, attachTo,
-					toBeAttached.getOp());
+			logExp = attachWorldObjectsToRelation(wos, attachTo, toBeAttached.getOp());
 		}
 
 		for (LogicalExpression<WorldObject> le : toBeAttached.getExpressions()) {
-			wos = toBeAttached.getObjs();
-			logExp.getExpressions().add(
-					attachWorldObjectsToRelation(wos, le, le.getOp()));
+			logExp.getExpressions().add(attachWorldObjectsToRelation(le, attachTo));
 		}
-
 		return logExp;
 	}
 
@@ -889,6 +880,7 @@ public class World {
                 }
             }
         }
+        //TODO: make sure an object is never e.g. above itself through its relations
 
         Set<LogicalExpression<WorldObject>> toBeAdded = new HashSet<LogicalExpression<WorldObject>>();
         for(LogicalExpression<WorldObject> le : expression.getExpressions()){

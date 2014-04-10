@@ -161,12 +161,12 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject9() throws Exception {
-        test("testMoveObject9", "[]"); //TODO
+        //TODO
     }
 
     @org.junit.Test
     public void testMoveObject10() throws Exception {
-        test("testMoveObject10", "[]"); //TODO
+        //TODO
     }
 
     @org.junit.Test
@@ -174,6 +174,11 @@ public class InterpreterTest {
         String[] alternatives = new String[] {"[(OR (ONTOP k (ONTOP g (ONTOP c (ONTOP a floor)))) (ONTOP i (ONTOP g (ONTOP c (ONTOP a floor)))))]",
                 "[(OR (ONTOP i (ONTOP g (ONTOP c (ONTOP a floor)))) (ONTOP k (ONTOP g (ONTOP c (ONTOP a floor)))))]"};
         test("testMoveObject11", alternatives);
+    }
+
+    @org.junit.Test
+    public void testMoveObject12() throws Exception {
+        //TODO
     }
 
 

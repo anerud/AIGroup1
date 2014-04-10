@@ -391,7 +391,7 @@ public class World {
 					objsClone, expClone, attachTo.getOp());
 
 			// set the non-relative object...
-			List<WorldObject> tops = attachToClone.topObjsList(); //Funkar inte..
+			List<WorldObject> tops = attachToClone.topObjsList();
 			Set<WorldObject> toBeRemoved = new HashSet<WorldObject>();
 			for (WorldObject wo1 : tops) {
 				if (wo1 instanceof RelativeWorldObject && (wo1).getId() == null) {

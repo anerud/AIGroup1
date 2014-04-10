@@ -114,6 +114,7 @@ public class Shrdlite {
 				if (plan.isEmpty()) {
 					result.setOutput("Planning error!");
 				} else {
+					log.println(plan.toString());
 					result.setOutput("Success!");
 				}
 			}

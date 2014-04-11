@@ -2,11 +2,10 @@ package aStar;
 
 import main.Goal;
 
-public class joelsHeuristic implements IHeuristic {
+public class joelsHeuristic implements IHeuristic<WorldState> {
 
 	@Override
-	public double h(IAStarState state, Goal goal) {
-		// TODO Auto-generated method stub
+	public double h(WorldState state, Goal goal) {
 		return 0;
 	}
 

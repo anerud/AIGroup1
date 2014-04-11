@@ -16,6 +16,10 @@ import java.util.Set;
 public class LogicalExpression<T> implements Cloneable{
 
     private static final int MAXIMUM_CLAUSES = 1000;
+    private Set<T> objs;
+    private Set<LogicalExpression> expressions;
+    private Operator op;
+
 
     /**
      *
@@ -80,10 +84,6 @@ public class LogicalExpression<T> implements Cloneable{
     public enum Operator{
         OR, AND, NOT, NONE
     }
-
-    private Set<T> objs;
-    private Set<LogicalExpression> expressions;
-    private Operator op;
 
     public LogicalExpression(Set<T> objs, LogicalExpression.Operator op){
         this.objs = objs;

@@ -3,7 +3,7 @@
 var AjaxScript = "cgi-bin/ajaxwrapper.py";
 
 // List of the JSON files that contain example worlds:
-var ExampleNames = ["small","medium"];
+var ExampleNames = ["small","medium","large"];
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
@@ -15,9 +15,9 @@ var FloorThickness = 10;     // pixels
 var WallSeparation = 4;     // pixels
 var ArmSize = 0.2;         // of stack width
 var AnimationPause = 0.0; // seconds
-var PromptPause = 0.0;   // seconds
+var PromptPause = 0.5;   // seconds
 var AjaxTimeout = 500;    // seconds
-var ArmSpeed = 4000;   // pixels per second
+var ArmSpeed = 1000;   // pixels per second
 
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
@@ -99,28 +99,38 @@ $(function() {
 
 function loadExampleWorlds() {
     ExampleWorlds = {};
-    $("#exampleworlds").empty();
-    $.each(ExampleNames, function(i, name) {
-        $('<input type="submit">').val(name)
-            .click(changeCurrentExample)
-            .appendTo($("#exampleworlds"));
-        $.ajax({
-            dataType: "json",
-            url: ExamplesFolder + "/" + name + ".json",
-            async: false
-        }).fail(function(jqxhr, status, error) {
-            alertError("Couldn't load example '" + name + "'.json: " + status, error);
-        }).done(function(world) {
-            ExampleWorlds[name] = world;
-        });
-    });
+	$("#exampleworlds").empty();
+	$.each(ExampleNames, function(i, name) {
+		$('<input type="submit">').val(name)
+			.click(changeCurrentExample)
+			.appendTo($("#exampleworlds"));
+		$.ajax({
+			dataType: "json",
+			url: ExamplesFolder + "/" + name + ".json",
+			async: false
+		}).fail(function(jqxhr, status, error) {
+			alertError("Couldn't load example '" + name + "'.json: " + status, error);
+		}).done(function(world) {
+			ExampleWorlds[name] = world;
+		});
+	});
 }
 
 function changeCurrentExample() {
     var name = $(this).val();
-    if (confirm('Are you certain that you want to reset to "' + name + '"?')) {
-        resetCurrentExample(name);
-    }
+		if(name == "large") {
+			if (confirm('Are you certain that you want to reset to "' + name + '"?')) {
+				if (confirm('Are you really certain that you want to reset to "' + name + '"?')) {
+					if (confirm('Are you really reaaaally certain that you want to reset to "' + name + '"?')) {
+						if (confirm('Are you really reaaaally reaaaaaaaaaaaaallyyyyy certain that you want to reset to "' + name + '"?')) {
+							// Play rick astley
+						}
+					}
+				}
+			}
+		} else {
+			resetCurrentExample(name);
+		}
 }
 
 function resetCurrentExample(name) {

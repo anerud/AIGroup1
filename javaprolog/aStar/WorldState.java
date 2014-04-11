@@ -12,12 +12,13 @@ import world.WorldObject;
 public class WorldState implements IAStarState {
 
 
-    private List<String> bestActionsToGetHere; //Best found so far, considering we are using dijkstra..
-	private double heuristicWeight = 1;
-	private int distanceToGoHeuristic;
+    private List<String> actionsToGetHere; //Best found so far, considering we are using dijkstra..
+	private double heuristicWeight = 20;
+	private int heuristicValue;
 	private World world;
 	private Goal goal;
 	private Set<WorldObject> objectsToMove;
+	private IHeuristic<WorldState> heuristic = new HeuristicONE();
 
     public static Set<String> getVisitedWorld() {
         return visitedWorld;
@@ -38,12 +39,9 @@ public class WorldState implements IAStarState {
     public WorldState(World world, Goal goal, List<String> actionToGetHere) throws CloneNotSupportedException {
 		this.world = world;
 		this.goal = goal;
-		this.distanceToGoHeuristic = computeHeuristic(goal.getExpression()).size()*2;
-//        //debug
-//        if(distanceToGoHeuristic > 0){
-//            this.getClass();
-//        }
-		this.bestActionsToGetHere = actionToGetHere;
+		this.heuristicValue = (int) heuristic.h(this, goal);
+		this.heuristicValue = computeHeuristic(goal.getExpression()).size()*2;
+		this.actionsToGetHere = actionToGetHere;
 	}
 
     /**
@@ -57,20 +55,20 @@ public class WorldState implements IAStarState {
             return new HashSet<WorldObject>();
         }
         if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
-            Set<WorldObject> minObjsToMove = new HashSet<WorldObject>();
+            Set<WorldObject> minObjsToMoveSet = new HashSet<WorldObject>();
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    minObjsToMove.addAll(minObjsToMove(wo));
+                    minObjsToMoveSet.addAll(calculateMinObjsToMove(wo));
                 }
             } //Note that the expression is simplified and dnf, so we do not need to check the logicalexpressions..
-            return minObjsToMove;
+            return minObjsToMoveSet;
         } else {
             //return the smallest set
             Set<WorldObject> smallestSet = new HashSet<WorldObject>();
             boolean first = true;
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    Set<WorldObject> thisSet = minObjsToMove(wo);
+                    Set<WorldObject> thisSet = calculateMinObjsToMove(wo);
                     if(first){
                         smallestSet = thisSet;
                         first = false;
@@ -93,7 +91,7 @@ public class WorldState implements IAStarState {
         }
 	}
 
-    private Set<WorldObject> minObjsToMove(WorldObject wo) {
+    private Set<WorldObject> calculateMinObjsToMove(WorldObject wo) {
         Set<WorldObject> minObjs = new HashSet<>();
         if(!(wo instanceof RelativeWorldObject)){
             minObjs = new HashSet<>(world.objectsAbove(wo));
@@ -102,7 +100,7 @@ public class WorldState implements IAStarState {
         WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
 
         if(woRel instanceof RelativeWorldObject){
-            minObjs.addAll(minObjsToMove(woRel));
+            minObjs.addAll(calculateMinObjsToMove(woRel));
         }
 
         switch (((RelativeWorldObject)wo).getRelation()) {
@@ -121,8 +119,16 @@ public class WorldState implements IAStarState {
                 }
                 break;
             case ABOVE:
+            	if(!world.hasRelation(WorldConstraint.Relation.ABOVE, wo, woRel)) {
+            		minObjs.addAll(world.objectsAbove(wo));
+            		minObjs.add(wo);
+            	}
                 break;
             case UNDER:
+            	if(!world.hasRelation(WorldConstraint.Relation.UNDER, wo, woRel)) {
+            		minObjs.addAll(world.objectsAbove(woRel));
+            		minObjs.add(woRel);
+            	}
                 break;
             case BESIDE:
                 break;
@@ -133,13 +139,14 @@ public class WorldState implements IAStarState {
         }
         return minObjs;
     }
+    
+    public Goal getGoal(){
+    	return this.goal;
+    }
 	
 	@Override
 	public double getStateValue() {
-        if(this.distanceToGoHeuristic*heuristicWeight > 0){
-            this.getClass();
-        }
-		return bestActionsToGetHere.size() + this.distanceToGoHeuristic*heuristicWeight;
+		return actionsToGetHere.size() + this.heuristicValue*heuristicWeight;
 	}
 	
 	@Override
@@ -151,12 +158,12 @@ public class WorldState implements IAStarState {
 		this.heuristicWeight = heuristicWeight;
 	}
 
-    public List<String> getBestActionsToGetHere() {
-        return bestActionsToGetHere;
+    public List<String> getActionsToGetHere() {
+        return actionsToGetHere;
     }
 
-    public void setBestActionsToGetHere(List<String> bestActionsToGetHere) {
-        this.bestActionsToGetHere = bestActionsToGetHere;
+    public void setActionsToGetHere(List<String> bestActionsToGetHere) {
+        this.actionsToGetHere = bestActionsToGetHere;
     }
 
 	@Override
@@ -179,7 +186,7 @@ public class WorldState implements IAStarState {
                 World w = world.clone();
                 if(w.drop(i) && !visitedWorld.contains(w.getRepresentString())){
                     visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    List<String> newList = new LinkedList<String>(actionsToGetHere);
                     newList.add("drop " + i);
                     WorldState state = new WorldState(w, goal, newList);
                     l.add(state);
@@ -190,7 +197,7 @@ public class WorldState implements IAStarState {
                 World w = world.clone();
                 if(w.pick(i) && !visitedWorld.contains(w.getRepresentString())){
                 	visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(bestActionsToGetHere);
+                    List<String> newList = new LinkedList<String>(actionsToGetHere);
                     newList.add("pick " + i);
                     WorldState state = new WorldState(w, goal, newList);
                     l.add(state);

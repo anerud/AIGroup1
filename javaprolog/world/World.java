@@ -875,7 +875,7 @@ public class World {
             return new LinkedList<WorldObject>();
         }
         LinkedList<WorldObject> st = stacks.get(columnOf(wo));
-        return st.subList(st.indexOf(wo) + 1, st.size() - 1);
+        return st.subList(st.indexOf(wo) + 1, st.size());
     }
 
     /**

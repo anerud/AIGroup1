@@ -13,7 +13,7 @@ public class WorldState implements IAStarState {
 
 
     private List<String> actionsToGetHere; //Best found so far, considering we are using dijkstra..
-	private double heuristicWeight = 20;
+	private double heuristicWeight = 1.5;
 	private int heuristicValue;
 	private World world;
 	private Goal goal;
@@ -112,7 +112,7 @@ public class WorldState implements IAStarState {
                     }
                 break;
             case INSIDE:
-                if(!world.hasRelation(WorldConstraint.Relation.ONTOP, wo, woRel)){
+                if(!world.hasRelation(WorldConstraint.Relation.INSIDE, wo, woRel)){
                     minObjs.addAll(world.objectsAbove(new WorldObject(wo)));
                     minObjs.addAll(world.objectsAbove(new WorldObject(woRel)));
                     minObjs.add(new WorldObject(wo));

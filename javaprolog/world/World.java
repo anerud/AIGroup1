@@ -18,6 +18,7 @@ public class World {
 	private ArrayList<LinkedList<WorldObject>> stacks;
 	private List<WorldConstraint> constraints;
 	private WorldObject holding;
+    private HashMap<WorldObject, Integer> columns; //Used for efficiency purposes
 	public static int nStatesChecked = 0;
 
 	public World(ArrayList<LinkedList<WorldObject>> stacks,
@@ -25,6 +26,7 @@ public class World {
 		this.constraints = constrains;
 		this.holding = holding;
 		this.stacks = stacks;
+        initColumns();
 	}
 
 	/**
@@ -37,6 +39,7 @@ public class World {
 		this.constraints = new ArrayList<WorldConstraint>();
 		this.holding = null;
 		this.stacks = stacks;
+        initColumns();
 	}
 
 	public World(ArrayList<LinkedList<WorldObject>> stacks,
@@ -44,6 +47,7 @@ public class World {
 		this.constraints = constrains;
 		this.holding = null;
 		this.stacks = stacks;
+        initColumns();
 	}
 
 	/**
@@ -56,7 +60,19 @@ public class World {
 		this.constraints = new ArrayList<WorldConstraint>();
 		this.holding = holding;
 		this.stacks = stacks;
+        initColumns();
 	}
+
+    private void initColumns(){
+        this.columns = new HashMap<>();
+        int column = 0;
+        for(LinkedList<WorldObject> stack : stacks){
+            for(WorldObject wo : stack){
+                columns.put(wo, column);
+            }
+            column++;
+        }
+    }
 
 	public int nObjectsOnTopOf(WorldObject o) {
 		return stacks.get(this.columnOf(o)).indexOf(o);
@@ -160,22 +176,22 @@ public class World {
 		return stacks.get(fromColumn).isEmpty();
 	}
 
-	/**
-	 * 
-	 * @param fromColumn
-	 * @return true if the specified operation was successful
-	 */
-	public boolean moveTopToNextColumn(int fromColumn) {
-		// TODO: check that the objects are compatible, that is, that object a
-		// can be placed ontop of object b
-		if (!isStackEmpty(fromColumn)) {
-			WorldObject wo = stacks.get(fromColumn).getLast();
-			stacks.get(fromColumn).removeLast();
-			stacks.get((fromColumn + 1) % numberOfColumns()).addLast(wo);
-			return true;
-		}
-		return false;
-	}
+//	/**
+//	 *
+//	 * @param fromColumn
+//	 * @return true if the specified operation was successful
+//	 */
+//	public boolean moveTopToNextColumn(int fromColumn) {
+//		// TODO: check that the objects are compatible, that is, that object a
+//		// can be placed ontop of object b
+//		if (!isStackEmpty(fromColumn)) {
+//			WorldObject wo = stacks.get(fromColumn).getLast();
+//			stacks.get(fromColumn).removeLast();
+//			stacks.get((fromColumn + 1) % numberOfColumns()).addLast(wo);
+//			return true;
+//		}
+//		return false;
+//	}
 
 	/**
 	 * 
@@ -186,7 +202,10 @@ public class World {
 		WorldObject top = topOfStack(woColumn);
 		if (holding == null && !top.getForm().equals("floor")) {
 			holding = top;
-			stacks.get(woColumn).removeLast();
+			WorldObject removed = stacks.get(woColumn).removeLast();
+            if(removed != null){
+                columns.remove(removed);
+            }
 			return true;
 		}
 		return false;
@@ -212,6 +231,7 @@ public class World {
 			return false;
 		} // This assumes it's always ok to put stuff directly on the floor
 		stacks.get(woColumn).addLast(holding);
+        columns.put(holding, woColumn);
 		holding = null;
 		return true;
 	}
@@ -220,23 +240,30 @@ public class World {
 	 * 
 	 * @param wo
 	 * @return the column of the WorldObject, or -1 if the object is not
-	 *         contained in the world. If the object is the floor, the first
-	 *         column which is empty is returned. Relations are ignored for
-	 *         RelativeWorldObjects.
+	 *         contained in the world. If the object is the floor, column 0 is returned.
+     *         Relations are ignored for RelativeWorldObjects.
 	 */
 	public int columnOf(WorldObject wo) {
 		if (wo instanceof RelativeWorldObject) {
 			wo = new WorldObject(wo);
 		}
-		for (LinkedList<WorldObject> ll : stacks) {
-			if (ll.contains(wo)) {
-				return stacks.indexOf(ll);
-			}
-			if (wo.getForm().equals("floor") && ll.isEmpty()) {
-				return stacks.indexOf(ll);
-			}
-		}
-		return -1;
+
+        if(wo.getForm().equals("floor")){
+            return 0; //The floor is on all columns, including 0...
+        }
+
+        Integer column = this.columns.get(wo);
+        return column == null ? -1 : column;
+//
+//		for (LinkedList<WorldObject> ll : stacks) {
+//			if (ll.contains(wo)) {
+//				return stacks.indexOf(ll);
+//			}
+//			if (wo.getForm().equals("floor") && ll.isEmpty()) {
+//				return stacks.indexOf(ll);
+//			}
+//		}
+//		return -1;
 	}
 
 	/**
@@ -252,12 +279,10 @@ public class World {
 		if (wo instanceof RelativeWorldObject) {
 			wo = new WorldObject(wo);
 		}
-		for (LinkedList<WorldObject> ll : stacks) {
-			if (ll.contains(wo)) {
-				return ll.indexOf(wo);
-			}
-		}
-		return -1;
+		if(wo.getId().equals("floor")) return -1;
+        int column = columnOf(wo);
+        if(column == -1) return -1;
+        return stacks.get(column).indexOf(wo);
 	}
 
 	public boolean isValidRelation(WorldConstraint.Relation relation,
@@ -782,15 +807,16 @@ public class World {
 	}
 
     public boolean isGoalFulFilled(Goal goal) {
-        nStatesChecked++;
+//        nStatesChecked++;
+//
+//        try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
+//                new FileWriter("GoalLog.txt", true)))) {
+//            asdf.append(getRepresentString() + " \n");
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
-        try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
-                new FileWriter("GoalLog.txt", true)))) {
-            asdf.append(getRepresentString() + " \n");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         if(goal.getAction().equals(Goal.Action.TAKE)){
             Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
             return this.holding == null ? false : wos.contains(holding);

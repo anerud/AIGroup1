@@ -5,8 +5,6 @@ package main;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import com.sun.org.apache.xml.internal.utils.NSInfo;
 
 import gnu.prolog.term.AtomTerm;
 import gnu.prolog.term.CompoundTerm;

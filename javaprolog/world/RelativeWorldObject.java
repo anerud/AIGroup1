@@ -2,6 +2,9 @@ package world;
 
 import logic.LogicalExpression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by Roland on 2014-03-28.
  */
@@ -53,6 +56,34 @@ public class RelativeWorldObject extends WorldObject {
 
     public void setRelativeTo(WorldObject relativeTo) {
         this.relativeTo = relativeTo;
+    }
+
+
+    /**
+     * Calculates indirect relations for the top object in this RelativeWorldObject chain. For example, if (ONTOP obj1 (ONTOP obj2 (ONTOP obj3 obj4))), the method returns a set with the relations (ABOVE obj1 (ONTOP obj3 obj4)) and (ABOVE obj1 obj4).
+     * The floor is ignored for e.g. above floor.
+     * @return
+     */
+    public Set<WorldObject> inferIndirectRelations() {
+        Set<WorldObject> relobjs = new HashSet<>();
+        WorldObject woRel = this.getRelativeTo();
+
+        //Infer above-relations..
+        if(!((woRel instanceof RelativeWorldObject) && (this.relation.equals(WorldConstraint.Relation.ONTOP) || this.relation.equals(WorldConstraint.Relation.INSIDE) || this.relation.equals(WorldConstraint.Relation.ABOVE)) && (((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ONTOP) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.INSIDE) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ABOVE)))){
+            return relobjs;
+        }
+        WorldConstraint.Relation relation = ((RelativeWorldObject)woRel).getRelation();
+        do {
+            WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
+            if(!relativeTo.getForm().equals("floor")){
+                RelativeWorldObject rwo = new RelativeWorldObject(new WorldObject(this), relativeTo, WorldConstraint.Relation.ABOVE);
+                relobjs.add(rwo);
+            }
+            relation = ((RelativeWorldObject) woRel).getRelation();
+            woRel = relativeTo;
+        } while (woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))));
+        //TODO: do other relations as well...
+        return relobjs;
     }
 
     @Override

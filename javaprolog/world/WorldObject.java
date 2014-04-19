@@ -1,4 +1,10 @@
 package world;
+
+import logic.LogicalExpression;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class WorldObject implements Cloneable{
 
     private String id;

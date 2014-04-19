@@ -886,6 +886,8 @@ public class World {
     public void removeImpossibleLogic(LogicalExpression<WorldObject> expression) throws CloneNotSupportedException {
         if(expression.getOp().equals(LogicalExpression.Operator.AND)){
             if(expression.getObjs() != null){
+
+                //The following code ensures two objects cannot be ontop of the same object
                 HashMap<WorldObject, WorldObject> map = new HashMap<>();
                 for(WorldObject wo : expression.getObjs()){
                     if(wo instanceof RelativeWorldObject){
@@ -904,9 +906,63 @@ public class World {
                         }
                     }
                 }
+
+                //The following code makes sure an object is never above itself //TODO: it should apply to all subexpressions as well...
+                for(WorldObject woRel : expression.getObjs()){
+                    WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
+                    if(!(woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))))){
+                        continue;
+                    }
+                    Set<String> objsInAtom = new HashSet<>();
+                    objsInAtom.add(woRel.getId());
+                    do {
+                        WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
+                        String id = relativeTo.getId();
+                        if (objsInAtom.contains(id)){
+                            expression.setExpressions(new HashSet<LogicalExpression>());
+                            expression.setObjs(new HashSet<WorldObject>());
+                            return;
+                        }
+                        objsInAtom.add(id);
+                        relation = ((RelativeWorldObject) woRel).getRelation();
+                        woRel = relativeTo;
+                    } while (woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))));
+                }
+                //TODO: do the same for below..
             }
+        } else {
+            //The following code makes sure an object is never above itself      //TODO: it should apply to all subexpressions as well...
+
+            if(expression.getObjs() != null){
+                List<WorldObject> toBeRemoved = new ArrayList<>();
+                for(WorldObject woRel : expression.getObjs()){
+                    if(!(woRel instanceof RelativeWorldObject && ((((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ONTOP) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.INSIDE) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ABOVE))))){
+                        continue;
+                    }
+                    WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
+                    WorldObject woRelOrig = woRel;
+                    Set<String> objsInAtom = new HashSet<>();
+                    objsInAtom.add(woRel.getId());
+                    do {
+                        WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
+                        String id = relativeTo.getId();
+                        if (objsInAtom.contains(id)){
+                            toBeRemoved.add(woRelOrig);
+                            break;
+                        }
+                        objsInAtom.add(id);
+                        relation = ((RelativeWorldObject) woRel).getRelation();
+                        woRel = relativeTo;
+                    } while (woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))));
+                }
+                Set<WorldObject> objs = new HashSet<>(expression.getObjs()); //TODO: why is this needed for the objects to be able to be removed? weird...
+                objs.removeAll(toBeRemoved);
+                expression.setObjs(objs);
+                //TODO: do the same for below..
+            }
+
         }
-        //TODO: make sure an object is never e.g. above itself through its relations
+
 
         Set<LogicalExpression<WorldObject>> toBeAdded = new HashSet<LogicalExpression<WorldObject>>();
         for(LogicalExpression<WorldObject> le : expression.getExpressions()){

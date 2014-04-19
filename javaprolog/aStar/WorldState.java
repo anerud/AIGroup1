@@ -12,7 +12,7 @@ import world.WorldObject;
 public class WorldState implements IAStarState {
 
 
-    private List<String> actionsToGetHere; //Best found so far, considering we are using dijkstra..
+    private List<String> actionsToGetHere;
 	private double heuristicWeight = 1.5;
 	private int heuristicValue;
 	private World world;
@@ -65,7 +65,7 @@ public class WorldState implements IAStarState {
         if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    HashMap<Integer, Set<WorldObject>> herps = calculateMinObjsToMove(wo, null);
+                    HashMap<Integer, Set<WorldObject>> herps = calculateMinObjsToMove(wo, null, true);
                     moveAtleastOnce.addAll(herps.get(1)); moveAtleastTwice.addAll(herps.get(2));
                 }
             } //Note that the expression is simplified and dnf, so we do not need to check the logicalexpressions..
@@ -76,7 +76,7 @@ public class WorldState implements IAStarState {
             boolean first = true;
             if(le.getObjs() != null){
                 for(WorldObject wo : le.getObjs()) {
-                    HashMap<Integer, Set<WorldObject>> thisSet = calculateMinObjsToMove(wo, null);
+                    HashMap<Integer, Set<WorldObject>> thisSet = calculateMinObjsToMove(wo, null, true);
                     if(first){
                         smallestSet = thisSet;
                         first = false;
@@ -115,7 +115,7 @@ public class WorldState implements IAStarState {
         }
 	}
 
-    private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo, HashMap<Integer, Set<WorldObject>> minObjsRef) {
+    private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo, HashMap<Integer, Set<WorldObject>> minObjsRef, boolean inferIndirect) {
         HashMap<Integer, Set<WorldObject>> minObjs = null;
         Set<WorldObject> moveAtleastOnce = null;
         Set<WorldObject> moveAtleastTwice = null;
@@ -137,7 +137,7 @@ public class WorldState implements IAStarState {
         WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
 
         if(woRel instanceof RelativeWorldObject){
-            HashMap<Integer, Set<WorldObject>> mins = calculateMinObjsToMove(woRel, minObjs);
+            HashMap<Integer, Set<WorldObject>> mins = calculateMinObjsToMove(woRel, minObjs, true);
             moveAtleastOnce.addAll(mins.get(1));
             moveAtleastTwice.addAll(mins.get(2));
         }
@@ -198,12 +198,13 @@ public class WorldState implements IAStarState {
             case RIGHTOF:
                 break;
         }
-
-        Set<WorldObject> indirectRelations = ((RelativeWorldObject) wo).inferIndirectRelations();
-        for(WorldObject o : indirectRelations){
-            HashMap<Integer, Set<WorldObject>> inobjs2move = calculateMinObjsToMove(o, minObjs);
-            moveAtleastOnce.addAll(inobjs2move.get(1));
-            moveAtleastTwice.addAll(inobjs2move.get(2));
+        if(inferIndirect){
+            Set<WorldObject> indirectRelations = ((RelativeWorldObject) wo).inferIndirectRelations();
+            for(WorldObject o : indirectRelations){
+                HashMap<Integer, Set<WorldObject>> inobjs2move = calculateMinObjsToMove(o, minObjs, false);
+                moveAtleastOnce.addAll(inobjs2move.get(1));
+                moveAtleastTwice.addAll(inobjs2move.get(2));
+            }
         }
 
         return minObjs;

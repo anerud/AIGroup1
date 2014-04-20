@@ -1,5 +1,9 @@
 package aStar;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.PriorityQueue;
 
 public class AStar {
@@ -30,10 +34,31 @@ public class AStar {
 	 * the goal was reached.
 	 */
 	public boolean run() throws CloneNotSupportedException {
+        long time1 = 0;
+        long time2 = 0;
+        long diff = 0;
+        int iters = 0;
+        int sum = 0;
 		do {
+//            nStatesChecked++;
+//
+//            try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
+//                    new FileWriter("GoalLog.txt", true)))) {
+//                asdf.append(getRepresentString() + " \n");
+//                asdf.close();
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+            iters++;
+            time1 = System.currentTimeMillis();
 			currentState = q.poll();
 			q.addAll(currentState.expand());
+            time2 = System.currentTimeMillis();
+            diff = time2 - time1;
+            sum += diff;
 		} while (!q.isEmpty() && !currentState.hasReachedGoal());
+        double average = (double)sum/iters;
 		return currentState.hasReachedGoal();
 	}
 	

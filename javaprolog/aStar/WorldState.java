@@ -94,7 +94,7 @@ public class WorldState implements IAStarState {
                 }
             }
             for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
-                //This is an AND expression
+                //le1 is an AND expression
                 HashMap<Integer, Set<WorldObject>> thisSet = computeHeuristic(le1);
                 if(first){
                     smallestSet = thisSet;
@@ -115,7 +115,7 @@ public class WorldState implements IAStarState {
         }
 	}
 
-    private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo, HashMap<Integer, Set<WorldObject>> minObjsRef, boolean inferIndirect) {
+    private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo, HashMap<Integer, Set<WorldObject>> minObjsRef, boolean recursive) {
         HashMap<Integer, Set<WorldObject>> minObjs = null;
         Set<WorldObject> moveAtleastOnce = null;
         Set<WorldObject> moveAtleastTwice = null;
@@ -136,7 +136,7 @@ public class WorldState implements IAStarState {
         }
         WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
 
-        if(woRel instanceof RelativeWorldObject){
+        if(woRel instanceof RelativeWorldObject && recursive){
             HashMap<Integer, Set<WorldObject>> mins = calculateMinObjsToMove(woRel, minObjs, true);
             moveAtleastOnce.addAll(mins.get(1));
             moveAtleastTwice.addAll(mins.get(2));
@@ -198,7 +198,7 @@ public class WorldState implements IAStarState {
             case RIGHTOF:
                 break;
         }
-        if(inferIndirect){
+        if(recursive){
             Set<WorldObject> indirectRelations = ((RelativeWorldObject) wo).inferIndirectRelations();
             for(WorldObject o : indirectRelations){
                 HashMap<Integer, Set<WorldObject>> inobjs2move = calculateMinObjsToMove(o, minObjs, false);

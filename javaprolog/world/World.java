@@ -807,16 +807,6 @@ public class World {
 	}
 
     public boolean isGoalFulFilled(Goal goal) {
-//        nStatesChecked++;
-//
-//        try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
-//                new FileWriter("GoalLog.txt", true)))) {
-//            asdf.append(getRepresentString() + " \n");
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-
         if(goal.getAction().equals(Goal.Action.TAKE)){
             Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
             return this.holding == null ? false : wos.contains(holding);

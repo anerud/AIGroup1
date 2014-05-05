@@ -10,8 +10,10 @@ public class AStar {
 	
 	private PriorityQueue<IAStarState> q;
 	private IAStarState currentState;
-	
-	/**
+    public static int nStatesChecked;
+
+
+    /**
 	 * Creates an AStar object with an empty priority queue
 	 */
 	public AStar() {
@@ -40,23 +42,37 @@ public class AStar {
         int iters = 0;
         int sum = 0;
 		do {
-//            nStatesChecked++;
-//
+            iters++;
+            time1 = System.currentTimeMillis();
+			currentState = q.poll();
+
+            //Debugging
+            //____________________________
+            double pathLength = ((WorldState)currentState).getActionsToGetHere().size() + ((WorldState)currentState).getHeuristicValue();
+            double stateValue = ((WorldState)currentState).getStateValue();
+//            if(((WorldState)currentState).getWorld().getRepresentString().equals(".e,.a,l,n,o,p,q,r,.v,u,.t,s,.i,h,j,...k,g,c,b,..d,m,f,...........")){
+//                this.getClass();
+//            }
+            //[["e"],["a","l", "n", "o", "p", "q", "r", "s", "t", "u", "v"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"],[],[],[],[],[],[],[],[],[],[]],
+            //____________________________
+
+			q.addAll(currentState.expand());
+            time2 = System.currentTimeMillis();
+            diff = time2 - time1;
+            sum += diff;
+
+            //Debugging
+            //__________________
+            nStatesChecked++;
 //            try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
 //                    new FileWriter("GoalLog.txt", true)))) {
-//                asdf.append(getRepresentString() + " \n");
+//                asdf.append(((WorldState)currentState).getWorld().getRepresentString() + " \n");
 //                asdf.close();
 //            } catch (IOException e) {
 //                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            }
-            iters++;
-            time1 = System.currentTimeMillis();
-			currentState = q.poll();
-			q.addAll(currentState.expand());
-            time2 = System.currentTimeMillis();
-            diff = time2 - time1;
-            sum += diff;
+            //__________________
 		} while (!q.isEmpty() && !currentState.hasReachedGoal());
         double average = (double)sum/iters;
 		return currentState.hasReachedGoal();

@@ -1,6 +1,6 @@
 { 
-    "world": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
-    "worldoriginal": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
+    "world": [["e"],["a","l", "n", "o", "p", "q", "r", "s", "t", "u", "v"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"],[],[],[],[],[],[],[],[],[],[]],
+    "worldoriginal": [["e"],["a","l", "n", "o", "p", "q", "r", "s", "t", "u", "v"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"],[],[],[],[],[],[],[],[],[],[]],
     "holding": null,
     "objects": {
         "a": { "form":"brick",   "size":"large",  "color":"green" },
@@ -15,10 +15,19 @@
         "j": { "form":"pyramid", "size":"small",  "color":"red"   },
         "k": { "form":"box",     "size":"large",  "color":"yellow"},
         "l": { "form":"box",     "size":"large",  "color":"red"   },
-        "m": { "form":"box",     "size":"small",  "color":"blue"  }
+        "m": { "form":"box",     "size":"small",  "color":"blue"  },
+		"n": { "form":"brick",     "size":"large",  "color":"black"  },
+		"o": { "form":"brick",     "size":"large",  "color":"black"  },
+		"p": { "form":"brick",     "size":"large",  "color":"white"  },
+		"q": { "form":"brick",     "size":"large",  "color":"black"  },
+		"r": { "form":"brick",     "size":"large",  "color":"black"  },
+		"s": { "form":"brick",     "size":"large",  "color":"white"  },
+		"t": { "form":"brick",     "size":"large",  "color":"black"  },
+		"u": { "form":"brick",     "size":"large",  "color":"black"  },
+		"v": { "form":"brick",     "size":"large",  "color":"white"  }
     },
     "utterance":
-        ["put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "is", "on", "a", "green", "object", "that", "is", "on", "a", "red", "object", "that", "is", "in", "a", "yellow", "object", "that", "is", "on", "a", "blue", "object", "that", "is", "on", "a", "red", "object", "that", "is", "on", "a", "yellow", "object", "that", "is", "on", "a", "green", "object", "that", "is", "on", "the", "floor"],
+           [ "put", "all", "red", "objects", "on", "an", "object", "that", "is", "on", "the", "floor" ],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],

@@ -3,6 +3,7 @@ package main;
 // Then test from the command line:
 // java -cp gnuprologjava-0.2.6.jar:json-simple-1.1.1.jar:. main.Shrdlite < ../examples/medium.json
 
+import aStar.AStar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -107,7 +108,7 @@ public class Shrdlite {
 				Planner planner = new Planner(world);
 				List<String> plan = planner.solve(goals.get(0));
 				result.setPlan(plan);
-				log.println("number of states checked: " + World.nStatesChecked);
+				log.println("number of states checked: " + AStar.nStatesChecked);
 				if (plan.isEmpty()) {
 					result.setOutput("Planning error!");
 				} else {

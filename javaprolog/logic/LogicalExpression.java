@@ -20,7 +20,6 @@ public class LogicalExpression<T> implements Cloneable{
     private Set<LogicalExpression> expressions;
     private Operator op;
 
-
     /**
      *
      * @return the total number of objects in this expressions
@@ -77,7 +76,38 @@ public class LogicalExpression<T> implements Cloneable{
     }
 
     public boolean isDnf() {
-        //TODO: implement
+        if(op.equals(Operator.OR)){
+            for(LogicalExpression le : expressions){
+                if(!le.getOp().equals(Operator.AND)){
+                    return false;
+                }
+                if(!le.getExpressions().isEmpty()){
+                    return false;
+                }
+            }
+        } else if(op.equals(Operator.AND)){
+            if(!expressions.isEmpty()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isCnf() {
+        if(op.equals(Operator.AND)){
+            for(LogicalExpression le : expressions){
+                if(!le.getOp().equals(Operator.OR)){
+                    return false;
+                }
+                if(!le.getExpressions().isEmpty()){
+                    return false;
+                }
+            }
+        } else if(op.equals(Operator.OR)){
+            if(!expressions.isEmpty()){
+                return false;
+            }
+        }
         return true;
     }
 

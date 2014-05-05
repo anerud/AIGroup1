@@ -19,7 +19,6 @@ public class World {
 	private List<WorldConstraint> constraints;
 	private WorldObject holding;
     private HashMap<WorldObject, Integer> columns; //Used for efficiency purposes
-	public static int nStatesChecked = 0;
 
 	public World(ArrayList<LinkedList<WorldObject>> stacks,
 			List<WorldConstraint> constrains, WorldObject holding) {
@@ -371,10 +370,16 @@ public class World {
 					return false;
 			}
 		} else if (relation.equals(WorldConstraint.Relation.UNDER)){
+            if(size1.equals("small") && size2.equals("large")){ //large objects cannot be above small objects
+                return false;
+            }
             if(form1.equals("ball")){
                 return false; //Balls cannot support anything
             }
         } else if (relation.equals(WorldConstraint.Relation.ABOVE)){
+            if(size2.equals("small") && size1.equals("large")){ //large objects cannot be above small objects
+                return false;
+            }
             if(form2.equals("ball")){
                 return false; //Balls cannot support anything
             }
@@ -861,6 +866,7 @@ public class World {
     }
 
     public List<WorldObject> objectsAbove(WorldObject wo) {
+        wo = new WorldObject(wo);
         if(columnOf(wo) == -1 || isOntopOfStack(wo)){
             return new LinkedList<WorldObject>();
         }

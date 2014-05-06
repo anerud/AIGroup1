@@ -161,12 +161,12 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject9() throws Exception {
-        //TODO
+        test("testMoveObject9");
     }
 
     @org.junit.Test
     public void testMoveObject10() throws Exception {
-        //TODO
+        test("testMoveObject10");
     }
 
     @org.junit.Test
@@ -178,7 +178,69 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject12() throws Exception {
-        //TODO
+        test("testMoveObject12");
+    }
+
+
+    @org.junit.Test
+    public void testMoveObject13() throws Exception {
+        test("testMoveObject13");
+    }
+
+    @org.junit.Test
+    public void testMoveObject14() throws Exception {
+        test("testMoveObject14");
+    }
+
+    @org.junit.Test
+    public void testMoveObject15() throws Exception {
+        test("testMoveObject15");
+    }
+
+    @org.junit.Test
+    public void testMoveObject16() throws Exception {
+        test("testMoveObject16");
+    }
+
+    @org.junit.Test
+    public void testMoveObject17() throws Exception {
+        test("testMoveObject17");
+    }
+
+    @org.junit.Test
+    public void testMoveObject18() throws Exception {
+        test("testMoveObject18");
+    }
+
+    @org.junit.Test
+    public void testMoveObject19() throws Exception {
+        test("testMoveObject19");
+    }
+
+    @org.junit.Test
+    public void testMoveObjectMonster1() throws Exception {
+        test("testMoveObjectMonster1");
+    }
+
+    @org.junit.Test
+    public void testConjunctive1() throws Exception {
+        test("testConjunctive1");
+    }
+
+    @org.junit.Test
+    public void testDisjunctive1() throws Exception {
+        test("testDisjunctive1");
+    }
+
+    @org.junit.Test
+    public void testConjunctiveMonster() throws Exception {
+        test("testConjunctiveMonster");
+    }
+
+    @org.junit.Test
+    public void testConjunctiveMonster2() throws Exception {
+//        test("testConjunctiveMonster2");
+        //TODO: we can currently not handle this!
     }
 
 
@@ -254,5 +316,10 @@ public class InterpreterTest {
         String jsout= new Gson().fromJson(hupp, Input.class).getGoals();
         assertEquals(jsout, result);
         pipeIn.close();
+    }
+
+    private void test(String file) throws JsonSyntaxException, IOException, PrologException, CloneNotSupportedException {
+        String[] args = new String[] {"testfiles/" + file + ".json", "debug"};
+        Shrdlite.main(args);
     }
 }

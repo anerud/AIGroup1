@@ -123,7 +123,7 @@ function changeCurrentExample() {
 			if (confirm('Are you really certain that you want to reset to "' + name + '"?')) {
 				if (confirm('Are you really reaaaally certain that you want to reset to "' + name + '"?')) {
 					if (confirm('Are you REAAAAAAALLY REAAAAAAAAAAAAAAAALLY REALLY certain that you want to reset to "' + name + '"?. We cannot garuantee your safety from this point.')) {
-						resetCurrentExample(name);
+						window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 					}
 				}
 			}

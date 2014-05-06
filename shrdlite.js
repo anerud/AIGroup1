@@ -3,7 +3,7 @@
 var AjaxScript = "cgi-bin/ajaxwrapper.py";
 
 // List of the JSON files that contain example worlds:
-var ExampleNames = ["small","medium", "large", "monster"];
+var ExampleNames = ["small","medium", "large", "monster", "insanely uber large monster world"];
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
@@ -118,9 +118,18 @@ function loadExampleWorlds() {
 
 function changeCurrentExample() {
     var name = $(this).val();
-    if (confirm('Are you certain that you want to reset to "' + name + '"?')) {
-        resetCurrentExample(name);
-    }
+	if(name == "insanely uber large monster world") {
+		if (confirm('Are you certain that you want to reset to "' + name + '"?')) {
+			if (confirm('Are you really certain that you want to reset to "' + name + '"?')) {
+				if (confirm('Are you really reaaaally certain that you want to reset to "' + name + '"?')) {
+					if (confirm('Are you REAAAAAAALLY REAAAAAAAAAAAAAAAALLY REALLY certain that you want to reset to "' + name + '"?. We cannot garuantee your safety from this point.')) {
+						resetCurrentExample(name);
+					}
+				}
+			}
+		}
+	}
+	resetCurrentExample(name);
 }
 
 function resetCurrentExample(name) {

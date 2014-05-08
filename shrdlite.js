@@ -39,8 +39,12 @@ var Voices = {"system": {"lang": "en-GB", "rate": 1.1}, // British English, slig
 var CanvasWidth;
 var CanvasHeight;
 
-var Pick = 'pick';
-var Drop = 'drop';
+var Pick1 = 'pick1';
+var Pick2 = 'pick2';
+var Drop1 = 'drop1';
+var Drop2 = 'drop2';
+var Move1 = 'move1';
+var Move2 = 'move2';
 
 var SvgNS = 'http://www.w3.org/2000/svg';
 
@@ -69,7 +73,7 @@ var ExampleWorlds;
 var currentExample;
 var currentWorld;
 var currentPlan;
-var currentArmPosition;
+var currentArmPosition = [];
 var currentQuestion;
 var lastUtterance;
 function stackWidth() {
@@ -136,7 +140,9 @@ function resetCurrentExample(name) {
     loadExampleWorlds();
     currentExample = name;
     currentWorld = ExampleWorlds[currentExample];
-    currentArmPosition = 0;
+	currentArmPosition = [];
+    currentArmPosition.push(0);
+    currentArmPosition.push(1);
     $('#inputexamples').empty();
     $('#inputexamples').append($('<option value="">').text("(Select an example utterance)"));
     $.each(currentWorld.examples, function(i,value) {
@@ -171,7 +177,7 @@ function resetSVG() {
 
     // The arm:
     $(SVG('line')).attr({
-        id:'arm',
+        id:'arm0',
         x1: stackWidth() / 2,
         y1: ArmSize * stackWidth() - CanvasHeight,
         x2: stackWidth() / 2,
@@ -180,6 +186,30 @@ function resetSVG() {
         'stroke-width': ArmSize * stackWidth(),
     }).appendTo(svg);
 
+	$(SVG('line')).attr({
+        id:'arm1',
+        x1: (stackWidth() / 2) +stackWidth(),
+        y1: ArmSize * stackWidth() - CanvasHeight,
+        x2: (stackWidth() / 2) +stackWidth(),
+        y2: ArmSize * stackWidth(),
+        stroke: 'black',
+        'stroke-width': ArmSize * stackWidth(),
+    }).appendTo(svg);
+	
+	for(var i = 0;(stackWidth()*i)<CanvasWidth;i++){
+		console.log("asd")
+		$(SVG('line')).attr({
+			id: "asd"+i,
+			x1: stackWidth()*i,
+			y1: 0,
+			x2: stackWidth()*i,
+			y2: CanvasHeight,
+			stroke: 'black',
+			'stroke-width': 1,
+		}).appendTo(svg);
+	}
+	
+	
     var timeout = 0;
     for (var stacknr=0; stacknr < currentWorld.world.length; stacknr++) {
         for (var objectnr=0; objectnr < currentWorld.world[stacknr].length; objectnr++) {
@@ -212,51 +242,96 @@ function animateMotion(object, path, timeout, duration) {
 }
 
 function moveObject(action, stackNr) {
-    if (action == Pick && currentWorld.holding) {
-        alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something!")
+console.log(action +" "+stackNr)
+	if (action == Pick1 && currentWorld.holding1) {
+        alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something! 1")
         return 0;
-    } else if (action == Drop && !currentWorld.holding) {
-        alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything!")
+    }  else if (action == Pick2 && currentWorld.holding2) {
+        alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something! 2")
+        return 0;
+    } else if (action == Drop1 && !currentWorld.holding1) {
+        alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything! 1")
+        return 0;
+    } else if (action == Drop2 && !currentWorld.holding2) {
+        alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything! 2")
         return 0;
     }
     var stack = currentWorld.world[stackNr];
-    var arm = $('#arm');
+	var armint = parseInt(action.substring(4)) -1;
+    var arm = $(('#arm'+armint));
     var xStack = stackNr * stackWidth() + WallSeparation;
-    var xArm = currentArmPosition * stackWidth() + WallSeparation;
-
-    if (action == Pick) {
+	console.log(stackNr + "  - " +stackWidth() + " - " +WallSeparation + "  - "+xStack);
+    var xArm = currentArmPosition[armint] * stackWidth() + WallSeparation;
+	console.log(currentArmPosition[armint])
+	console.log(xArm)
+	if(armint == 1){
+		//xStack -= stackWidth();
+		//xArm -= stackWidth();
+	}
+	
+    if (action == Pick1) {
         if (!stack.length) {
             alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", it is empty!")
             return 0;
         }
-        currentWorld.holding = stack.pop();
+        currentWorld.holding1 = stack.pop();
+    }else if (action == Pick2) {
+        if (!stack.length) {
+            alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", it is empty!")
+            return 0;
+        }
+        currentWorld.holding2 = stack.pop();
     }
 
     var altitude = getAltitude(stack);
-    var objectHeight = getObjectDimensions(currentWorld.holding).heightadd;
+    var objectHeight;
+		if(armint == 0){
+			objectHeight = getObjectDimensions(currentWorld.holding1).heightadd;
+		}else{
+			objectHeight = getObjectDimensions(currentWorld.holding2).heightadd;
+		}
     var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
     var yStack = -altitude;
-
-    var path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
-    var path2 = ["M", xStack, yArm, "V", 0];
-    var duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
-    var duration2 = (Math.abs(yArm)) / ArmSpeed;
-    var anim1 = animateMotion(arm, path1, 0, duration1);
-    var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
-
-    if (action == Pick) {
+	
+	if(armint == 0){
+		var path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
+		var path2 = ["M", xStack, yArm, "V", 0];
+		var duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
+		var duration2 = (Math.abs(yArm)) / ArmSpeed;
+		var anim1 = animateMotion(arm, path1, 0, duration1);
+		var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
+	}else{
+		var xxArm = xArm -stackWidth();
+		var xxStack = xStack -stackWidth();
+		var path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
+		var path2 = ["M", xxStack, yArm, "V", 0];
+		var duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
+		var duration2 = (Math.abs(yArm)) / ArmSpeed;
+		var anim1 = animateMotion(arm, path1, 0, duration1);
+		var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
+	}
+    if (action == Pick1) {
         var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        animateMotion($("#"+currentWorld.holding), path2b, duration1 + AnimationPause, duration2)
-    } else if (action == Drop) {
+        animateMotion($("#"+currentWorld.holding1), path2b, duration1 + AnimationPause, duration2)
+    } else if (action == Pick2) {
+        var path2b = ["M", xStack, yStack, "V", yStack-yArm];
+        animateMotion($("#"+currentWorld.holding2), path2b, duration1 + AnimationPause, duration2)
+    } else if (action == Drop1) {
         var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        animateMotion($("#"+currentWorld.holding), path1b, 0, duration1)
+        animateMotion($("#"+currentWorld.holding1), path1b, 0, duration1)
+    }else if (action == Drop2) {
+        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
+        animateMotion($("#"+currentWorld.holding2), path1b, 0, duration1)
     }
 
-    if (action == Drop) {
-        stack.push(currentWorld.holding);
-        currentWorld.holding = null;
+    if (action == Drop1) {
+        stack.push(currentWorld.holding1);
+        currentWorld.holding1 = null;
+    }else if (action == Drop2) {
+        stack.push(currentWorld.holding2);
+        currentWorld.holding2 = null;
     }
-    currentArmPosition = stackNr;
+    currentArmPosition[armint] = stackNr;
     debugWorld();
     return duration1 + duration2 + 2 * AnimationPause;
 }
@@ -388,19 +463,25 @@ function enableInput() {
 }
 
 function performPlan() {
-    if (currentPlan && currentPlan.length) {
-        var item = currentPlan.shift();
+    if (currentPlan && currentPlan.length > 1) {
+        var item1 = currentPlan.shift();
+		var item2 = currentPlan.shift();
         var timeout = 0;
-        var action = getAction(item);
-        if (action) {
-            timeout = moveObject(action[0], action[1]);
-        } else if (item && item[0] != "#") {
-            if (window.speechSynthesis.speaking) {
-                currentPlan.unshift(item);
-                timeout = AnimationPause;
-            } else {
-                sayUtterance("system", item);
-            }
+		var action1 = getAction(item1);
+		var action2 = getAction(item2);
+		if (action1 || action2) {
+			var timeout1 = 0;
+			var timeout2 = 0;
+			if(action1){
+				timeout1 = moveObject(action1[0], action1[1]);
+			}
+			if(action2){
+				timeout2 = moveObject(action2[0], action2[1]);
+			}
+			timeout = Math.max(timeout1, timeout2);
+        } else if (item1 && item1[0] != "#") {
+			sayUtterance("system", item1);
+			sayUtterance("system", item2);
         }
         setTimeout(performPlan, 1000 * timeout);
     } else {
@@ -411,7 +492,7 @@ function performPlan() {
 function getAction(item) {
     if (typeof(item) == "string") item = item.trim().split(/\s+/);
     if (item.length == 2 &&
-        (item[0] == Pick || item[0] == Drop) &&
+        (item[0] == Pick1 || item[0] == Drop1 || item[0] == Move1 || item[0] == Pick2 || item[0] == Drop2 || item[0] == Move2) &&
         /^\d+$/.test(item[1]))
     {
         item[1] = parseInt(item[1]);

@@ -22,6 +22,7 @@ entity : basic_entity(Quant, Object) --->
 entity : relative_entity(Quant, Object, Location) ---> 
     quantifier(Num):Quant, object(Num):Object,
     opt_that_is(Num),
+    opt_that_will_be(Num),
     location:Location.
 
 object(Num) : object(Form,Size,Color) ---> size:Size, color:Color, form(Num):Form.
@@ -77,6 +78,10 @@ the_floor ---> [the,floor].
 opt_that_is(_) ---> [].
 opt_that_is(sg) ---> [that,is].
 opt_that_is(pl) ---> [that,are].
+
+opt_that_will_be(_) ---> [].
+opt_that_will_be(sg) ---> [that,will,be].
+opt_that_will_be(pl) ---> [that,will,be].
 
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].

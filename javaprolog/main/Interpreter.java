@@ -72,17 +72,21 @@ public class Interpreter {
          */
 		@Override
 		public Goal visit(PutNode n, Set<WorldObject> worldObjects) throws InterpretationException, CloneNotSupportedException {
-            if(world.getHolding() == null){
+            if(world.getHolding1() == null && world.getHolding2() != null){
                 throw new InterpretationException("You are not holding anything!");
             }
-
             //identify the object to which the held object should be placed relative (or the column for the floor)
             Set<WorldObject> worldObjs = new HashSet<WorldObject>(worldObjects);
-            worldObjs.remove(world.getHolding());
+            worldObjs.remove(world.getHolding1());
+            worldObjs.remove(world.getHolding2());
             LogicalExpression<WorldObject> placedRelativeObjs = n.getLocationNode().accept(new NodeVisitor(), worldObjs, null);
 
             Set<WorldObject> objsDummy = new HashSet<WorldObject>();
-            objsDummy.add(world.getHolding());
+            if(world.getHolding1() != null){
+            	objsDummy.add(world.getHolding1());
+            }else if(world.getHolding2() != null){
+            	objsDummy.add(world.getHolding2());
+            }
             LogicalExpression<WorldObject> attached = world.attachWorldObjectsToRelation(objsDummy, placedRelativeObjs, LogicalExpression.Operator.OR);
 
             //NOTE: It's not possible to create one simple "ontop" PDDL goal for each possible placement which fulfils a relation unless the quantifier "THE" was used. //TODO: when "THE" is used, determine the exact possible relations.. or perhaps leave this to the planner
@@ -98,7 +102,7 @@ public class Interpreter {
         @Override
         public Goal visit(TakeNode n, Set<WorldObject> worldObjects) throws InterpretationException, CloneNotSupportedException {
         	//is the (handempty) precondition fulfilled?
-            if(world.getHolding() != null){
+            if(world.getHolding1() != null && world.getHolding2() != null){
                 throw new InterpretationException("You need to put down what you are holding first."); //TODO: the planner should perhaps actually just put the object down by itself first..
             }
 

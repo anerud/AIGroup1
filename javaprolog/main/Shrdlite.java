@@ -48,7 +48,8 @@ public class Shrdlite {
 		}
 
 		// Initialize holding object
-		WorldObject holding = p.getObjects().get(p.getHolding());
+		WorldObject holding1= p.getObjects().get(p.getHolding1());
+		WorldObject holding2 = p.getObjects().get(p.getHolding2());
 		// Initialize world
         for (int i = 0; i < p.getWorld().size(); i++) {
             LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
@@ -57,7 +58,7 @@ public class Shrdlite {
             }
             worldArr.add(objList);
         }
-		World world = new World(worldArr, holding);
+		World world = new World(worldArr, holding1,holding2);
 
 		Input result = new Input();
 		result.setUtterance(p.getUtterance());

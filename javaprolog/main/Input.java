@@ -9,7 +9,8 @@ import java.util.Map;
 
 public class Input {
 
-	private String holding;
+	private String holding1;
+	private String holding2;
 
 	private List<String> utterance;
 
@@ -26,9 +27,9 @@ public class Input {
 	private String goals;
 
 	private List<String> plan;
-	
+
 	private Question question;
-	
+
 	public Input() {
 		utterance = new LinkedList<>();
 		worldoriginal = new LinkedList<>();
@@ -37,11 +38,11 @@ public class Input {
 		objects = new HashMap<>();
 		plan = new LinkedList<>();
 	}
-	
+
 	public Question getQuestion() {
 		return question;
 	}
-	
+
 	public void setQuestion(Question question) {
 		this.question = question;
 	}
@@ -70,12 +71,20 @@ public class Input {
 		this.output = output;
 	}
 
-	public String getHolding() {
-		return holding;
+	public String getHolding1() {
+		return holding1;
 	}
 
-	public void setHolding(String holding) {
-		this.holding = holding;
+	public String getHolding2() {
+		return holding2;
+	}
+
+	public void setHolding1(String holding1) {
+		this.holding1 = holding1;
+	}
+
+	public void setHolding2(String holding2) {
+		this.holding2 = holding2;
 	}
 
 	public List<String> getUtterance() {

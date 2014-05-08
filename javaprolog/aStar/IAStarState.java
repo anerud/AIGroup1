@@ -10,4 +10,6 @@ public interface IAStarState extends Comparable<IAStarState>{
 	
 	public boolean hasReachedGoal();
 	
+	public double correctionForMovingBothArms();
+	
 }

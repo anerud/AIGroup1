@@ -19,6 +19,10 @@ public class WorldState implements IAStarState {
 	private Goal goal;
 	private Set<WorldObject> objectsToMove;
 	private IHeuristic<WorldState> heuristic = new HeuristicONE();
+	private boolean bothArmsMoved;
+	private int arm1;
+	private int arm2;
+	private double correctionForMovingBothArms;
 
     public int getHeuristicValue() {
         return heuristicValue;
@@ -40,9 +44,10 @@ public class WorldState implements IAStarState {
      * @param goal
      * @param actionsToGetHere
      */
-    public WorldState(World world, Goal goal, List<String> actionsToGetHere) throws CloneNotSupportedException {
+    public WorldState(World world, Goal goal, List<String> actionsToGetHere, int arm1, int arm2, double correctionForMoving) throws CloneNotSupportedException {
 		this.world = world;
 		this.goal = goal;
+		this.correctionForMovingBothArms = correctionForMoving;
 		this.heuristicValue = (int) heuristic.h(this, goal);
         HashMap<Integer, Set<WorldObject>> heuristic = null;
         heuristic = goal.getExpression().isCnf() ? computeHeuristicOnCnf(goal.getExpression()) : computeHeuristicOnDnf(goal.getExpression(), null);
@@ -51,6 +56,8 @@ public class WorldState implements IAStarState {
         set1.removeAll(set2);
 		this.heuristicValue = set1.size()*2 + set2.size()*4;
 		this.actionsToGetHere = actionsToGetHere;
+		this.arm1 = arm1;
+		this.arm2 = arm2;
 //        //Debugging
 //        //____________________________
 //        if(world.getRepresentString().equals(".e,.a,j,.l,m,..i,h,..g,b,.k,f,.c,d,..")){
@@ -329,7 +336,7 @@ public class WorldState implements IAStarState {
 	@Override
 	public int compareTo(IAStarState o) {
 		//Here one can decide whether one wants FIFO or LIFO behavior on queue.
-		if(this.getStateValue() - o.getStateValue() >= 0){
+		if(this.getStateValue() + correctionForMovingBothArms - (o.getStateValue() + o.correctionForMovingBothArms()) >= 0){
 			return 1;
 		}
 		return -1;
@@ -341,40 +348,152 @@ public class WorldState implements IAStarState {
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
-		if(world.getHolding1() != null){
-            for(int i = 0; i<world.getStacks().size(); i++){
-            	for(int j = i+1; j<world.getStacks().size(); j++){
-	                World w = world.clone();
-	                if(w.drop(i,true) && !visitedWorld.contains(w.getRepresentString())){
-	                	if(w.drop(j,false) && !visitedWorld.contains(w.getRepresentString())){
-		                    visitedWorld.add(w.getRepresentString());
-		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
-		                    newList.add("drop1 " + i);
-		                    newList.add("drop2 " + j);
-		                    WorldState state = new WorldState(w, goal, newList);
-		                    l.add(state);
-	                	}
-	                } else {
-	                	break;
-	                }
-            	}
+		if(world.getHolding1() != null || world.getHolding2() != null){
+			
+			//Drop arm1 and move arm2
+			if(world.getHolding1() != null) {
+				for(int i = 0; i<world.getStacks().size()-1; i++){
+		            World drop1Move2 = world.clone();
+		            if(drop1Move2.drop(i,true) && !visitedWorld.contains(drop1Move2.getRepresentString())){
+		            	visitedWorld.add(drop1Move2.getRepresentString());
+		            	List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                int arm2Pos = arm2;
+		                if(i >= arm2) {
+		                	newList.add("drop1 " + i);
+		                	newList.add("move2 " + (i+1));
+		                	newList.add("dropping arm 1 to column" + i);
+		                	newList.add("moving arm 2 to column" + (i+1));
+		                	arm2Pos = i+1;
+		                } else {
+		                	newList.add("drop1 " + i);
+		                	newList.add("move2 " + arm2);
+		                	newList.add("dropping arm 1 to column" + i);
+		                	newList.add("hold arm 2 in column" + arm2);
+		                }
+		                WorldState state = new WorldState(drop1Move2, goal, newList,i,arm2Pos,0);
+		                l.add(state);
+		            }
+				}
+			}
+			
+			//Drop arm2 and move arm1
+			if(world.getHolding2() != null){
+				for(int j = 1; j<world.getStacks().size(); j++){
+					World drop2Move1 = world.clone();
+		            if(drop2Move1.drop(j,false) && !visitedWorld.contains(drop2Move1.getRepresentString())){
+		            	visitedWorld.add(drop2Move1.getRepresentString());
+		            	List<String> newList = new LinkedList<String>(actionsToGetHere);
+		            	int arm1Pos = arm1;
+		            	if(j <= arm1) {
+		                	newList.add("move1 " + (j-1));
+		                	newList.add("drop2 " + j);
+		                	newList.add("moving arm 1 to column " + (j-1));
+			                newList.add("dropping arm 2 to column " + j);
+		                	arm1Pos = j-1;
+		                } else {
+		                	newList.add("move1 " + arm1);
+		                	newList.add("drop2 " + j);
+		                	newList.add("hold arm 1 in column" + arm1);
+			                newList.add("dropping arm 2 to column " + j);
+		                }
+		                
+		                WorldState state = new WorldState(drop2Move1, goal, newList,arm1Pos,j,0);
+		                l.add(state);
+		            }
+				}
+			}
+			
+			if(world.getHolding1() != null && world.getHolding2() != null) {
+	            for(int i = 0; i<world.getStacks().size()-1; i++){
+	            	for(int j = i+1; j<world.getStacks().size(); j++){
+		                //Drop both arms
+		                World dropBoth = world.clone();
+		                if(dropBoth.drop(i,true)){
+		                	if(dropBoth.drop(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
+			                    visitedWorld.add(dropBoth.getRepresentString());
+			                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+			                    newList.add("drop1 " + i);
+			                    newList.add("drop2 " + j);
+			                    newList.add("dropping from arm 1 to column " + i);
+			                    newList.add("dropping from arm 2 to column " + j);
+			                    WorldState state = new WorldState(dropBoth, goal, newList,i,j,0.0001);
+			                    l.add(state);
+		                	}
+		                } 
+	            	}
+				}
 			}
 		} else {
-			for(int i = 0;i<world.getStacks().size();i++){
-				for(int j = i+1;j<world.getStacks().size();j++){
-                World w = world.clone();
-	                if(w.pick(i,true) && !visitedWorld.contains(w.getRepresentString())){
-	                	if(w.pick(j,false) && !visitedWorld.contains(w.getRepresentString())){
-		                	visitedWorld.add(w.getRepresentString());
-		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
-		                    newList.add("pick1 " + i);
-		                    newList.add("pick2 " + j);
-		                    WorldState state = new WorldState(w, goal, newList);
-		                    l.add(state);
-	                	}
-	                } else {
-	                	break;
-	                }
+			//Pick arm1 and move arm2
+			if(world.getHolding1() == null) {
+				for(int i = 0; i<world.getStacks().size()-1; i++){
+		            World pick1Move2 = world.clone();
+		            if(pick1Move2.pick(i,true) && !visitedWorld.contains(pick1Move2.getRepresentString())){
+		            	visitedWorld.add(pick1Move2.getRepresentString());
+		            	List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                int arm2Pos = arm2;
+		                if(i >= arm2) {
+		                	newList.add("pick1 " + i);
+		                	newList.add("move2 " + (i+1));
+		                	newList.add("picking with arm 1 from column " + i);
+		                	newList.add("moving arm 2 to comulm " + (i+1));
+		                	arm2Pos = i+1;
+		                } else {
+		                	newList.add("pick1 " + i);
+		                	newList.add("move2 " + arm2);
+		                	newList.add("picking with arm 1 from column " + i);
+		                	newList.add("hold arm 2 in column" + arm2);
+		                }
+		                WorldState state = new WorldState(pick1Move2, goal, newList,i,arm2Pos,0);
+		                l.add(state);
+		            }
+				}
+			}
+			
+			//Pick arm2 and move arm1
+			if(world.getHolding2() == null) {
+				for(int j = 1; j<world.getStacks().size(); j++){
+					World pick2Move1 = world.clone();
+		            if(pick2Move1.pick(j,false) && !visitedWorld.contains(pick2Move1.getRepresentString())){
+		            	visitedWorld.add(pick2Move1.getRepresentString());
+		            	List<String> newList = new LinkedList<String>(actionsToGetHere);
+		            	int arm1Pos = arm1;
+		                if(j <= arm1) {
+		                	newList.add("move1 " + (j-1));
+		                	newList.add("pick2 " + j);
+		                	newList.add("moving arm 1 to column" + (j-1));
+		                	newList.add("picking with arm 2 from column " + j);
+		                	arm1Pos = j-1;
+		                } else {
+		                	newList.add("move1 " + arm1);
+		                	newList.add("pick2 " + j);
+		                	newList.add("hold arm 1 in column " + arm1);
+		                	newList.add("picking with arm 2 from column " + j);
+		                }
+		                WorldState state = new WorldState(pick2Move1, goal, newList,arm1Pos,j,0);
+		                l.add(state);
+		            }
+				}
+			}
+			
+			//Pick both arms
+			if(world.getHolding1() == null && world.getHolding2() == null) {
+	            for(int i = 0; i<world.getStacks().size()-1; i++){
+	            	for(int j = i+1; j<world.getStacks().size(); j++){
+		                World pickBoth = world.clone();
+		                if(pickBoth.pick(i,true)){
+		                	if(pickBoth.pick(j,false) && !visitedWorld.contains(pickBoth.getRepresentString())){
+			                    visitedWorld.add(pickBoth.getRepresentString());
+			                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+			                    newList.add("pick1 " + i);
+			                    newList.add("pick2 " + j);
+			                    newList.add("picking with arm 1 from column " + i);
+			                    newList.add("picking with arm 2 from column " + j);
+			                    WorldState state = new WorldState(pickBoth, goal, newList,i,j,0.0001);
+			                    l.add(state);
+		                	}
+		                } 
+	            	}
 				}
 			}
 		}
@@ -384,5 +503,10 @@ public class WorldState implements IAStarState {
     public World getWorld() {
         return world;
     }
+
+	@Override
+	public double correctionForMovingBothArms() {
+		return this.correctionForMovingBothArms;
+	}
 
 }

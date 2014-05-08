@@ -344,16 +344,45 @@ public class WorldState implements IAStarState {
 		if(world.getHolding1() != null){
             for(int i = 0; i<world.getStacks().size(); i++){
             	for(int j = i+1; j<world.getStacks().size(); j++){
-	                World w = world.clone();
-	                if(w.drop(i,true) && !visitedWorld.contains(w.getRepresentString())){
-	                	if(w.drop(j,false) && !visitedWorld.contains(w.getRepresentString())){
-		                    visitedWorld.add(w.getRepresentString());
-		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
-		                    newList.add("drop1 " + i);
-		                    newList.add("drop2 " + j);
-		                    WorldState state = new WorldState(w, goal, newList);
+	                World wDrop = world.clone();
+	                World wDrop1 = world.clone();
+	                World wDrop2 = world.clone();
+	                if(wDrop.drop(i,true) && !visitedWorld.contains(wDrop.getRepresentString())){
+	                	visitedWorld.add(wDrop.getRepresentString());
+	                	
+	                	//Only pick/drop first arm
+	                	wDrop1.drop(i, true);
+	                	List<String> drop1Actions = new LinkedList<String>(actionsToGetHere);
+	                	drop1Actions.add("drop1 " + i);
+	                	
+	                	//only pick/drop second arm
+	                	List<String> drop2Actions = new LinkedList<String>(actionsToGetHere);
+	                	drop2Actions.add("move1 " + i);
+	                	
+	                	if(wDrop.drop(j,false) && !visitedWorld.contains(wDrop.getRepresentString())){
+	                		//Pick/drop both arms
+		                    visitedWorld.add(wDrop.getRepresentString());
+		                    List<String> dropBothActions = new LinkedList<String>(actionsToGetHere);
+		                    dropBothActions.add("drop1 " + i);
+		                    dropBothActions.add("drop2 " + j);
+		                    
+		                    //Only pick/drop first arm
+		                    drop1Actions.add("move2 " + j);
+		                    
+		                    //Only pick/drop second arm
+		                    wDrop1.drop(j, false);
+		                    drop2Actions.add("drop2 " + j);
+		                    
+		                    //Add new states
+		                    WorldState state = new WorldState(wDrop, goal, dropBothActions);
 		                    l.add(state);
+		                    state = new WorldState(wDrop1, goal, drop1Actions);
+		                    l.add(state);
+		                    state = new WorldState(wDrop2, goal, drop2Actions);
+		                    l.add(state);
+		                    
 	                	}
+	                	
 	                } else {
 	                	break;
 	                }

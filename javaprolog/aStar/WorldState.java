@@ -341,27 +341,41 @@ public class WorldState implements IAStarState {
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
-		if(world.getHolding() != null){
+		if(world.getHolding1() != null){
             for(int i = 0; i<world.getStacks().size(); i++){
-                World w = world.clone();
-                if(w.drop(i) && !visitedWorld.contains(w.getRepresentString())){
-                    visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(actionsToGetHere);
-                    newList.add("drop " + i);
-                    WorldState state = new WorldState(w, goal, newList);
-                    l.add(state);
-                }
+            	for(int j = i+1; j<world.getStacks().size(); j++){
+	                World w = world.clone();
+	                if(w.drop(i,true) && !visitedWorld.contains(w.getRepresentString())){
+	                	if(w.drop(j,false) && !visitedWorld.contains(w.getRepresentString())){
+		                    visitedWorld.add(w.getRepresentString());
+		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                    newList.add("drop1 " + i);
+		                    newList.add("drop2 " + j);
+		                    WorldState state = new WorldState(w, goal, newList);
+		                    l.add(state);
+	                	}
+	                } else {
+	                	break;
+	                }
+            	}
 			}
 		} else {
 			for(int i = 0;i<world.getStacks().size();i++){
+				for(int j = i+1;j<world.getStacks().size();j++){
                 World w = world.clone();
-                if(w.pick(i) && !visitedWorld.contains(w.getRepresentString())){
-                	visitedWorld.add(w.getRepresentString());
-                    List<String> newList = new LinkedList<String>(actionsToGetHere);
-                    newList.add("pick " + i);
-                    WorldState state = new WorldState(w, goal, newList);
-                    l.add(state);
-                }
+	                if(w.pick(i,true) && !visitedWorld.contains(w.getRepresentString())){
+	                	if(w.pick(j,false) && !visitedWorld.contains(w.getRepresentString())){
+		                	visitedWorld.add(w.getRepresentString());
+		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                    newList.add("pick1 " + i);
+		                    newList.add("pick2 " + j);
+		                    WorldState state = new WorldState(w, goal, newList);
+		                    l.add(state);
+	                	}
+	                } else {
+	                	break;
+	                }
+				}
 			}
 		}
 		return l;

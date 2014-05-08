@@ -282,10 +282,48 @@ public class WorldState implements IAStarState {
             	}
                 break;
             case BESIDE:
-                break;
+            	if(!world.hasRelation(WorldConstraint.Relation.BESIDE, wo, woRel)) {
+            		List<WorldObject> minList;
+            		WorldObject woMove;
+            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+            			minList = world.objectsAbove(wo);
+            			woMove = wo;
+            		} else {
+            			minList = world.objectsAbove(woRel);
+            			woMove = woRel;
+            		}
+            		moveAtleastOnce.addAll(minList);
+            		moveAtleastOnce.add(new WorldObject(woMove));
+            	};
             case LEFTOF:
+            	if(!world.hasRelation(WorldConstraint.Relation.LEFTOF, wo, woRel)) {
+            		List<WorldObject> minList;
+            		WorldObject woMove;
+            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+            			minList = world.objectsAbove(wo);
+            			woMove = wo;
+            		} else {
+            			minList = world.objectsAbove(woRel);
+            			woMove = woRel;
+            		}
+            		moveAtleastOnce.addAll(minList);
+            		moveAtleastOnce.add(new WorldObject(woMove));
+            	};
                 break;
             case RIGHTOF:
+            	if(!world.hasRelation(WorldConstraint.Relation.RIGHTOF, wo, woRel)) {
+            		List<WorldObject> minList;
+            		WorldObject woMove;
+            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+            			minList = world.objectsAbove(wo);
+            			woMove = wo;
+            		} else {
+            			minList = world.objectsAbove(woRel);
+            			woMove = woRel;
+            		}
+            		moveAtleastOnce.addAll(minList);
+            		moveAtleastOnce.add(new WorldObject(woMove));
+            	};
                 break;
         }
         if(recursive){

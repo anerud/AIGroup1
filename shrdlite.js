@@ -226,7 +226,7 @@ function SVG(tag) {
     return document.createElementNS(SvgNS, tag);
 }
 
-function animateMotion(object, path, timeout, duration) {
+function animateMotion(object, path, duration, timeout) {
     if (path instanceof Array) {
         path = path.join(" ");
     }
@@ -237,7 +237,9 @@ function animateMotion(object, path, timeout, duration) {
         path: path,
         dur: duration,
     }).appendTo(object);
-    animation.beginElementAt(timeout);
+	if(timeout){
+		animation.beginElementAt(timeout);
+	}
     return animation;
 }
 
@@ -260,14 +262,7 @@ console.log(action +" "+stackNr)
 	var armint = parseInt(action.substring(4)) -1;
     var arm = $(('#arm'+armint));
     var xStack = stackNr * stackWidth() + WallSeparation;
-	console.log(stackNr + "  - " +stackWidth() + " - " +WallSeparation + "  - "+xStack);
     var xArm = currentArmPosition[armint] * stackWidth() + WallSeparation;
-	console.log(currentArmPosition[armint])
-	console.log(xArm)
-	if(armint == 1){
-		//xStack -= stackWidth();
-		//xArm -= stackWidth();
-	}
 	
     if (action == Pick1) {
         if (!stack.length) {
@@ -293,37 +288,56 @@ console.log(action +" "+stackNr)
     var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
     var yStack = -altitude;
 	
+	var duration1;
+	var duration2;
+	var anim1 = {t:0};
+	var anim2 = {t:0};
+	var anim3= {t:0};
 	if(armint == 0){
 		var path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
 		var path2 = ["M", xStack, yArm, "V", 0];
-		var duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
-		var duration2 = (Math.abs(yArm)) / ArmSpeed;
-		var anim1 = animateMotion(arm, path1, 0, duration1);
-		var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
+		duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
+		duration2 = (Math.abs(yArm)) / ArmSpeed;
+		anim1.a = animateMotion(arm, path1, duration1);
+		anim2.a = animateMotion(arm, path2, duration2);
+		anim2.t = duration1 + AnimationPause;
 	}else{
 		var xxArm = xArm -stackWidth();
 		var xxStack = xStack -stackWidth();
 		var path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
 		var path2 = ["M", xxStack, yArm, "V", 0];
-		var duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
-		var duration2 = (Math.abs(yArm)) / ArmSpeed;
-		var anim1 = animateMotion(arm, path1, 0, duration1);
-		var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
+		duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
+		duration2 = (Math.abs(yArm)) / ArmSpeed;
+		anim1.a = animateMotion(arm, path1, duration1);
+		anim2.a = animateMotion(arm, path2, duration2);
+		anim2.t = duration1 + AnimationPause;
 	}
-    if (action == Pick1) {
+    if (action == Move1) {
+        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack-yArm];
+        anim3.a = animateMotion($("#"+currentWorld.holding1), path1b, duration2)
+    }else if (action == Move2) {
+        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack-yArm];
+        anim3.a = animateMotion($("#"+currentWorld.holding2), path1b, duration2)
+    }else if (action == Pick1) {
         var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        animateMotion($("#"+currentWorld.holding1), path2b, duration1 + AnimationPause, duration2)
+        anim3.a = animateMotion($("#"+currentWorld.holding1), path2b, duration2)
+		anim3.t = duration1 + AnimationPause;
     } else if (action == Pick2) {
         var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        animateMotion($("#"+currentWorld.holding2), path2b, duration1 + AnimationPause, duration2)
+        anim3.a = animateMotion($("#"+currentWorld.holding2), path2b, duration2)
+		anim3.t =duration1 + AnimationPause;
     } else if (action == Drop1) {
         var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        animateMotion($("#"+currentWorld.holding1), path1b, 0, duration1)
+        anim3.a = animateMotion($("#"+currentWorld.holding1), path1b, duration1)
     }else if (action == Drop2) {
         var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        animateMotion($("#"+currentWorld.holding2), path1b, 0, duration1)
+        anim3.a = animateMotion($("#"+currentWorld.holding2), path1b, duration1)
     }
-
+	
+	anim1.a.beginElementAt(anim1.t);
+	anim2.a.beginElementAt(anim2.t);
+	anim3.a.beginElementAt(anim3.t);
+	
     if (action == Drop1) {
         stack.push(currentWorld.holding1);
         currentWorld.holding1 = null;
@@ -430,9 +444,9 @@ function makeObject(svg, objectid, stacknr, timeout) {
     object.appendTo(svg);
 
     var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
-    animateMotion(object, path, 0, 0);
+    animateMotion(object, path, 0, 0).beginElementAt(0);
     path.push("V", -altitude);
-    animateMotion(object, path, timeout, 0.5);
+    animateMotion(object, path, 0.5, timeout).beginElementAt(0);
 }
 
 function disableInput(timeout) {

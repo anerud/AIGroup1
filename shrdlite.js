@@ -197,7 +197,6 @@ function resetSVG() {
     }).appendTo(svg);
 	
 	for(var i = 0;(stackWidth()*i)<CanvasWidth;i++){
-		console.log("asd")
 		$(SVG('line')).attr({
 			id: "asd"+i,
 			x1: stackWidth()*i,
@@ -244,7 +243,7 @@ function animateMotion(object, path, duration, timeout) {
 }
 
 function moveObject(action, stackNr) {
-console.log(action +" "+stackNr)
+	console.log(action +  " - "+stackNr)
 	if (action == Pick1 && currentWorld.holding1) {
         alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something! 1")
         return 0;
@@ -279,13 +278,13 @@ console.log(action +" "+stackNr)
     }
 
     var altitude = getAltitude(stack);
-    var objectHeight;
-		if(armint == 0){
+    var objectHeight = 0;
+		if(armint == 0 &&currentWorld.holding1){
 			objectHeight = getObjectDimensions(currentWorld.holding1).heightadd;
-		}else{
+		}else if(armint == 1 && currentWorld.holding2){
 			objectHeight = getObjectDimensions(currentWorld.holding2).heightadd;
 		}
-    var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
+	    var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
     var yStack = -altitude;
 	
 	var duration1;
@@ -293,51 +292,60 @@ console.log(action +" "+stackNr)
 	var anim1 = {t:0};
 	var anim2 = {t:0};
 	var anim3= {t:0};
+	var path1;
+	var path2;
 	if(armint == 0){
-		var path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
-		var path2 = ["M", xStack, yArm, "V", 0];
-		duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
-		duration2 = (Math.abs(yArm)) / ArmSpeed;
-		anim1.a = animateMotion(arm, path1, duration1);
-		anim2.a = animateMotion(arm, path2, duration2);
-		anim2.t = duration1 + AnimationPause;
+		if(action == Move1){
+			path1 = ["M", xArm, 0,"H", xStack,"V",0];
+			path2 = ["M", xStack];
+			duration1 = (Math.abs(xStack - xArm)) / ArmSpeed;
+			duration2 = 0;
+		}else{
+			path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
+			path2 = ["M", xStack, yArm, "V", 0];
+			duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
+			duration2 = (Math.abs(yArm)) / ArmSpeed;
+		}
 	}else{
 		var xxArm = xArm -stackWidth();
 		var xxStack = xStack -stackWidth();
-		var path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
-		var path2 = ["M", xxStack, yArm, "V", 0];
-		duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
-		duration2 = (Math.abs(yArm)) / ArmSpeed;
-		anim1.a = animateMotion(arm, path1, duration1);
-		anim2.a = animateMotion(arm, path2, duration2);
-		anim2.t = duration1 + AnimationPause;
+		if(action == Move2){
+			path1 = ["M", xxArm, 0, "H", xxStack,"V",0];
+			path2 = ["M", xxStack];
+			duration1 = (Math.abs(xxStack - xxArm)) / ArmSpeed;
+			duration2 = 0;
+		}else{		
+			path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
+			path2 = ["M", xxStack, yArm, "V", 0];
+			duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
+			duration2 = (Math.abs(yArm)) / ArmSpeed;
+		}
 	}
-    if (action == Move1) {
-        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+currentWorld.holding1), path1b, duration2)
-    }else if (action == Move2) {
-        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+currentWorld.holding2), path1b, duration2)
-    }else if (action == Pick1) {
+	
+	anim1.a = animateMotion(arm, path1, duration1);
+	anim2.a = animateMotion(arm, path2, duration2);
+	anim2.t = duration1 + AnimationPause;
+	
+	var hol = armint == 0 ? currentWorld.holding1 : currentWorld.holding2
+	
+    if (action == Move1 || action == Move2) {
+        var path1b = ["M", xArm,yStack-yArm, "H", xStack,"V",0];
+        anim3.a = animateMotion($("#"+hol), path1b, duration1)
+	}else if (action == Pick1 || action == Pick2) {
         var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+currentWorld.holding1), path2b, duration2)
-		anim3.t = duration1 + AnimationPause;
-    } else if (action == Pick2) {
-        var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+currentWorld.holding2), path2b, duration2)
+        anim3.a = animateMotion($("#"+hol), path2b, duration2)
 		anim3.t =duration1 + AnimationPause;
-    } else if (action == Drop1) {
+    } else if (action == Drop1 || action == Drop2) {
         var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        anim3.a = animateMotion($("#"+currentWorld.holding1), path1b, duration1)
-    }else if (action == Drop2) {
-        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        anim3.a = animateMotion($("#"+currentWorld.holding2), path1b, duration1)
+        anim3.a = animateMotion($("#"+hol), path1b, duration1)
     }
 	
 	anim1.a.beginElementAt(anim1.t);
 	anim2.a.beginElementAt(anim2.t);
 	anim3.a.beginElementAt(anim3.t);
-	
+	if(action == Move1){
+	//asdas
+	}
     if (action == Drop1) {
         stack.push(currentWorld.holding1);
         currentWorld.holding1 = null;
@@ -446,7 +454,7 @@ function makeObject(svg, objectid, stacknr, timeout) {
     var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
     animateMotion(object, path, 0, 0).beginElementAt(0);
     path.push("V", -altitude);
-    animateMotion(object, path, 0.5, timeout).beginElementAt(0);
+    animateMotion(object, path, 0.5).beginElementAt(timeout);
 }
 
 function disableInput(timeout) {
@@ -478,12 +486,12 @@ function enableInput() {
 
 function performPlan() {
     if (currentPlan && currentPlan.length > 1) {
-        var item1 = currentPlan.shift();
+		var item1 = currentPlan.shift();
 		var item2 = currentPlan.shift();
         var timeout = 0;
 		var action1 = getAction(item1);
 		var action2 = getAction(item2);
-		if (action1 || action2) {
+		if (action1 && action2) {
 			var timeout1 = 0;
 			var timeout2 = 0;
 			if(action1){
@@ -493,7 +501,7 @@ function performPlan() {
 				timeout2 = moveObject(action2[0], action2[1]);
 			}
 			timeout = Math.max(timeout1, timeout2);
-        } else if (item1 && item1[0] != "#") {
+        } else {
 			sayUtterance("system", item1);
 			sayUtterance("system", item2);
         }

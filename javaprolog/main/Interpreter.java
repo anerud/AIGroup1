@@ -178,7 +178,7 @@ public class Interpreter {
                 if(wobjs.size() > 1){
                     if(!Shrdlite.debug){
                     	
-                    	disambiguator d = new disambiguator();
+                    	Disambiguator d = new Disambiguator();
                         d.disambiguate(wobjs, n);
                         
                         
@@ -285,7 +285,7 @@ public class Interpreter {
             LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
             if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
             	
-            	disambiguator d = new disambiguator();
+            	Disambiguator d = new Disambiguator();
                 d.disambiguate(logObjs.getObjs(), n);
                 
                 

@@ -215,6 +215,12 @@ public class Shrdlite {
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			return n;
+			
+		} else if (data.equals("stack")) {
+			StackNode n = new StackNode(parent, data);
+			CompoundTerm tt = (CompoundTerm) t;
+			n.setThingsToStackNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			return n;
 		} else if (data.equals("floor")) {
 			return new FloorNode(parent, data);
 		} else if (data.equals("any") || data.equals("all") || data.equals("the")) {

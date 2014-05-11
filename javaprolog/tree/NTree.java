@@ -29,7 +29,7 @@ public class NTree {
 
 	@Override
 	public String toString() {
-		return root.toIndentString(0);
+		return root.toNaturalString() +"\n--"+root.toIndentString(0);
 	}
 
 }

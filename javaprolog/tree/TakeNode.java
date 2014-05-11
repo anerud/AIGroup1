@@ -6,6 +6,12 @@ import java.util.LinkedList;
 
 public class TakeNode extends Node {
 
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return "Take " +  entityNode.toNaturalString();
+	}
+
 	private Node entityNode;
 
 	public TakeNode(Node parent, String data) {

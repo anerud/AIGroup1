@@ -37,7 +37,7 @@ public abstract class Node {
 	
 	@Override
 	public String toString() {
-		return data;
+		return toNaturalString();
 	}
 	
 	public String toIndentString(int tabs){
@@ -52,7 +52,23 @@ public abstract class Node {
 		return s;
 	}
 	
+	
+	// natural language represenation
+	public String toNaturalString(){
+        return data;
+        
+	}
+	// natural language represenation, possibly in plural
+	public String toNaturalString(boolean plural) {
+		return toNaturalString();
+	}
+	
+	
+	
+	
 	public abstract <R,A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) throws Interpreter.InterpretationException, CloneNotSupportedException;
 	
 	public abstract <R,A> R accept(IActionVisitor<R,A> v, A arg) throws Interpreter.InterpretationException, CloneNotSupportedException;
+
+
 }

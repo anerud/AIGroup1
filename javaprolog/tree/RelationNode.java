@@ -9,6 +9,34 @@ public class RelationNode extends Node{
 
     private WorldConstraint.Relation relation;
 
+	@Override
+	public String toNaturalString() {
+		
+		switch (relation)
+		{
+		case ABOVE: 
+		return "above";
+		case UNDER: 
+		return "below";
+		case  BESIDE:
+		return "beside";
+   		
+		case  INSIDE:
+			return "inside";
+		case  LEFTOF:
+			return "to the left of";
+		case  ONTOP:
+			return "on top of";
+		case  RIGHTOF:
+			return "to the right of";
+		default:
+			return "error";
+		
+		}
+
+
+	}
+
 	public RelationNode(Node parent, String data) {
 		super(parent, data);
         this.relation = WorldConstraint.Relation.valueOf(data.toUpperCase());

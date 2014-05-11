@@ -222,15 +222,34 @@ public class Shrdlite {
 		} else if (data.equals("object")) {
 			ObjectNode n = new ObjectNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
-			n.setFormNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
-			n.setSizeNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
-			n.setColorNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
+			n.setFormNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			n.setSizeNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
+			n.setColorNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
+			
+	
+			
+			
 			return n;
 		} else if (data.equals("under") || data.equals("beside") || data.equals("above") || data.equals("leftof")
 				|| data.equals("rightof") || data.equals("ontop") || data.equals("inside")) {
 			return new RelationNode(parent, data);
 		}
-		return new AttributeNode(parent, data);
+		AttributeNode a=  new AttributeNode(parent, data);
+		// add plural forms for different object types. 
+		// neccessary for natuaral language generation
+		
+		if (data.equals("box")) a.setPluralForm("boxes");
+		if (data.equals("ball")) a.setPluralForm("balls");
+		if (data.equals("plank")) a.setPluralForm("planks");
+		if (data.equals("anyform")) a.setPluralForm("objects");
+		if (data.equals("pyramid")) a.setPluralForm("pyramids");
+		if (data.equals("table")) a.setPluralForm("tables");
+		return a;
+		
+		
+	
+		
+		
 	}
 
 }

@@ -8,8 +8,11 @@ public class WorldConstraint {
     public enum Relation{
         BESIDE, LEFTOF, RIGHTOF, ABOVE, ONTOP, UNDER, INSIDE
     }
+    
+   
 
-    public WorldConstraint(){
+
+	public WorldConstraint(){
 
     }
 }

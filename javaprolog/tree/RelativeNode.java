@@ -6,6 +6,12 @@ import java.util.LinkedList;
 
 public class RelativeNode extends Node {
 
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return relationNode.toNaturalString() +" " + entityNode.toNaturalString() ;
+	}
+
 	private RelationNode relationNode;
 	private Node entityNode;
 

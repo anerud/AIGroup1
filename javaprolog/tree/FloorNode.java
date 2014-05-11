@@ -4,6 +4,12 @@ import java.util.LinkedList;
 
 public class FloorNode extends Node{
 
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return "the floor";
+	}
+
 	public FloorNode(Node parent, String data) {
 		super(parent, data);
 	}

@@ -6,6 +6,10 @@ import main.Interpreter;
 import java.util.LinkedList;
 
 public class QuantifierNode extends Node{
+	public boolean IsPlural()
+	{
+		return (quantifier==Quantifier.ALL);
+	}
 
     public Quantifier getQuantifier() {
         return quantifier;

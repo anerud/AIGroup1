@@ -7,6 +7,13 @@ import java.util.LinkedList;
 public class PutNode extends Node {
 
 	private RelativeNode locationNode;
+	
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return "Put at" + locationNode.toNaturalString();
+	}
+		
 
 	public PutNode(Node parent, String data) {
 		super(parent, data);

@@ -21,6 +21,12 @@ public class BasicEntityNode extends Node {
 		this.quantityNode = quantityNode;
 	}
 
+	@Override
+	public String toNaturalString() {
+		
+			return quantityNode.toNaturalString()+ " " + objectNode.toNaturalString(quantityNode.IsPlural());
+	}
+
 	public void setObjectNode(Node objectNode) {
 		this.objectNode = objectNode;
 	}

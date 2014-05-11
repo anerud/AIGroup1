@@ -6,23 +6,62 @@ import java.util.LinkedList;
 
 public class ObjectNode extends Node {
 
-	private Node formNode;
-	private Node sizeNode;
-	private Node colorNode;
+	@Override
+	public String toNaturalString(boolean plural) {
+		StringBuilder out = new StringBuilder();
+		
+
+        
+        String size = sizeNode.toNaturalString();
+        String form = formNode.toNaturalString(plural);
+        String color = colorNode.toNaturalString();
+        
+        
+        if (!size.equals("-"))
+        {  out.append(size);
+           out.append(" ");
+           if(!color.equals("-"))
+        	   out.append(",");
+           
+        }
+        
+        if (!color.equals("-"))
+        {  out.append(color);
+           out.append(" ");   
+        }
+        
+        
+      
+        out.append(form);
+        
+        return out.toString();
+        
+            
+	}
+
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return toNaturalString(false);
+	}
+
+	private AttributeNode formNode;
+	private AttributeNode sizeNode;
+	private AttributeNode colorNode;
 
 	public ObjectNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setFormNode(Node formNode) {
+	public void setFormNode(AttributeNode formNode) {
 		this.formNode = formNode;
 	}
 
-	public void setSizeNode(Node sizeNode) {
+	public void setSizeNode(AttributeNode sizeNode) {
 		this.sizeNode = sizeNode;
 	}
 
-	public void setColorNode(Node colorNode) {
+	public void setColorNode(AttributeNode colorNode) {
 		this.colorNode = colorNode;
 	}
 

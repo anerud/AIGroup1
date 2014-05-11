@@ -6,6 +6,13 @@ import java.util.LinkedList;
 
 public class MoveNode extends Node {
 
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return "Move " + entityNode.toNaturalString() + " " + locationNode.toNaturalString();
+		
+	}
+
 	private Node entityNode;
 	private Node locationNode;
 

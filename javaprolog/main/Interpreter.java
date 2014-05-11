@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.corba.se.impl.naming.cosnaming.InterOperableNamingImpl;
+
 
 public class Interpreter {
 
@@ -155,12 +157,16 @@ public class Interpreter {
     }
 
     private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>,Set<WorldObject>,Quantifier> {
-
+         
+    	
+    	// visit basic
         @Override
         public LogicalExpression<WorldObject> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException, CloneNotSupportedException {
 			return n.getObjectNode().accept(this, worldObjects, n.getQuantifierNode().getQuantifier());
         }
-
+        
+        
+        //visit Relative Entity
         @Override
         public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException, CloneNotSupportedException {
             Quantifier q = n.getQuantifierNode().getQuantifier();
@@ -171,11 +177,22 @@ public class Interpreter {
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
                 if(wobjs.size() > 1){
                     if(!Shrdlite.debug){
-                        throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
+                    	
+                    	disambiguator d = new disambiguator();
+                        d.disambiguate(wobjs, n);
+                        
+                        
+                    	throw new InterpretationException(d.getMessage());
+                    	
+                    	
+                        //throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
                     }
                 } else if(wobjs.isEmpty()){
                     if(!Shrdlite.debug){
-                        throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
+                    	
+                    	throw new InterpretationException("I cannot see any " + n.toNaturalString());
+                        //throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
+                       
                     }
                 }
                 LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.NONE);
@@ -202,6 +219,8 @@ public class Interpreter {
          * @throws InterpretationException
          */
         @Override
+        
+        // visit relativeNode
         public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException, CloneNotSupportedException {
             LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, worldObjects == null ? world.getWorldObjects() : worldObjects, Quantifier.ANY);
 
@@ -224,11 +243,14 @@ public class Interpreter {
             }
             LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
             if(relativeTo.isEmpty() && !Shrdlite.debug){
-                throw new InterpretationException("There are no objects which match the description '"  + n.getEntityNode().getChildren().toString() + ".");
+                //throw new InterpretationException("There are no objects which match the description '"  + n.toNaturalString() + ".");
+            	throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
             }
 
             return relativeToNew;
         }
+        
+        // visit floor
 
         @Override
         public LogicalExpression<WorldObject> visit(FloorNode n, Set<WorldObject> worldObjects, Quantifier dummy) {
@@ -261,11 +283,25 @@ public class Interpreter {
                     break;
             }
             LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
-//            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1){
-//                throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
-//            } //This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
+            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
+            	
+            	disambiguator d = new disambiguator();
+                d.disambiguate(logObjs.getObjs(), n);
+                
+                
+            	throw new InterpretationException(d.getMessage());
+                //throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
+            }
+            
+            //This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
+            //On the other hand, it is explicitly stated that "THE" always refers to a unique object. 
+            //In the example above, one should really say "take a box.. " if one is referring to any box that matches the description that follows. 
+            
+            
             if(logObjs.isEmpty() && !Shrdlite.debug) {
-                throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
+                //throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
+            	throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
+            
             }
             return logObjs;
         }

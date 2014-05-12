@@ -148,14 +148,12 @@ public class disambiguator {
 		//if (theOthers.size() > 1)
 		//	return "error";
 
-<<<<<<< HEAD
+
 		// todo: disambiguate using relative position in the world
 		return "error";
-=======
+
 		// todo: disambiguate using realtive position in the world
-		return "a " + obj.getSize() + " " + obj.getColor() + " "
-		+ obj.getForm();
->>>>>>> origin/dubiousExperiments
+		//return "a " + obj.getSize() + " " + obj.getColor() + " "
 
 		// natural language representation of integer quantities
 	}

@@ -94,8 +94,19 @@ public class disambiguator {
 	// returns a description of a WorldObject, that is minimal but sufficient to
 	// distinguish it from
 	// all other WorldObjects in the given set.
-	private String minimalUniqueDiscription(WorldObject obj,
-			Set<WorldObject> theOthers) {
+	public String minimalUniqueDiscription(WorldObject obj,
+			Set<WorldObject> theOthers)
+	{
+		return minimalUniqueDiscription(obj, theOthers, true);
+		
+	}
+	
+	
+	public String minimalUniqueDiscription(WorldObject obj,
+			Set<WorldObject> theOthers, boolean definiteArticle) {
+		
+		String article = definiteArticle? "the ": "a "; 
+		theOthers = new HashSet<WorldObject>(theOthers); // do not modify input!
 		theOthers.remove(obj);
 		Set<WorldObject> removeThese = new HashSet<WorldObject>();
 
@@ -106,25 +117,27 @@ public class disambiguator {
 		theOthers.removeAll(removeThese);
 
 		if (theOthers.isEmpty())
-			return "the " + obj.getForm();
+			return article + obj.getForm();
+		
+		// form  was not unique, check if size is unique
+		for (WorldObject other : theOthers)
+			if (!obj.getSize().equals(other.getSize()))
+				removeThese.add(other);
+		theOthers.removeAll(removeThese);
 
-		// form was not uniqe, check if color is unique
+		// form and size was not unique, check if color is unique
 		for (WorldObject other : theOthers)
 			if (!obj.getColor().equals(other.getColor()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
 
 		if (theOthers.isEmpty())
-			return "the " + obj.getColor() + " " + obj.getForm();
+			return article + obj.getColor() + " " + obj.getForm();
 
-		// form and color was not unique, check if size is unique
-		for (WorldObject other : theOthers)
-			if (!obj.getSize().equals(other.getSize()))
-				removeThese.add(other);
-		theOthers.removeAll(removeThese);
+
 
 		if (theOthers.isEmpty())
-			return "the " + obj.getSize() + " " + obj.getColor() + " "
+			return article + obj.getSize() + " " + obj.getColor() + " "
 					+ obj.getForm();
 
 		// if there are exactly two identical objects, they can be disambiguated
@@ -132,11 +145,17 @@ public class disambiguator {
 		// if there are more than two identical objects, it is not possible to
 		// uniquely refer to any one of them
 
-		if (theOthers.size() > 1)
-			return "error";
+		//if (theOthers.size() > 1)
+		//	return "error";
 
+<<<<<<< HEAD
 		// todo: disambiguate using relative position in the world
 		return "error";
+=======
+		// todo: disambiguate using realtive position in the world
+		return "a " + obj.getSize() + " " + obj.getColor() + " "
+		+ obj.getForm();
+>>>>>>> origin/dubiousExperiments
 
 		// natural language representation of integer quantities
 	}

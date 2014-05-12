@@ -1,6 +1,5 @@
-{
-    "world": [["e"],["a","l"],["c"],["d"],[]],
-    "worldoriginal": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
+{ 
+    "world": [["e"],["a","l", "n", "o", "p", "q", "r", "s", "t", "u", "v"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"],[],[],[],[],[],[],[],[],[],[]],
     "holding": null,
     "objects": {
         "a": { "form":"brick",   "size":"large",  "color":"green" },
@@ -15,10 +14,19 @@
         "j": { "form":"pyramid", "size":"small",  "color":"red"   },
         "k": { "form":"box",     "size":"large",  "color":"yellow"},
         "l": { "form":"box",     "size":"large",  "color":"red"   },
-        "m": { "form":"box",     "size":"small",  "color":"blue"  }
+        "m": { "form":"box",     "size":"small",  "color":"blue"  },
+		"n": { "form":"brick",     "size":"large",  "color":"black"  },
+		"o": { "form":"brick",     "size":"large",  "color":"black"  },
+		"p": { "form":"brick",     "size":"large",  "color":"white"  },
+		"q": { "form":"brick",     "size":"large",  "color":"black"  },
+		"r": { "form":"brick",     "size":"large",  "color":"black"  },
+		"s": { "form":"brick",     "size":"large",  "color":"white"  },
+		"t": { "form":"brick",     "size":"large",  "color":"black"  },
+		"u": { "form":"brick",     "size":"large",  "color":"black"  },
+		"v": { "form":"brick",     "size":"large",  "color":"white"  }
     },
-    "utterance":
-        ["take","the","planks"],
+    "utterance": 
+        [ "take", "the" ,"brick"],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],
@@ -29,11 +37,6 @@
         ["put","all","boxes","on","the","floor"],
         ["put","the","large","plank","under","the","blue","brick"],
         ["move","all","bricks","on","a","table"],
-        ["move","all","balls","inside","a","large","box"],
-        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"],
-        ["put","it","on","the","floor"],
-        ["take", "the", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "the", "pyramid"],
-        ["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"],
-        ["put","it","under","a","ball"]
+        ["move","all","balls","inside","a","large","box"]
     ]
 }

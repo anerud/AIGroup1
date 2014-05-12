@@ -11,6 +11,9 @@ command : Cmd --->
 basic_command : take(Entity) ---> take, entity:Entity.
 basic_command : put(Location) ---> move, it, location:Location.
 basic_command : move(Entity, Location) ---> move, entity:Entity, location:Location.
+basic_command : stack(Entity) --->  stack, entity:Entity.
+
+
 
 location : relative(Relation, TenseEntity) ---> relation:Relation, tenseentity:TenseEntity.
 
@@ -99,6 +102,8 @@ that_should_be(pl) ---> [that,should,be].
 
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].
+stack ---> [stack] ; [stack,up] ; [build,a,tower,of].
+
 it ---> [it].
 
 opt_will_you ---> [] ; [will,you] ; [can,you] ; [could,you].

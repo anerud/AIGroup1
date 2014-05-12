@@ -26,7 +26,7 @@
 		"v": { "form":"brick",     "size":"large",  "color":"white"  }
     },
     "utterance": 
-        [ "take", "the" ,"white", "object"],
+        [ "take", "the" ,"brick"],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],

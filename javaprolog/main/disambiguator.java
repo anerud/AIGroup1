@@ -12,7 +12,7 @@ import tree.Node;
 
 import world.WorldObject;
 
-public class disambiguator {
+public class Disambiguator {
 	private String message;
 
 	// author: joel
@@ -67,7 +67,7 @@ public class disambiguator {
 					new HashSet<WorldObject>(objs));
 			if (d.equals("error")) {
 				message = iCanSee
-						+ " Im sorry, but I dont know which one you mean.";
+						+ ". Please be more specific.";
 				return null;
 			}
 			if (!i.hasNext()) {

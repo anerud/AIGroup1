@@ -6,7 +6,6 @@ package main;
 import aStar.AStar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import gnu.prolog.term.AtomTerm;
 import gnu.prolog.term.CompoundTerm;
 import gnu.prolog.term.Term;

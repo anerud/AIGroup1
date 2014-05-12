@@ -4,7 +4,6 @@ import aStar.WorldState;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import gnu.prolog.vm.PrologException;
-import world.WorldObject;
 
 import java.io.*;
 import java.util.*;

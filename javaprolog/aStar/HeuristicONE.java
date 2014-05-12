@@ -1,8 +1,8 @@
 package aStar;
 
-import world.WorldObject;
 import logic.LogicalExpression;
 import main.Goal;
+import world.WorldObject;
 
 public class HeuristicONE implements IHeuristic<WorldState>{
 

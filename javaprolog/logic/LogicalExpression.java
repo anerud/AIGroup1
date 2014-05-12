@@ -1,6 +1,5 @@
 package logic;
 
-import sun.rmi.runtime.Log;
 import world.WorldObject;
 
 import java.util.ArrayList;

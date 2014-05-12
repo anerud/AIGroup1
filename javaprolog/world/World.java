@@ -3,11 +3,6 @@ package world;
 import logic.LogicalExpression;
 import main.Goal;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 /**

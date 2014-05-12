@@ -10,20 +10,7 @@ import world.World;
 import world.WorldConstraint.Relation;
 import world.WorldObject;
 
-import gnu.prolog.io.Operator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
-import com.sun.corba.se.impl.naming.cosnaming.InterOperableNamingImpl;
+import java.util.*;
 
 
 public class Interpreter {

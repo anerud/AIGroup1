@@ -3,7 +3,6 @@ package main;
 import aStar.AStar;
 import aStar.WorldState;
 import world.World;
-import world.WorldObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

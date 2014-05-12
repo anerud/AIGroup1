@@ -1,13 +1,13 @@
 package aStar;
 
-import java.util.*;
-
 import logic.LogicalExpression;
 import main.Goal;
 import world.RelativeWorldObject;
 import world.World;
 import world.WorldConstraint;
 import world.WorldObject;
+
+import java.util.*;
 
 public class WorldState implements IAStarState {
 

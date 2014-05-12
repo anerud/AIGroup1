@@ -1,6 +1,5 @@
 package tree;
 
-import logic.Quantifier;
 import logic.Tense;
 import main.Interpreter;
 

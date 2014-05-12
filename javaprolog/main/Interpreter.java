@@ -240,7 +240,7 @@ public class Interpreter {
 				prev = nex;
 				nex = i.next();
 				if (!world.isValidRelation(Relation.ONTOP, nex, prev)){
-				    Disambiguator d = new Disambiguator();
+				    disambiguator d = new disambiguator();
 				    Set<WorldObject> theTwo = new HashSet<WorldObject>();
 				    theTwo.add(prev);
 				    theTwo.add(nex);
@@ -293,7 +293,7 @@ public class Interpreter {
 				if(wobjs.size() > 1){
 					if(!Shrdlite.debug){
 
-						Disambiguator d = new Disambiguator();
+						disambiguator d = new disambiguator();
 						d.disambiguate(wobjs, n);
 
 
@@ -400,7 +400,7 @@ public class Interpreter {
 			LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
 			if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
 
-				Disambiguator d = new Disambiguator();
+				disambiguator d = new disambiguator();
 				d.disambiguate(logObjs.getObjs(), n);
 
 

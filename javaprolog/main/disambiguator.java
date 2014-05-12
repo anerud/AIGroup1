@@ -12,7 +12,7 @@ import tree.Node;
 
 import world.WorldObject;
 
-public class Disambiguator {
+public class disambiguator {
 	private String message;
 
 	// author: joel

@@ -250,6 +250,7 @@ public class Shrdlite {
 		if (data.equals("anyform")) a.setPluralForm("objects");
 		if (data.equals("pyramid")) a.setPluralForm("pyramids");
 		if (data.equals("table")) a.setPluralForm("tables");
+		if (data.equals("brick")) a.setPluralForm("bricks");
 		return a;
 		
 		

@@ -100,7 +100,7 @@ public class Test {
             // If the parser produces errors we print it and stop
             
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
+           
             e.printStackTrace();
         } 
     }

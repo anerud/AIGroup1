@@ -135,7 +135,7 @@ public class disambiguator {
 		if (theOthers.size() > 1)
 			return "error";
 
-		// todo: disambiguate using realtive position in the world
+		// todo: disambiguate using relative position in the world
 		return "error";
 
 		// natural language representation of integer quantities

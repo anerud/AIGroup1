@@ -12,7 +12,7 @@ public class AttributeNode extends Node{
 
 	@Override
 	public String toNaturalString() {
-		// TODO Auto-generated method stub
+	
 		if (getData().equals("anyform"))
 			return "object";
 		else
@@ -49,7 +49,7 @@ public class AttributeNode extends Node{
 
 	@Override
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

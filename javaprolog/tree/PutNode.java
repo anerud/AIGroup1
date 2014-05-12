@@ -10,7 +10,7 @@ public class PutNode extends Node {
 	
 	@Override
 	public String toNaturalString() {
-		// TODO Auto-generated method stub
+	
 		return "Put at" + locationNode.toNaturalString();
 	}
 		

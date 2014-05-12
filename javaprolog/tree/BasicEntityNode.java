@@ -54,7 +54,7 @@ public class BasicEntityNode extends Node {
 
     @Override
     public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException {
-        // TODO Auto-generated method stub
+        
         return null;
     }
 }

@@ -8,7 +8,7 @@ public class MoveNode extends Node {
 
 	@Override
 	public String toNaturalString() {
-		// TODO Auto-generated method stub
+	
 		return "Move " + entityNode.toNaturalString() + " " + locationNode.toNaturalString();
 		
 	}
@@ -52,7 +52,7 @@ public class MoveNode extends Node {
 
 	@Override
 	public <R, A, A2> R accept(INodeVisitor<R, A, A2> v, A arg, A2 arg2) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

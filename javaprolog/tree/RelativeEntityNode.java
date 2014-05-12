@@ -9,14 +9,14 @@ public class RelativeEntityNode extends Node {
 
 	@Override
 	public String toNaturalString() {
-		// TODO Auto-generated method stub
+	
 		boolean plural = (quantifierNode.getQuantifier() ==  Quantifier.ALL);
 		return quantifierNode.toNaturalString()+ " " + objectNode.toNaturalString(plural) + " " + locationNode.toNaturalString();
 	}
 	public String toNaturalString(boolean plural) {
 		
 		if (plural)
-		// TODO Auto-generated method stub
+		
 		return  objectNode.toNaturalString(true) + " " + locationNode.toNaturalString();
 		else  return toNaturalString();
 		
@@ -78,7 +78,7 @@ public class RelativeEntityNode extends Node {
 
 	@Override
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

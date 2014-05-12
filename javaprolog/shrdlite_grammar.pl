@@ -12,23 +12,34 @@ basic_command : take(Entity) ---> take, entity:Entity.
 basic_command : put(Location) ---> move, it, location:Location.
 basic_command : move(Entity, Location) ---> move, entity:Entity, location:Location.
 
-location : relative(Relation, Entity) ---> relation:Relation, entity:Entity.
+location : relative(Relation, TenseEntity) ---> relation:Relation, tenseentity:TenseEntity.
 
 entity : floor ---> the_floor.
 
 entity : basic_entity(Quant, Object) --->
     quantifier(Num):Quant, object(Num):Object.
-
+	
 entity : relative_entity(Quant, Object, Location) ---> 
     quantifier(Num):Quant, object(Num):Object,
-    opt_that_is(Num),
-    location:Location.
+    opt_that_is(Num), location:Location.
+	
+tenseentity : floor ---> the_floor.
+
+tenseentity : basic_entity(Quant, Object) --->
+    quantifier(Num):Quant, object(Num):Object.
+	
+tenseentity : relative_tense_entity(Quant, Object, Tense, Location) ---> 
+    quantifier(Num):Quant, object(Num):Object,
+    tense(Num):Tense, location:Location.
 
 object(Num) : object(Form,Size,Color) ---> size:Size, color:Color, form(Num):Form.
 object(Num) : object(Form,Size,Color) ---> color:Color, size:Size, form(Num):Form.
 object(Num) : object(Form,'-', Color) ---> color:Color, form(Num):Form.
 object(Num) : object(Form,Size,'-')  ---> size:Size, form(Num):Form.
 object(Num) : object(Form,'-', '-')  ---> form(Num):Form.
+
+tense(Num) : now ---> that_is(Num).
+tense(Num) : future ---> that_should_be(Num).
 
 %% Lexical rules
 
@@ -77,6 +88,14 @@ the_floor ---> [the,floor].
 opt_that_is(_) ---> [].
 opt_that_is(sg) ---> [that,is].
 opt_that_is(pl) ---> [that,are].
+
+that_is(_) ---> [].
+that_is(sg) ---> [that,is].
+that_is(pl) ---> [that,are].
+
+that_should_be(_) ---> [].
+that_should_be(sg) ---> [that,should,be].
+that_should_be(pl) ---> [that,should,be].
 
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].

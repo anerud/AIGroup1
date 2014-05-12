@@ -20,5 +20,5 @@ public interface INodeVisitor<R, A, A2> {
 
 	public R visit(RelationNode n, A a, A2 a2) throws Interpreter.InterpretationException;
 
-
+    public R visit(TenseNode tenseNode, A arg, A2 arg2) throws Interpreter.InterpretationException;
 }

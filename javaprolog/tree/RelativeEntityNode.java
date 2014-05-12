@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 public class RelativeEntityNode extends Node {
 
-	@Override
+    @Override
 	public String toNaturalString() {
 	
 		boolean plural = (quantifierNode.getQuantifier() ==  Quantifier.ALL);
@@ -25,6 +25,7 @@ public class RelativeEntityNode extends Node {
 	private QuantifierNode quantifierNode;
 	private Node objectNode;
 	private RelativeNode locationNode;
+    private TenseNode tenseNode;
 
 	public RelativeEntityNode(Node parent, String data) {
 		super(parent, data);
@@ -44,6 +45,10 @@ public class RelativeEntityNode extends Node {
 
     public void setQuantifierNode(Node quantifierNode) {
         this.quantifierNode = (QuantifierNode)quantifierNode;
+    }
+
+    public void setTenseNode(Node tenseNode) {
+        this.tenseNode = (TenseNode)tenseNode;
     }
 
     public void setQuantifierNode(QuantifierNode quantifierNode) {
@@ -82,4 +87,8 @@ public class RelativeEntityNode extends Node {
 		return null;
 	}
 
+
+    public TenseNode getTenseNode() {
+        return tenseNode;
+    }
 }

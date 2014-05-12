@@ -2,6 +2,7 @@ package main;
 
 import logic.LogicalExpression;
 import logic.Quantifier;
+import logic.Tense;
 import tree.*;
 import world.RelativeWorldObject;
 import world.World;
@@ -172,8 +173,9 @@ public class Interpreter {
             Quantifier q = n.getQuantifierNode().getQuantifier();
             LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
             LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
-//            WorldConstraint.Relation relation = n.getLocationNode().getRelationNode().getRelation();
-            if(q.equals(Quantifier.THE)){
+
+            TenseNode tenseNode = n.getTenseNode();
+            if(q.equals(Quantifier.THE) || (tenseNode != null && tenseNode.getTense().equals(Tense.NOW))){
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
                 if(wobjs.size() > 1){
                     if(!Shrdlite.debug){
@@ -314,6 +316,12 @@ public class Interpreter {
 
         @Override
         public LogicalExpression<WorldObject> visit(RelationNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+            //Never used
+            throw new InterpretationException("Something went wrong during the interpretation.");
+        }
+
+        @Override
+        public LogicalExpression<WorldObject> visit(TenseNode tenseNode, Set<WorldObject> arg, Quantifier arg2) throws InterpretationException {
             //Never used
             throw new InterpretationException("Something went wrong during the interpretation.");
         }

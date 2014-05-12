@@ -193,7 +193,15 @@ public class Shrdlite {
 			n.setObjectNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
 			n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
 			return n;
-		} else if (data.equals("relative")) {
+		} else if (data.equals("relative_tense_entity")) {
+            RelativeEntityNode n = new RelativeEntityNode(parent, data);
+            CompoundTerm tt = (CompoundTerm) t;
+            n.setQuantifierNode(getNodeFromData(n, dataFromTerm(tt.args[0]), null));
+            n.setObjectNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
+            n.setTenseNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
+            n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[3]), tt.args[3]));
+            return n;
+        } else if (data.equals("relative")) {
 			RelativeNode n = new RelativeNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setRelationNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
@@ -219,7 +227,9 @@ public class Shrdlite {
 			return new FloorNode(parent, data);
 		} else if (data.equals("any") || data.equals("all") || data.equals("the")) {
 			return new QuantifierNode(parent, data);
-		} else if (data.equals("object")) {
+		} else if (data.equals("now") || data.equals("future")) {
+            return new TenseNode(parent, data);
+        } else if (data.equals("object")) {
 			ObjectNode n = new ObjectNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setFormNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));

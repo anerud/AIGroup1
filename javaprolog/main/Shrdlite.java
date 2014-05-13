@@ -64,9 +64,16 @@ public class Shrdlite {
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
-		if (p.getQuestion() != null && p.getQuestion().getAnswer() != null) {
-			String q = p.getQuestion().getQuestions().get(p.getQuestion().getAnswer());
-			if (q != null) {
+		//Add a question
+//		Question q = new Question();
+//		q.addQuestions("Blue?", "a");
+//		q.addQuestions("White?", "b");
+//		q.addQuestions("Yellow?", "c");
+//		p.getQuestions().add(q);
+		
+		if (p.getQuestions().size() > 0 && p.getQuestions().get(0).getAnswer() != null) {
+			String question = p.getQuestions().get(0).getQuestions().get(p.getQuestions().get(0).getAnswer());
+			if (question != null) {
 				//TODO: F�tt svar p� fr�gan, q �r den valda fr�gan!
 			}else{
 				//TODO: F�tt d�ligt svar p� fr�gan
@@ -117,6 +124,9 @@ public class Shrdlite {
 			}
 		}
 
+		
+		
+		result.setQuestions(p.getQuestions());
 		log.print(jsinput);
 		FileWriter fw = new FileWriter("./result.json");
 		String jsonString = new Gson().toJson(result);

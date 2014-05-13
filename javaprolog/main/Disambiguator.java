@@ -114,6 +114,9 @@ public class Disambiguator {
 			if (!obj.getSize().equals(other.getSize()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
+		
+		if (theOthers.isEmpty())
+			return article + obj.getColor() + " " + obj.getForm();
 
 		// form and size was not unique, check if color is unique
 		for (WorldObject other : theOthers)
@@ -121,8 +124,7 @@ public class Disambiguator {
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
 
-		if (theOthers.isEmpty())
-			return article + obj.getColor() + " " + obj.getForm();
+
 
 		if (theOthers.isEmpty())
 			return article + obj.getSize() + " " + obj.getColor() + " " + obj.getForm();

@@ -423,7 +423,12 @@ public class World {
 					if (isValidRelation(((RelativeWorldObject) wo1).getRelation(), wo, wo1)) {
 						((RelativeWorldObject) wo1).setObj(wo);
 					} else {
-						toBeRemoved.add(wo1);
+                        if(attachTo.getOp().equals(LogicalExpression.Operator.AND)){
+                            toBeRemoved.addAll(tops);
+                            break;
+                        } else {
+						    toBeRemoved.add(wo1);
+                        }
 					}
 				}
 			}

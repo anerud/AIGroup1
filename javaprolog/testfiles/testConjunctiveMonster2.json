@@ -27,7 +27,7 @@
 		"v": { "form":"brick",     "size":"large",  "color":"white"  }
     },
     "utterance":
-           [ "put", "all", "red", "objects", "on", "an", "object", "that", "is", "on", "an", "object", "that", "is","on", "the", "floor" ],
+           [ "put", "all", "red", "objects", "on", "an", "object", "that", "should", "be", "on", "an", "object", "that", "should", "be", "on", "the", "floor" ],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],

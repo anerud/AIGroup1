@@ -241,7 +241,7 @@ public class Interpreter {
 					String err = "Sorry, it is not possible to stack "+ n.getThingsToStackNode().toNaturalString()+". ";
 				     err = err+ "I would have to put "+ ontop + " on top of " + below +". Duuh.";
 				     
-					throw new InterpretationException( err);
+					throw new InterpretationException(err);
 				}
 				rwo =  new RelativeWorldObject(nex,rwo, Relation.ONTOP);
 			} 
@@ -277,29 +277,29 @@ public class Interpreter {
             LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
 
             TenseNode tenseNode = n.getTenseNode();
-            if(q.equals(Quantifier.THE) || (tenseNode != null && tenseNode.getTense().equals(Tense.NOW))){
+
+            if((tenseNode != null && tenseNode.getTense().equals(Tense.NOW))){
+                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
+                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
+                return le;
+            }
+
+            if(q.equals(Quantifier.THE)){
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
                 if(wobjs.size() > 1){
                     if(!Shrdlite.debug){
-
                     	Disambiguator d = new Disambiguator();
                         d.disambiguate(wobjs, n);
-
-
                     	throw new InterpretationException(d.getMessage());
-
-
                         //throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
                     }
                 } else if(wobjs.isEmpty()){
                     if(!Shrdlite.debug){
-
                     	throw new InterpretationException("I cannot see any " + n.toNaturalString());
                         //throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
-
                     }
                 }
-                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.NONE);
+                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
                 return le;
             } else { //ANY, AND
                 //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor

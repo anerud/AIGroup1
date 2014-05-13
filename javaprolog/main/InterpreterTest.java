@@ -58,7 +58,10 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testTakeObject6() throws Exception {
-        test("testTakeObject6", "[]");
+        String[] alternatives = new String[] {"[(OR (holding d) (holding f) (holding m))]", "[(OR (holding d) (holding m) (holding f))]",
+                "[(OR (holding f) (holding d) (holding m))]", "[(OR (holding f) (holding m) (holding d))]",
+                "[(OR (holding m) (holding d) (holding f))]", "[(OR (holding m) (holding f) (holding d))]"};
+        test("testTakeObject6", alternatives);
     }
 
     @org.junit.Test
@@ -93,7 +96,7 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject1() throws Exception {
-        String[] alternatives = new String[] {"[(INSIDE e (ONTOP k floor))]"};
+        String[] alternatives = new String[] {"[(INSIDE e k), (INSIDE e (ONTOP k floor))]", "[(INSIDE e (ONTOP k floor)), (INSIDE e k)]"};
         test("testMoveObject1", alternatives);
     }
 
@@ -112,7 +115,8 @@ public class InterpreterTest {
 
     @org.junit.Test
     public void testMoveObject4() throws Exception {
-        String[] alternatives = new String[] {"[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)))]", "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)))]"};
+        String[] alternatives = new String[] {"[(OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor))), (INSIDE e k)]", "[(OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor))), (INSIDE e k)]",
+                "[(INSIDE e k), (OR (INSIDE e (ONTOP l floor)) (INSIDE e (ONTOP k floor)))]", "[(INSIDE e k), (OR (INSIDE e (ONTOP k floor)) (INSIDE e (ONTOP l floor)))]"};
         test("testMoveObject4", alternatives);
     }
 

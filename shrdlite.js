@@ -449,7 +449,7 @@ function userInput() {
 					'questions' : currentQuestions,
                    };
 	if(currentQuestions && currentQuestions.length && !currentQuestions[currentQuestions.length-1].answer){
-		ajaxdata.questions[currentQuestions.length-1].answer = userinput;
+		ajaxdata.questions[currentQuestions.length-1].answer = userinput.split(/\s+/);
 		if(lastUtterance){
 			ajaxdata.utterance = lastUtterance;
 		}
@@ -473,11 +473,8 @@ function userInput() {
             result = JSON.parse(result);
 			if(result.questions.length > 0 && !result.questions[result.questions.length-1].answer){
 				console.log(result.questions);
-				sayUtterance("system", "A question from the server, did you mean: ");
-				var keys = Object.keys(result.questions[result.questions.length-1].questions);
-				for(var i = 0 ;i<keys.length;i++){
-					sayUtterance("system", keys[i] +" - " + result.questions[result.questions.length-1].questions[keys[i]]);
-				}
+				var q = result.questions[result.questions.length-1].question;
+				sayUtterance("system", q);
 				currentPlan = null;
 				currentQuestions = result.questions;
 				enableInput();

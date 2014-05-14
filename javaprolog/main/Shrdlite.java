@@ -63,23 +63,13 @@ public class Shrdlite {
 
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
-
+		
 		//Add a question
-//		Question q = new Question();
-//		q.addQuestions("Blue?", "a");
-//		q.addQuestions("White?", "b");
-//		q.addQuestions("Yellow?", "c");
-//		p.getQuestions().add(q);
+		//Question q = new Question("what ball do you mean?");
+		//p.getQuestions().add(q);
 		
 		if (p.getQuestions().size() > 0 && p.getQuestions().get(0).getAnswer() != null) {
-			String question = p.getQuestions().get(0).getQuestions().get(p.getQuestions().get(0).getAnswer());
-			if (question != null) {
-				//TODO: F�tt svar p� fr�gan, q �r den valda fr�gan!
-			}else{
-				//TODO: F�tt d�ligt svar p� fr�gan
-			}
-		} else {
-			//TODO: Ingen fr�ga st�lld!
+			
 		}
 
 		List<NTree> treeList = new ArrayList<NTree>();

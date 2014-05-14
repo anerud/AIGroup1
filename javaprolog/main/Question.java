@@ -1,34 +1,29 @@
 package main;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class Question {
 
-	private Map<String, String> questions;
-	private String answer;
+	private String question;
+	private List<String> answer;
 
-	public Question() {
-		questions = new HashMap<String, String>();
+	public Question(String question) {
+		this.question = question;
 	}
 
-	public String getAnswer() {
+	public void setQuestion(String question) {
+		this.question = question;
+	}
+	
+	public List<String> getAnswer() {
 		return answer;
 	}
 
-	public void setAnswer(String answer) {
+	public String getQuestion() {
+		return question;
+	}
+
+	public void setAnswer(List<String> answer) {
 		this.answer = answer;
-	}
-
-	public Map<String, String> getQuestions() {
-		return questions;
-	}
-
-	public void setQuestions(Map<String, String> questions) {
-		this.questions = questions;
-	}
-
-	public void addQuestions(String q, String a) {
-		this.questions.put(a, q);
 	}
 }

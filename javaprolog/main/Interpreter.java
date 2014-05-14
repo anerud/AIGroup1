@@ -14,9 +14,26 @@ import java.util.*;
 
 
 public class Interpreter {
-
+	
+	
+	
+    
 	public class InterpretationException extends Exception{
 		public InterpretationException(String s) {
+			super(s);
+		}
+	}
+     
+	//thrown when a reference to an object (THE) matched more than one object
+	public class AmbiguousReferenceException extends InterpretationException{
+		public AmbiguousReferenceException(String s) {
+			super(s);
+		}
+	}
+	
+    //thrown when a reference to an object (THE) matches no object  
+	public class EmptyReferenceException extends InterpretationException{
+		public  EmptyReferenceException(String s) {
 			super(s);
 		}
 	}
@@ -33,32 +50,66 @@ public class Interpreter {
 	 * @param trees the parse tree
 	 * @return a list of goals
 	 */
+	
+	//TODO:  correct exception handling for ambiguity + user questions
 	public Set<Goal> interpret(List<NTree> trees) throws InterpretationException, CloneNotSupportedException {
-		Set<Goal> goalsPerTree = new HashSet<>(trees.size());
-		Set<InterpretationException> exceptions = new HashSet<InterpretationException>();
+		Set<Goal> okGoals = new HashSet<>(trees.size());
+		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
+		Set<NTree> failedTrees = new HashSet<>(trees.size());
+		
+		
+		Set<EmptyReferenceException> emptyReferenceExceptions = new HashSet<>();
+		Set<AmbiguousReferenceException> ambiguousReferenceExceptions = new HashSet<>();
+		Set<InterpretationException> exceptions = new HashSet<>();
+		
+		//traverse trees
 		for(NTree tree : trees){
-			Goal g = null;
+
+			// generate a goal from the tree
+			// if there is no unambiguous goal, no goal will be created.
+			Goal treeGoal = null;
 			try{
-				g = tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
-				if(g != null){
-					world.removeImpossibleLogic(g.getExpression());
-					g.getExpression().simplifyExpression();
+				treeGoal = tree.getRoot().accept(new ActionVisitor(), world.getWorldObjects());
+				if(treeGoal != null){
+					world.removeImpossibleLogic(treeGoal.getExpression());
+					treeGoal.getExpression().simplifyExpression();
 				}
-			} catch(InterpretationException e){
+			} catch(EmptyReferenceException e){
+				//there was a problem with the interpretation.  Some object did not exist.
+				failedTrees.add(tree);
+				emptyReferenceExceptions.add(e);
+			}
+			catch(AmbiguousReferenceException e){
+				//there was an ambiguous THE reference.
+				ambiguousTrees.add(tree);
+				ambiguousReferenceExceptions.add(e);
+			}
+			catch(InterpretationException e){
+				//there was some error. 
 				exceptions.add(e);
 			}
-			if(g != null){
-				goalsPerTree.add(g);
+			
+			 //Interpretation was successful and unambiguous
+			if(treeGoal != null){
+				okGoals.add(treeGoal);
 			}
 		}
-		if(goalsPerTree.isEmpty()){
+		
+		// if there is exactly one good interpretation, assume it 
+		if (okGoals.size()==1) return okGoals;
+		
+		// if there is exactly one good interpretation, assume it 
+	    if (okGoals.size()==1) return okGoals;
+				
+		
+		if(okGoals.isEmpty()){
 			if(!exceptions.isEmpty()){
 				//Take one of the exceptions and throw it.
 				throw exceptions.iterator().next();
 			}
 		}
 
-		return goalsPerTree;
+		return okGoals;
 	}
 
 	private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{
@@ -228,19 +279,19 @@ public class Interpreter {
 				prev = nex;
 				nex = i.next();
 				if (!world.isValidRelation(Relation.ONTOP, nex, prev)){
-				    Disambiguator d = new Disambiguator();
-				    Set<WorldObject> theTwo = new HashSet<WorldObject>();
-				    theTwo.add(prev);
-				    theTwo.add(nex);
-				  
+					Disambiguator d = new Disambiguator();
+					Set<WorldObject> theTwo = new HashSet<WorldObject>();
+					theTwo.add(prev);
+					theTwo.add(nex);
+
 					//String ontop = d.minimalUniqueDiscription(nex, theTwo, false);
 					//String below = d.minimalUniqueDiscription(prev, theTwo, false);
 					String ontop = d.minimalUniqueDiscription(nex, worldObjects, true);
 					String below = d.minimalUniqueDiscription(prev, worldObjects, true);
 
 					String err = "Sorry, it is not possible to stack "+ n.getThingsToStackNode().toNaturalString()+". ";
-				     err = err+ "I would have to put "+ ontop + " on top of " + below +". Duuh.";
-				     
+					err = err+ "I would have to put "+ ontop + " on top of " + below +". Duuh.";
+
 					throw new InterpretationException(err);
 				}
 				rwo =  new RelativeWorldObject(nex,rwo, Relation.ONTOP);
@@ -266,166 +317,166 @@ public class Interpreter {
 		@Override
 		public LogicalExpression<WorldObject> visit(BasicEntityNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException, CloneNotSupportedException {
 			return n.getObjectNode().accept(this, worldObjects, n.getQuantifierNode().getQuantifier());
-        }
+		}
 
 
-        //visit Relative Entity
-        @Override
-        public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException, CloneNotSupportedException {
-            Quantifier q = n.getQuantifierNode().getQuantifier();
-            LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
-            LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
+		//visit Relative Entity
+		@Override
+		public LogicalExpression<WorldObject> visit(RelativeEntityNode n, Set<WorldObject> worldObjects, Quantifier dummy) throws InterpretationException, CloneNotSupportedException {
+			Quantifier q = n.getQuantifierNode().getQuantifier();
+			LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
+			LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); //Null because the argument is not relevant...
 
-            TenseNode tenseNode = n.getTenseNode();
+			TenseNode tenseNode = n.getTenseNode();
 
-            if((tenseNode != null && tenseNode.getTense().equals(Tense.NOW))){
-                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
-                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
-                return le;
-            }
+			if((tenseNode != null && tenseNode.getTense().equals(Tense.NOW))){
+				Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
+				LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
+				return le;
+			}
 
-            if(q.equals(Quantifier.THE)){
-                Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
-                if(wobjs.size() > 1){
-                    if(!Shrdlite.debug){
-                    	Disambiguator d = new Disambiguator();
-                        d.disambiguate(wobjs, n);
-                    	throw new InterpretationException(d.getMessage());
-                        //throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
-                    }
-                } else if(wobjs.isEmpty()){
-                    if(!Shrdlite.debug){
-                    	throw new InterpretationException("I cannot see any " + n.toNaturalString());
-                        //throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
-                    }
-                }
-                LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
-                return le;
-            } else { //ANY, AND
-                //don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
-                //this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous!
-                return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
-            }
-//            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
-//            if(wobjs.isEmpty() && !Shrdlite.debug){
-//                throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
-//            }
-//            LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.AND);
-//            return le;
-        }
+			if(q.equals(Quantifier.THE)){
+				Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
+				if(wobjs.size() > 1){
+					if(!Shrdlite.debug){
+						Disambiguator d = new Disambiguator();
+						d.disambiguate(wobjs, n);
+						throw new InterpretationException(d.getMessage());
+						//throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
+					}
+				} else if(wobjs.isEmpty()){
+					if(!Shrdlite.debug){
+						throw new InterpretationException("I cannot see any " + n.toNaturalString());
+						//throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
+					}
+				}
+				LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
+				return le;
+			} else { //ANY, AND
+				//don't filter since the planner may arrange this situation to exist. e.g. for "put the white ball in (a box on the floor)", the planner might first put the box on the floor
+				//this also applies to the "all" operator. Consider the sentence "put a box (to the right of (all bricks on a table))". Here, the planner can first put bricks on a table (or choose not to). TODO: As it is now, all bricks must be on a table after the planner finishes. There are two interpretations! Ambiguous!
+				return world.attachWorldObjectsToRelation(matchesArg1, matchesLocation);
+			}
+			//            Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
+			//            if(wobjs.isEmpty() && !Shrdlite.debug){
+			//                throw new InterpretationException("There are no objects which match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString());
+			//            }
+			//            LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, LogicalExpression.Operator.AND);
+			//            return le;
+		}
 
-        /**
-         *
-         * @param n
-         * @param worldObjects if null, all objects in the world are used
-         * @param dummy2
-         * @return
-         * @throws InterpretationException
-         */
-        @Override
+		/**
+		 *
+		 * @param n
+		 * @param worldObjects if null, all objects in the world are used
+		 * @param dummy2
+		 * @return
+		 * @throws InterpretationException
+		 */
+		@Override
 
-        // visit relativeNode
-        public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException, CloneNotSupportedException {
-            LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, worldObjects == null ? world.getWorldObjects() : worldObjects, Quantifier.ANY);
+		// visit relativeNode
+		public LogicalExpression<WorldObject> visit(RelativeNode n, Set<WorldObject> worldObjects, Quantifier dummy2) throws InterpretationException, CloneNotSupportedException {
+			LogicalExpression<WorldObject> relativeTo = n.getEntityNode().accept(this, worldObjects == null ? world.getWorldObjects() : worldObjects, Quantifier.ANY);
 
-            relativeTo.simplifyExpression();
+			relativeTo.simplifyExpression();
 
-            //Convert tops to RelativeWorldObjects
-            Set<WorldObject> objsNew = new HashSet<WorldObject>();
-            Set<LogicalExpression> expNew = new HashSet<LogicalExpression>();
-            for(LogicalExpression<WorldObject> le : relativeTo.getExpressions()){
-                Set<WorldObject> wRelObjs = new HashSet<WorldObject>();
-                for(WorldObject wo : le.getObjs()){
-                    wRelObjs.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
-                }
-                expNew.add(new LogicalExpression(wRelObjs, le.getExpressions(),le.getOp()));
-            }
-            if(relativeTo.getObjs() != null){
-                for(WorldObject wo : relativeTo.getObjs()){
-                    objsNew.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
-                }
-            }
-            LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
-            if(relativeTo.isEmpty() && !Shrdlite.debug){
-                //throw new InterpretationException("There are no objects which match the description '"  + n.toNaturalString() + ".");
-            	throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
-            }
+			//Convert tops to RelativeWorldObjects
+			Set<WorldObject> objsNew = new HashSet<WorldObject>();
+			Set<LogicalExpression> expNew = new HashSet<LogicalExpression>();
+			for(LogicalExpression<WorldObject> le : relativeTo.getExpressions()){
+				Set<WorldObject> wRelObjs = new HashSet<WorldObject>();
+				for(WorldObject wo : le.getObjs()){
+					wRelObjs.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
+				}
+				expNew.add(new LogicalExpression(wRelObjs, le.getExpressions(),le.getOp()));
+			}
+			if(relativeTo.getObjs() != null){
+				for(WorldObject wo : relativeTo.getObjs()){
+					objsNew.add(new RelativeWorldObject(wo, n.getRelationNode().getRelation()));
+				}
+			}
+			LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew, relativeTo.getOp());//new HashSet<LogicalExpression<WorldObject>>();
+			if(relativeTo.isEmpty() && !Shrdlite.debug){
+				//throw new InterpretationException("There are no objects which match the description '"  + n.toNaturalString() + ".");
+				throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
+			}
 
-            return relativeToNew;
-        }
+			return relativeToNew;
+		}
 
-        // visit floor
+		// visit floor
 
-        @Override
-        public LogicalExpression<WorldObject> visit(FloorNode n, Set<WorldObject> worldObjects, Quantifier dummy) {
-            Set<WorldObject> toBeFiltered = new HashSet<>();
-        	toBeFiltered.add(new WorldObject("floor", "floor", "floor", "floor"));
-            return new LogicalExpression<WorldObject>(toBeFiltered, LogicalExpression.Operator.NONE); //"THE" floor is the only quantifier that makes sense...
-        }
+		@Override
+		public LogicalExpression<WorldObject> visit(FloorNode n, Set<WorldObject> worldObjects, Quantifier dummy) {
+			Set<WorldObject> toBeFiltered = new HashSet<>();
+			toBeFiltered.add(new WorldObject("floor", "floor", "floor", "floor"));
+			return new LogicalExpression<WorldObject>(toBeFiltered, LogicalExpression.Operator.NONE); //"THE" floor is the only quantifier that makes sense...
+		}
 
-        @Override
-        public LogicalExpression<WorldObject> visit(QuantifierNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
-            //Never used
-            throw new InterpretationException("Something went wrong during the interpretation.");
-        }
+		@Override
+		public LogicalExpression<WorldObject> visit(QuantifierNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+			//Never used
+			throw new InterpretationException("Something went wrong during the interpretation.");
+		}
 
-        @Override
-        public LogicalExpression<WorldObject> visit(ObjectNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
-            Set<WorldObject> toBeFiltered = new HashSet<>(worldObjects);
-            world.filterByMatch(toBeFiltered, new WorldObject(n.getFormNode().getData(),
-                    n.getSizeNode().getData(), n.getColorNode().getData(), null));
-            LogicalExpression.Operator op = LogicalExpression.Operator.NONE;
-            switch(quantifier){
-                case ALL:
-                    op = LogicalExpression.Operator.AND;
-                    break;
-                case ANY:
-                    op = LogicalExpression.Operator.OR;
-                    break;
-                case THE:
-                    op = LogicalExpression.Operator.NONE;
-                    break;
-            }
-            LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
-            if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
+		@Override
+		public LogicalExpression<WorldObject> visit(ObjectNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+			Set<WorldObject> toBeFiltered = new HashSet<>(worldObjects);
+			world.filterByMatch(toBeFiltered, new WorldObject(n.getFormNode().getData(),
+					n.getSizeNode().getData(), n.getColorNode().getData(), null));
+			LogicalExpression.Operator op = LogicalExpression.Operator.NONE;
+			switch(quantifier){
+			case ALL:
+				op = LogicalExpression.Operator.AND;
+				break;
+			case ANY:
+				op = LogicalExpression.Operator.OR;
+				break;
+			case THE:
+				op = LogicalExpression.Operator.NONE;
+				break;
+			}
+			LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
+			if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
 
-            	Disambiguator d = new Disambiguator();
-                d.disambiguate(logObjs.getObjs(), n);
-
-
-            	throw new InterpretationException(d.getMessage());
-                //throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
-            }
-
-            //This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
-            //On the other hand, it is explicitly stated that "THE" always refers to a unique object.
-            //In the example above, one should really say "take a box.. " if one is referring to any box that matches the description that follows.
+				Disambiguator d = new Disambiguator();
+				d.disambiguate(logObjs.getObjs(), n);
 
 
-            if(logObjs.isEmpty() && !Shrdlite.debug) {
-                //throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
-            	throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
+				throw new InterpretationException(d.getMessage());
+				//throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
+			}
 
-            }
-            return logObjs;
-        }
+			//This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
+			//On the other hand, it is explicitly stated that "THE" always refers to a unique object.
+			//In the example above, one should really say "take a box.. " if one is referring to any box that matches the description that follows.
 
-        @Override
-        public LogicalExpression<WorldObject> visit(AttributeNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
-            //Never used
-            throw new InterpretationException("Something went wrong during the interpretation.");
-        }
 
-        @Override
-        public LogicalExpression<WorldObject> visit(RelationNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
-            //Never used
-            throw new InterpretationException("Something went wrong during the interpretation.");
-        }
+			if(logObjs.isEmpty() && !Shrdlite.debug) {
+				//throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
+				throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
 
-        @Override
-        public LogicalExpression<WorldObject> visit(TenseNode tenseNode, Set<WorldObject> arg, Quantifier arg2) throws InterpretationException {
-            //Never used
-            throw new InterpretationException("Something went wrong during the interpretation.");
-        }
-    }
+			}
+			return logObjs;
+		}
+
+		@Override
+		public LogicalExpression<WorldObject> visit(AttributeNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+			//Never used
+			throw new InterpretationException("Something went wrong during the interpretation.");
+		}
+
+		@Override
+		public LogicalExpression<WorldObject> visit(RelationNode n, Set<WorldObject> worldObjects, Quantifier quantifier) throws InterpretationException {
+			//Never used
+			throw new InterpretationException("Something went wrong during the interpretation.");
+		}
+
+		@Override
+		public LogicalExpression<WorldObject> visit(TenseNode tenseNode, Set<WorldObject> arg, Quantifier arg2) throws InterpretationException {
+			//Never used
+			throw new InterpretationException("Something went wrong during the interpretation.");
+		}
+	}
 }

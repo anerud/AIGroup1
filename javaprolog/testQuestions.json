@@ -1,0 +1,41 @@
+{ 
+    "world": [["a"],["b"],[]],
+    "holding": null,
+    "objects": {
+        "a": { "form":"brick",   "size":"large",  "color":"green" },
+        "b": { "form":"brick",   "size":"large",  "color":"white" },
+        "c": { "form":"brick",   "size":"large",  "color":"red"   },
+        "d": { "form":"plank",   "size":"small",  "color":"green" }
+
+    },
+    "utterance": 
+        [ "take", "the" ,"brick"],
+    "examples": [
+        ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
+        ["put","the","white","ball","in","a","box","on","the","floor"],
+        ["move","the","large", "ball","inside","a","yellow","box","on","the","floor"],
+        ["move","the","large", "ball","inside","a","red","box","on","the","floor"],
+        ["take","a","red","object"],
+        ["take","the","white","ball"],
+        ["put","all","boxes","on","the","floor"],
+        ["put","the","large","plank","under","the","blue","brick"],
+        ["move","all","bricks","on","a","table"],
+        ["move","all","balls","inside","a","large","box"]
+    ],
+    "questions":[],
+    "questionsx": [
+    {
+      "question": "what brick do you mean?",
+      "answer": [
+        "the",
+        "green",
+        "brick"
+      ],
+      "questionID":"1",
+      "subQuestionID":"1"
+      
+    }
+  ]
+    
+    
+}

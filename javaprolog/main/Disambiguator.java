@@ -1,9 +1,12 @@
 package main;
 
+import tree.NTree;
 import tree.Node;
 import world.WorldObject;
 
 import java.util.*;
+
+import main.Interpreter.AmbiguousReferenceException;
 
 public class Disambiguator {
 	private String message;
@@ -28,7 +31,7 @@ public class Disambiguator {
 	// three large objects. Did you mean the box, the white ball, or the red
 	// ball?
 
-	public WorldObject disambiguate(Set<WorldObject> objs, Node n)
+	public WorldObject disambiguate(Set<WorldObject> objs, Node n, List<NTree> answers) throws AmbiguousReferenceException
 
 	{
 

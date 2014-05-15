@@ -14,24 +14,44 @@ import java.util.*;
 
 
 public class Interpreter {
-	
-	
-	
-    
+
+
+
+
 	public class InterpretationException extends Exception{
 		public InterpretationException(String s) {
 			super(s);
 		}
 	}
-     
+
 	//thrown when a reference to an object (THE) matched more than one object
 	public class AmbiguousReferenceException extends InterpretationException{
+		int questionId;
+		int subQuestionId;
+
 		public AmbiguousReferenceException(String s) {
+			this(s,0,0);
+		}
+		public AmbiguousReferenceException(String s,int questionId, int subQuestionId) {
 			super(s);
+			this.questionId =questionId;
+			this.subQuestionId = subQuestionId;
+		}
+		public int getQuestionId() {
+			return questionId;
+		}
+		public void setQuestionId(int questionId) {
+			this.questionId = questionId;
+		}
+		public int getSubQuestionId() {
+			return subQuestionId;
+		}
+		public void setSubQuestionId(int subQuestionId) {
+			this.subQuestionId = subQuestionId;
 		}
 	}
-	
-    //thrown when a reference to an object (THE) matches no object  
+
+	//thrown when a reference to an object (THE) matches no object  
 	public class EmptyReferenceException extends InterpretationException{
 		public  EmptyReferenceException(String s) {
 			super(s);
@@ -39,6 +59,9 @@ public class Interpreter {
 	}
 
 	private World world;
+	private Map<Integer, List<NTree>> answers;
+	private int questionID = 0;
+
 
 	public Interpreter(World world) {
 		this.world = world;
@@ -48,20 +71,21 @@ public class Interpreter {
 	 * Extracts the PDDL goals from the parse tree
 	 *
 	 * @param trees the parse tree
+	 * @param answerMap 
 	 * @return a list of goals
 	 */
-	
+
 	//TODO:  correct exception handling for ambiguity + user questions
-	public Set<Goal> interpret(List<NTree> trees) throws InterpretationException, CloneNotSupportedException {
+	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answerMap) throws InterpretationException, AmbiguousReferenceException, CloneNotSupportedException {
 		Set<Goal> okGoals = new HashSet<>(trees.size());
 		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
 		Set<NTree> failedTrees = new HashSet<>(trees.size());
-		
-		
+		answers = answerMap;
+
 		Set<EmptyReferenceException> emptyReferenceExceptions = new HashSet<>();
 		Set<AmbiguousReferenceException> ambiguousReferenceExceptions = new HashSet<>();
 		Set<InterpretationException> exceptions = new HashSet<>();
-		
+
 		//traverse trees
 		for(NTree tree : trees){
 
@@ -88,28 +112,28 @@ public class Interpreter {
 				//there was some error. 
 				exceptions.add(e);
 			}
-			
-			 //Interpretation was successful and unambiguous
+
+			//Interpretation was successful and unambiguous
 			if(treeGoal != null){
 				okGoals.add(treeGoal);
 			}
 		}
-		
+
 		// if there is exactly one good interpretation, assume it 
 		if (okGoals.size()==1) return okGoals;
-		
-		// if there is exactly one good interpretation, assume it 
-	    if (okGoals.size()==1) return okGoals;
-				
-		
-		if(okGoals.isEmpty()){
-			if(!exceptions.isEmpty()){
-				//Take one of the exceptions and throw it.
-				throw exceptions.iterator().next();
-			}
-		}
 
-		return okGoals;
+        // if there is more than one valid goal, we have more than one ok
+		// parse trees: Todo: disambiguate using questions
+		// for now, return error message
+		if (okGoals.size()>1) throw new InterpretationException("I dont know what you mean exactly...");
+		
+		//if there are unresolved ambiguituies left, throw exception to create new question
+		if (!ambiguousReferenceExceptions.isEmpty())
+			throw ambiguousReferenceExceptions.iterator().next();
+
+        // this should not happen
+		return null;
+		
 	}
 
 	private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{
@@ -339,10 +363,36 @@ public class Interpreter {
 				Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
 				if(wobjs.size() > 1){
 					if(!Shrdlite.debug){
+
+						//ambiguous THE reference to a relative entity
+
+						// there is an ambiguity in the reference. THE matches more than one object
 						Disambiguator d = new Disambiguator();
-						d.disambiguate(wobjs, n);
-						throw new InterpretationException(d.getMessage());
-						//throw new InterpretationException("Several objects match the description '" + n.getObjectNode().getChildren().toString() +  "' with relation '" + n.getLocationNode().getRelationNode().getRelation() + "' to '" + n.getLocationNode().getEntityNode().getChildren().toString() + "'. Which one do you mean?");
+						questionID++;
+						if (!answers.containsKey(questionID))
+							answers.put(questionID, new ArrayList<NTree>());
+						List<NTree> subAnswers= answers.get(questionID);
+						try{
+							//try to resolve the ambiguity using the answers 
+							WorldObject picked = d.disambiguate(wobjs ,n, subAnswers); 
+
+							//delete all matches except the picked one. 
+							wobjs.clear();
+							wobjs.add(picked);
+
+						}
+						catch(AmbiguousReferenceException e )
+						{
+							//the ambiguity was not resolved  
+							//tag on question ID and throw.  
+							//A new question will be generated for the next
+							//query.
+							e.setQuestionId(questionID);
+							e.setSubQuestionId(subAnswers.size());
+							throw e;
+						}
+
+
 					}
 				} else if(wobjs.isEmpty()){
 					if(!Shrdlite.debug){
@@ -440,25 +490,40 @@ public class Interpreter {
 			LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);//LogicalExpression.toLogicalObjects(toBeFiltered, quantifier);
 			if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
 
+				// there is an ambiguity in the reference. THE matches more than one object
+				questionID++;
 				Disambiguator d = new Disambiguator();
-				d.disambiguate(logObjs.getObjs(), n);
+				if (!answers.containsKey(questionID))
+					answers.put(questionID, new ArrayList<NTree>());
+				List<NTree> subAnswers= answers.get(questionID);
+				try{
+					//try to resolve the ambiguity using the answers 
+					WorldObject picked = d.disambiguate(logObjs.getObjs(),n, subAnswers); 
 
+					//delete all matches except the picked one. 
+					logObjs.getObjs().clear();
+					logObjs.getObjs().add(picked);
 
-				throw new InterpretationException(d.getMessage());
-				//throw new InterpretationException("Several objects match the description '" + n.getChildren().toString() +  "'. Which one do you mean?");//TODO: Proper error message
+				}
+				catch(AmbiguousReferenceException e )
+				{
+					//the ambiguity was not resolved  
+					//tag on question ID and throw.  
+					//A new question will be generated for the next
+					//query.
+					e.setQuestionId(questionID);
+					e.setSubQuestionId(subAnswers.size());
+					throw e;
+				}
+
 			}
-
-			//This is actually OK. Consider the sentence "["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"]". "The box" can be several boxes..
-			//On the other hand, it is explicitly stated that "THE" always refers to a unique object.
-			//In the example above, one should really say "take a box.. " if one is referring to any box that matches the description that follows.
-
-
+			// the reference did not match any objects 
 			if(logObjs.isEmpty() && !Shrdlite.debug) {
-				//throw new InterpretationException("There are no objects which match the description '" + n.getChildren().toString() + ".");
-				throw new InterpretationException("I cannot see any " + n.toNaturalString() +". Try again.");
-
+				throw new EmptyReferenceException("I cannot see any " + n.toNaturalString() +". Try again.");
 			}
+
 			return logObjs;
+
 		}
 
 		@Override

@@ -372,6 +372,50 @@ public class WorldState implements IAStarState {
 			}
 		}
 		
+		if(world.getHolding1() != null && world.getHolding2() == null) {
+            for(int i = 0; i<world.getStacks().size()-1; i++){
+            	for(int j = i+1; j<world.getStacks().size(); j++){
+	                //Drop both arms
+	                World dropBoth = world.clone();
+	                if(dropBoth.drop(i,true)){
+	                	if(dropBoth.drop(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
+		                    visitedWorld.add(dropBoth.getRepresentString());
+		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                    newList.add("drop1 " + i);
+		                    newList.add("pick2 " + j);
+		                    if(printProgress) {
+			                    newList.add("dropping from arm 1 to column " + i);
+			                    newList.add("picking from arm 2 to column " + j);
+		                    }
+		                    l.add(new WorldState(dropBoth, goal, newList,i,j,0));
+	                	}
+	                } 
+            	}
+			}
+		}
+		
+		if(world.getHolding1() == null && world.getHolding2() != null) {
+            for(int i = 0; i<world.getStacks().size()-1; i++){
+            	for(int j = i+1; j<world.getStacks().size(); j++){
+	                //Drop both arms
+	                World dropBoth = world.clone();
+	                if(dropBoth.drop(i,true)){
+	                	if(dropBoth.drop(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
+		                    visitedWorld.add(dropBoth.getRepresentString());
+		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
+		                    newList.add("pick1 " + i);
+		                    newList.add("drop2 " + j);
+		                    if(printProgress) {
+			                    newList.add("picking from arm 1 to column " + i);
+			                    newList.add("dropping from arm 2 to column " + j);
+		                    }
+		                    l.add(new WorldState(dropBoth, goal, newList,i,j,0));
+	                	}
+	                } 
+            	}
+			}
+		}
+		
 		//Drop arm1 and move arm2
 		if(world.getHolding1() != null) {
 			for(int i = 0; i<world.getStacks().size()-1; i++){

@@ -378,7 +378,7 @@ public class WorldState implements IAStarState {
 	                //Drop both arms
 	                World dropBoth = world.clone();
 	                if(dropBoth.drop(i,true)){
-	                	if(dropBoth.drop(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
+	                	if(dropBoth.pick(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
 		                    visitedWorld.add(dropBoth.getRepresentString());
 		                    List<String> newList = new LinkedList<String>(actionsToGetHere);
 		                    newList.add("drop1 " + i);
@@ -399,7 +399,7 @@ public class WorldState implements IAStarState {
             	for(int j = i+1; j<world.getStacks().size(); j++){
 	                //Drop both arms
 	                World dropBoth = world.clone();
-	                if(dropBoth.drop(i,true)){
+	                if(dropBoth.pick(i,true)){
 	                	if(dropBoth.drop(j,false) && !visitedWorld.contains(dropBoth.getRepresentString())){
 		                    visitedWorld.add(dropBoth.getRepresentString());
 		                    List<String> newList = new LinkedList<String>(actionsToGetHere);

@@ -294,32 +294,20 @@ function moveObject(action, stackNr) {
 	var anim3= {t:0};
 	var path1;
 	var path2;
-	if(armint == 0){
-		if(action == Move1){
-			path1 = ["M", xArm, 0,"H", xStack,"V",0];
-			path2 = ["M", xStack];
-			duration1 = (Math.abs(xStack - xArm)) / ArmSpeed;
-			duration2 = 0;
-		}else{
-			path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
-			path2 = ["M", xStack, yArm, "V", 0];
-			duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
-			duration2 = (Math.abs(yArm)) / ArmSpeed;
-		}
-	}else{
-		var xxArm = xArm -stackWidth();
-		var xxStack = xStack -stackWidth();
-		if(action == Move2){
+	var path3;
+	var xxArm = armint == 0 ? xArm : xArm -stackWidth();
+	var xxStack = armint == 0 ? xStack : xStack -stackWidth();
+	if(action == Move2 || action == Move1){
+		if(xxArm -xxStack != 0){
 			path1 = ["M", xxArm, 0, "H", xxStack,"V",0];
-			path2 = ["M", xxStack];
-			duration1 = (Math.abs(xxStack - xxArm)) / ArmSpeed;
-			duration2 = 0;
-		}else{		
-			path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
-			path2 = ["M", xxStack, yArm, "V", 0];
-			duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
-			duration2 = (Math.abs(yArm)) / ArmSpeed;
 		}
+		duration1 = (Math.abs(xxStack - xxArm)) / ArmSpeed;
+		duration2 = 0;
+	}else{		
+		path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
+		path2 = ["M", xxStack, yArm, "V", 0];
+		duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
+		duration2 = (Math.abs(yArm)) / ArmSpeed;
 	}
 	
 	anim1.a = animateMotion(arm, path1, duration1);
@@ -329,22 +317,26 @@ function moveObject(action, stackNr) {
 	var hol = armint == 0 ? currentWorld.holding1 : currentWorld.holding2
 	
     if (action == Move1 || action == Move2) {
-        var path1b = ["M", xArm,yStack-yArm, "H", xStack,"V",0];
-        anim3.a = animateMotion($("#"+hol), path1b, duration1)
+		if(xArm - xStack != 0){
+			path3 = ["M", xArm,yStack-yArm, "H", xStack,"V",yStack-yArm];
+			anim3.a = animateMotion($("#"+hol), path3, duration1)
+		}
 	}else if (action == Pick1 || action == Pick2) {
-        var path2b = ["M", xStack, yStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+hol), path2b, duration2)
+        path3 = ["M", xStack, yStack, "V", yStack-yArm];
+        anim3.a = animateMotion($("#"+hol), path3, duration2)
 		anim3.t =duration1 + AnimationPause;
     } else if (action == Drop1 || action == Drop2) {
-        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        anim3.a = animateMotion($("#"+hol), path1b, duration1)
+        path3 = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
+        anim3.a = animateMotion($("#"+hol), path3, duration1)
     }
-	
-	anim1.a.beginElementAt(anim1.t);
-	anim2.a.beginElementAt(anim2.t);
-	anim3.a.beginElementAt(anim3.t);
-	if(action == Move1){
-	//asdas
+	if(path1){
+		anim1.a.beginElementAt(anim1.t);
+	}
+	if(path2){
+		anim2.a.beginElementAt(anim2.t);
+	}
+	if(path3){
+		anim3.a.beginElementAt(anim3.t);
 	}
     if (action == Drop1) {
         stack.push(currentWorld.holding1);
@@ -546,7 +538,8 @@ function userInput() {
 
     var ajaxdata = {'world': currentWorld.world,
                     'objects': currentWorld.objects,
-                    'holding': currentWorld.holding,
+                    'holding1': currentWorld.holding1,
+                    'holding2': currentWorld.holding2,
                     'state': currentWorld.state,
                     'utterance': userinput.split(/\s+/),
 					'question' : currentQuestion,

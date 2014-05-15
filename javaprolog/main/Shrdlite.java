@@ -42,6 +42,13 @@ public class Shrdlite {
 		if (args.length > 1 && args[1].equals("debug")) {
 			debug = true;
 		}
+		
+	
+		FileWriter fw = new FileWriter("latestInput.json");
+		
+		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
+		fw.write(pretty);
+		fw.close();
 
 		ArrayList<LinkedList<WorldObject>> worldArr = new ArrayList<LinkedList<WorldObject>>(p.getWorld().size());
 
@@ -97,7 +104,7 @@ public class Shrdlite {
 
 		for (Question q : p.getQuestions())
 		{
-			List<Term> parsedAnswer= parser.parseSentence("answer", q.getAnswer());
+			List<Term> parsedAnswer= parser.parseSentence("entity", q.getAnswer());
 			if (parsedAnswer.isEmpty())
 			{
 				// some answer was not ok. (should be the last one)
@@ -118,15 +125,6 @@ public class Shrdlite {
 
 			}
 		}
-
-
-
-
-
-
-
-
-
 		//only interpret command if questions are ok
 
 		if (questionsOk){
@@ -144,6 +142,7 @@ public class Shrdlite {
 				Interpreter interpreter = new Interpreter(world);
 
 				try {
+					
 					goals.addAll(interpreter.interpret(treeList, AnswerMap));
 					if (debug) {
 						result.setGoals(goals.toString());
@@ -151,22 +150,24 @@ public class Shrdlite {
 
 			} catch (Interpreter.AmbiguousReferenceException e) {
 				// there was an exception that generates a clarification question
+				result.setQuestions(new ArrayList<>(p.getQuestions()));
 				result.getQuestions().add(new Question(e.getMessage(), e.getQuestionId(), e.getSubQuestionId()));
 				
 			}
 			catch (Interpreter.InterpretationException e) {
 				result.setOutput(e.getMessage());
-				result.getQuestions().clear();
+				
 			}
 
 				if (goals.isEmpty()) {
 					if (result.getOutput() == null) {
-						result.setOutput("Interpretation error!");
-						result.getQuestions().clear();
+						result.setOutput("Interpretation error! (Clarification question)");
+						
 					}
 				} else if (goals.size() > 1) {
 					result.setOutput("Disambiguation error!");
-					result.getQuestions().clear();
+					
+					
 
 
 				} else {
@@ -177,9 +178,12 @@ public class Shrdlite {
 					log.println("number of states checked: " + AStar.nStatesChecked);
 					if (plan.isEmpty()) {
 						result.setOutput("Planning error!");
+						result.getQuestions().clear();
 					} else {
 						log.println(plan.toString());
 						result.setOutput("Success!");
+						result.getQuestions().clear();
+						
 					}
 				}
 			}
@@ -193,12 +197,14 @@ public class Shrdlite {
 
 		}	
 
-		result.setQuestions(p.getQuestions());
-		log.print(jsinput);
-		FileWriter fw = new FileWriter("./result.json");
-		String jsonString = new Gson().toJson(result);
-		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
-		fw.write(pretty);
+		
+
+		
+	    fw = new FileWriter("latestOutput.json");
+	    String jsonString = new Gson().toJson(result);
+		pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);
+	    
+	    fw.write(jsinput);
 		fw.close();
 
 		long end = System.currentTimeMillis();

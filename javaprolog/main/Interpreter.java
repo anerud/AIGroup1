@@ -81,7 +81,7 @@ public class Interpreter {
 		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
 		Set<NTree> failedTrees = new HashSet<>(trees.size());
 		answers = answerMap;
-
+		questionID = 0;
 		Set<EmptyReferenceException> emptyReferenceExceptions = new HashSet<>();
 		Set<AmbiguousReferenceException> ambiguousReferenceExceptions = new HashSet<>();
 		Set<InterpretationException> exceptions = new HashSet<>();
@@ -122,18 +122,26 @@ public class Interpreter {
 		// if there is exactly one good interpretation, assume it 
 		if (okGoals.size()==1) return okGoals;
 
-        // if there is more than one valid goal, we have more than one ok
+		// if there is more than one valid goal, we have more than one ok
 		// parse trees: Todo: disambiguate using questions
 		// for now, return error message
 		if (okGoals.size()>1) throw new InterpretationException("I dont know what you mean exactly...");
-		
+
 		//if there are unresolved ambiguituies left, throw exception to create new question
 		if (!ambiguousReferenceExceptions.isEmpty())
 			throw ambiguousReferenceExceptions.iterator().next();
+		//if we are here, there should be at least one empty referece exception
+		if (!emptyReferenceExceptions.isEmpty())
+			throw emptyReferenceExceptions.iterator().next();
 
-        // this should not happen
+		if (!exceptions.isEmpty())
+			throw exceptions.iterator().next();
+
+
+
+		// this should not happen
 		return null;
-		
+
 	}
 
 	private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{
@@ -232,7 +240,7 @@ public class Interpreter {
 		@Override
 
 		//create a stack
-		//naive implementation that (if possible) sorts all selected object in a stackable way
+		// somewhat naive implementation that (if possible) sorts all selected object in a stackable way
 		// and then moves them in  top of each other in that order. 
 		// this does not produce the fastest reachable stack, only one of all O(n!) possible stacks. 
 		// TODO: does not handle stacks with multiple boxes and tables of the same size, yet. 
@@ -491,30 +499,71 @@ public class Interpreter {
 			if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
 
 				// there is an ambiguity in the reference. THE matches more than one object
-				questionID++;
+
+
+
+
+
 				Disambiguator d = new Disambiguator();
 				if (!answers.containsKey(questionID))
 					answers.put(questionID, new ArrayList<NTree>());
 				List<NTree> subAnswers= answers.get(questionID);
-				try{
-					//try to resolve the ambiguity using the answers 
-					WorldObject picked = d.disambiguate(logObjs.getObjs(),n, subAnswers); 
 
-					//delete all matches except the picked one. 
-					logObjs.getObjs().clear();
-					logObjs.getObjs().add(picked);
+				// inject the answer in place of the node that created the ambiguity
+				// and try to resolve to an unique object.  Now, only the objects 
+				// matched by the original reference is checked
 
-				}
-				catch(AmbiguousReferenceException e )
+
+				Iterator<NTree> i = subAnswers.iterator();
+				int currentQuestion = questionID;
+				int currentNumberOfSubquestions = subAnswers.size();
+				while (i.hasNext())
 				{
-					//the ambiguity was not resolved  
-					//tag on question ID and throw.  
-					//A new question will be generated for the next
-					//query.
-					e.setQuestionId(questionID);
-					e.setSubQuestionId(subAnswers.size());
-					throw e;
+					NTree answer = i.next();
+					try{
+						ObjectNode answerRoot =(ObjectNode) ((BasicEntityNode) answer.getRoot()).getObjectNode();
+						i.remove();
+						logObjs = visit(answerRoot, logObjs.getObjs(),quantifier);
+					}
+
+					catch(AmbiguousReferenceException e)
+					{
+
+						//ignore problems unless there is no answer left.
+						// if this was the last question, a new question needs to be asked. 
+						if(!i.hasNext())
+						{
+							e.setQuestionId(currentQuestion);
+							e.setSubQuestionId(currentNumberOfSubquestions);
+							throw e;
+
+						}
+
+
+					}
+					catch(EmptyReferenceException e)
+					{
+						if(!i.hasNext()) throw e;
+
+
+					}
+
 				}
+
+
+				//the available answers has narrowed down the possible objects
+				// is there still an ambiguity?
+				int objectsLeft= logObjs.size();
+				if (objectsLeft>1) 
+				{
+					// we need to ask another question
+					String question = Disambiguator.disambiguate(logObjs.getObjs(), n);
+					throw new AmbiguousReferenceException(question, questionID, subAnswers.size());
+
+
+				}
+				questionID++;
+
 
 			}
 			// the reference did not match any objects 

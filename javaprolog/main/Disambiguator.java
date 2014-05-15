@@ -31,10 +31,9 @@ public class Disambiguator {
 	// three large objects. Did you mean the box, the white ball, or the red
 	// ball?
 
-	public WorldObject disambiguate(Set<WorldObject> objs, Node n, List<NTree> answers) throws AmbiguousReferenceException
-
+	public static String disambiguate(Set<WorldObject> objs, Node n)
 	{
-
+		
 		// put alternatives in sorted list for nicer enumeration
 		List<WorldObject> sortedObjs = new LinkedList<WorldObject>(objs);
 
@@ -49,9 +48,10 @@ public class Disambiguator {
 
 		Collections.sort(sortedObjs, worldObjectComparator);
 
+		
+
 		StringBuilder sb = new StringBuilder();
-		if (sortedObjs.size() == 1)
-			return sortedObjs.iterator().next();
+		
 		int count = sortedObjs.size();
 		String iCanSee = "I can see " + int2String(count) + " " + n.toNaturalString(true);
 		sb.append(iCanSee);
@@ -64,8 +64,7 @@ public class Disambiguator {
 		while (i.hasNext()) {
 			String d = minimalUniqueDiscription(i.next(), new HashSet<WorldObject>(objs));
 			if (d.equals("error")) {
-				message = iCanSee + ". Please be more specific.";
-				return null;
+				return iCanSee + ". Please be more specific.";
 			}
 			if (!i.hasNext()) {
 				sb.append(" or ");
@@ -78,10 +77,10 @@ public class Disambiguator {
 			}
 		}
 		sb.append("?");
-		message = sb.toString();
+
 		// System.out.println(sb.toString());
 		// not immplemented
-		return null;
+		return sb.toString();
 	}
 
 	public String getMessage() {
@@ -91,12 +90,12 @@ public class Disambiguator {
 	// returns a description of a WorldObject, that is minimal but sufficient to
 	// distinguish it from
 	// all other WorldObjects in the given set.
-	public String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers) {
+	public static String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers) {
 		return minimalUniqueDiscription(obj, theOthers, true);
 
 	}
 
-	public String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers, boolean definiteArticle) {
+	public static String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers, boolean definiteArticle) {
 
 		String article = definiteArticle ? "the " : "a ";
 		theOthers = new HashSet<WorldObject>(theOthers); // do not modify input!
@@ -108,6 +107,7 @@ public class Disambiguator {
 			if (!obj.getForm().equals(other.getForm()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
+		removeThese.clear();
 
 		if (theOthers.isEmpty())
 			return article + obj.getForm();
@@ -120,18 +120,36 @@ public class Disambiguator {
 		
 		if (theOthers.isEmpty())
 			return article + obj.getColor() + " " + obj.getForm();
-
-		// form and size was not unique, check if color is unique
+		
+        
+		// put back the ones with different size, check for unique color
+		theOthers.addAll(removeThese);
+		removeThese.clear();
 		for (WorldObject other : theOthers)
 			if (!obj.getColor().equals(other.getColor()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
 
-
-
 		if (theOthers.isEmpty())
-			return article + obj.getSize() + " " + obj.getColor() + " " + obj.getForm();
+			return article + obj.getColor() + " " + obj.getForm();
+		
+		// check for uniqe dscription using all attributes
+		theOthers.addAll(removeThese);
+		removeThese.clear();
+		for (WorldObject other : theOthers)
+		{
+			if (!obj.getColor().equals(other.getColor()))
+				removeThese.add(other);
+			if (!obj.getSize().equals(other.getSize()))
+				removeThese.add(other);
+		}
+		theOthers.removeAll(removeThese);
+         
+		
+		if (theOthers.isEmpty())
+			return article +" "+ obj.getSize() + " " + obj.getColor() + " " + obj.getForm();
 
+	
 		// if there are exactly two identical objects, they can be disambiguated
 		// by relative position.
 		// if there are more than two identical objects, it is not possible to
@@ -149,7 +167,7 @@ public class Disambiguator {
 		// natural language representation of integer quantities
 	}
 
-	private String int2String(int i) {
+	public static String int2String(int i) {
 		if( i < 20)  return units[i];
 		if( i < 100) return tens[i/10] + ((i % 10 > 0)? " " + int2String(i % 10):"");
 		if( i < 1000) return units[i/100] + " Hundred" + ((i % 100 > 0)?" and " + int2String(i % 100):"");

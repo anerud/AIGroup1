@@ -13,7 +13,7 @@ basic_command : put(Location) ---> move, it, location:Location.
 basic_command : move(Entity, Location) ---> move, entity:Entity, location:Location.
 basic_command : stack(Entity) --->  stack, entity:Entity.
 
-
+answer : answer(Entity) ---> entity:Entity
 
 location : relative(Relation, TenseEntity) ---> relation:Relation, tenseentity:TenseEntity.
 

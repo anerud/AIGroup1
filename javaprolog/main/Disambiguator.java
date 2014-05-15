@@ -119,7 +119,7 @@ public class Disambiguator {
 		theOthers.removeAll(removeThese);
 		
 		if (theOthers.isEmpty())
-			return article + obj.getColor() + " " + obj.getForm();
+			return article + obj.getSize() + " " + obj.getForm();
 		
         
 		// put back the ones with different size, check for unique color

@@ -56,9 +56,9 @@ public class WorldState implements IAStarState {
 //        if(world.getRepresentString().equals(".e,.a,j,.l,m,..i,h,..g,b,.k,f,.c,d,..")){
 //            this.getClass();
 //        }
-        if(this.heuristicValue == 2){
-            this.getClass();
-        }
+//        if(this.heuristicValue == 2){
+//            this.getClass();
+//        }
 //        //____________________________
 	}
 
@@ -135,6 +135,22 @@ public class WorldState implements IAStarState {
         }
         if(le.getOp().equals(LogicalExpression.Operator.AND) || le.size() <= 1){
             if(le.getObjs() != null){
+                HashMap<String, Integer[]> validStacks = inferValidStackPlacements(le); //TODO: cache this calculation
+                for(WorldObject wo : world.getWorldObjects()){
+                    int column = world.columnOf(wo);
+                    Integer[] limits = validStacks.get(wo.getId());
+                    if(column < limits[0] || column > limits[1]){
+                        if(minObjsRef == null){
+                            minObjsRef = new HashMap<Integer, Set<WorldObject>>();
+                            Set<WorldObject> moveAtleastOnceRef = new HashSet<>();
+                            moveAtleastOnceRef.add(new WorldObject(wo));
+                            Set<WorldObject> moveAtleastTwiceRef = new HashSet<>();
+                            minObjsRef.put(1, moveAtleastOnceRef); minObjsRef.put(2, moveAtleastTwiceRef);
+                        } else {
+                            minObjsRef.get(1).add(new WorldObject(wo));
+                        }
+                    }
+                }
                 for(WorldObject wo : le.getObjs()) {
                     HashMap<Integer, Set<WorldObject>> herps = calculateMinObjsToMove(wo, minObjsRef, true);
                     moveAtleastOnce.addAll(herps.get(1)); moveAtleastTwice.addAll(herps.get(2));
@@ -196,6 +212,131 @@ public class WorldState implements IAStarState {
             return smallestSet;
         }
 	}
+
+    /**
+     * @pre le must be a simple expression containing only AND operators
+     * @param le
+     * @return a map String -> Integer[2] where the first value in the Integer array is the left bound, and the second value is the right bound.
+     * The bound is inclusive and refers to the maximum left and right column which constitutes a valid placement.
+     */
+    private HashMap<String, Integer[]> inferValidStackPlacements(LogicalExpression<WorldObject> le) {
+        HashMap<String, Integer[]> validStacks = new HashMap<>();
+
+        //First create a graph..
+        Map<String, RelationGraphNode> processed = new HashMap<>();
+        for(WorldObject wo : le.getObjs()){
+            if(wo instanceof RelativeWorldObject){
+                WorldConstraint.Relation r = ((RelativeWorldObject) wo).getRelation();
+                if(r.equals(WorldConstraint.Relation.LEFTOF) || r.equals(WorldConstraint.Relation.RIGHTOF)){
+                    String woId = wo.getId();
+                    String woRelId = ((RelativeWorldObject) wo).getRelativeTo().getId();
+                    if(r.equals(WorldConstraint.Relation.RIGHTOF)){ //switch places..
+                        String woIdTmp = woId;
+                        woId = woRelId;
+                        woRelId = woIdTmp;
+                    }
+                    RelationGraphNode nLeft = processed.get(woId);
+                    RelationGraphNode nRight = processed.get(woRelId);
+                    if(nLeft != null){
+                        if(nRight != null){
+                            nLeft.addRight(nRight);
+                        } else {
+                            nRight = new RelationGraphNode(woRelId);
+                            nLeft.addRight(nRight);
+                            processed.put(woRelId, nRight);
+                        }
+                    }
+                    if(nRight != null){
+                        if(nLeft != null){
+                            nRight.addLeft(nLeft);
+                        } else {
+                            nLeft = new RelationGraphNode(woId);
+                            nRight.addLeft(nLeft);
+                            processed.put(woId, nLeft);
+                        }
+                    }
+                    if(processed.isEmpty() || (nLeft == null && nRight == null)){
+                        nLeft = new RelationGraphNode(woId);
+                        nRight = new RelationGraphNode(woRelId);
+                        nLeft.addRight(nRight);
+                        nRight.addLeft(nLeft);
+                        processed.put(woId, nLeft);
+                        processed.put(woRelId, nRight);
+                    }
+                }
+            }
+        }
+
+        //Now determine the number of objects to the left and to the right of each object..
+        int maxColumn = world.getStacks().size() - 1;
+        for(WorldObject wo : world.getWorldObjects()){
+            RelationGraphNode n = processed.get(wo.getId());
+            if(n != null){
+                Integer[] limits = {n.depthLeft(), maxColumn - n.depthRight()};
+                validStacks.put(wo.getId(), limits);
+            } else {
+                Integer[] limits = {0, maxColumn};
+                validStacks.put(wo.getId(), limits);
+            }
+        }
+        return validStacks;
+    }
+
+    private class RelationGraphNode {
+        private final String id;
+        private Set<RelationGraphNode> leftOf = new HashSet();
+        private Set<RelationGraphNode> rightOf = new HashSet();
+
+        public RelationGraphNode(String id){
+            this.id = id;
+        }
+
+        public void addRight(RelationGraphNode nRight) {
+            rightOf.add(nRight);
+        }
+
+        public void addLeft(RelationGraphNode nLeft){
+            leftOf.add(nLeft);
+        }
+
+        public Set<RelationGraphNode> getLeftOf(){
+            return leftOf;
+        }
+
+        public Set<RelationGraphNode> getRightOf(){
+            return rightOf;
+        }
+
+        public int depthLeft(){
+            if(leftOf.isEmpty()){
+                return 0;
+            } else{
+                int largest = Integer.MIN_VALUE;
+                for(RelationGraphNode n : leftOf){
+                    int depth = n.depthLeft();
+                    if(depth > largest){
+                        largest = depth;
+                    }
+                }
+                return 1 + largest;
+            }
+        }
+
+        public int depthRight(){
+            if(rightOf.isEmpty()){
+                return 0;
+            } else{
+                int largest = Integer.MIN_VALUE;
+                for(RelationGraphNode n : rightOf){
+                    int depth = n.depthRight();
+                    if(depth > largest){
+                        largest = depth;
+                    }
+                }
+                return 1 + largest;
+            }
+        }
+    }
 
     private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo, HashMap<Integer, Set<WorldObject>> minObjsRef, boolean recursive) {
         HashMap<Integer, Set<WorldObject>> minObjs = null;
@@ -282,48 +423,48 @@ public class WorldState implements IAStarState {
             	}
                 break;
             case BESIDE:
-            	if(!world.hasRelation(WorldConstraint.Relation.BESIDE, wo, woRel)) {
-            		List<WorldObject> minList;
-            		WorldObject woMove;
-            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
-            			minList = world.objectsAbove(wo);
-            			woMove = wo;
-            		} else {
-            			minList = world.objectsAbove(woRel);
-            			woMove = woRel;
-            		}
-            		moveAtleastOnce.addAll(minList);
-            		moveAtleastOnce.add(new WorldObject(woMove));
-            	};
+//            	if(!world.hasRelation(WorldConstraint.Relation.BESIDE, wo, woRel)) {
+//            		List<WorldObject> minList;
+//            		WorldObject woMove;
+//            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+//            			minList = world.objectsAbove(wo);
+//            			woMove = wo;
+//            		} else {
+//            			minList = world.objectsAbove(woRel);
+//            			woMove = woRel;
+//            		}
+//            		moveAtleastOnce.addAll(minList);
+//            		moveAtleastOnce.add(new WorldObject(woMove));
+//            	};
             case LEFTOF:
-            	if(!world.hasRelation(WorldConstraint.Relation.LEFTOF, wo, woRel)) {
-            		List<WorldObject> minList;
-            		WorldObject woMove;
-            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
-            			minList = world.objectsAbove(wo);
-            			woMove = wo;
-            		} else {
-            			minList = world.objectsAbove(woRel);
-            			woMove = woRel;
-            		}
-            		moveAtleastOnce.addAll(minList);
-            		moveAtleastOnce.add(new WorldObject(woMove));
-            	};
+//            	if(!world.hasRelation(WorldConstraint.Relation.LEFTOF, wo, woRel)) {
+//            		List<WorldObject> minList;
+//            		WorldObject woMove;
+//            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+//            			minList = world.objectsAbove(wo);
+//            			woMove = wo;
+//            		} else {
+//            			minList = world.objectsAbove(woRel);
+//            			woMove = woRel;
+//            		}
+//            		moveAtleastOnce.addAll(minList);
+//            		moveAtleastOnce.add(new WorldObject(woMove));
+//            	};
                 break;
             case RIGHTOF:
-            	if(!world.hasRelation(WorldConstraint.Relation.RIGHTOF, wo, woRel)) {
-            		List<WorldObject> minList;
-            		WorldObject woMove;
-            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
-            			minList = world.objectsAbove(wo);
-            			woMove = wo;
-            		} else {
-            			minList = world.objectsAbove(woRel);
-            			woMove = woRel;
-            		}
-            		moveAtleastOnce.addAll(minList);
-            		moveAtleastOnce.add(new WorldObject(woMove));
-            	};
+//            	if(!world.hasRelation(WorldConstraint.Relation.RIGHTOF, wo, woRel)) {
+//            		List<WorldObject> minList;
+//            		WorldObject woMove;
+//            		if(world.objectsAbove(wo).size() <= world.objectsAbove(woRel).size()) {
+//            			minList = world.objectsAbove(wo);
+//            			woMove = wo;
+//            		} else {
+//            			minList = world.objectsAbove(woRel);
+//            			woMove = woRel;
+//            		}
+//            		moveAtleastOnce.addAll(minList);
+//            		moveAtleastOnce.add(new WorldObject(woMove));
+//            	};
                 break;
         }
         if(recursive){
@@ -367,7 +508,7 @@ public class WorldState implements IAStarState {
 	@Override
 	public int compareTo(IAStarState o) {
 		//Here one can decide whether one wants FIFO or LIFO behavior on queue.
-		if(this.getStateValue() - o.getStateValue() >= 0){
+		if(this.getStateValue() - o.getStateValue() > 0){
 			return 1;
 		}
 		return -1;

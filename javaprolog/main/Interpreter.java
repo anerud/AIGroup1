@@ -10,21 +10,16 @@ import world.World;
 import world.WorldConstraint.Relation;
 import world.WorldObject;
 
-import gnu.prolog.io.Operator;
-
 import java.util.*;
 
-
 public class Interpreter {
-
-
-
 
 	public class InterpretationException extends Exception{
 		public InterpretationException(String s) {
 			super(s);
 		}
 	}
+
 	public class ClarificationQuestionException extends InterpretationException{
 		private Question question;
 
@@ -41,7 +36,6 @@ public class Interpreter {
 			this.question = question;
 		}
 	}
-
 
 	//thrown when a reference to an object (THE) matches no object  
 	private class EmptyReferenceException extends InterpretationException{
@@ -63,7 +57,7 @@ public class Interpreter {
 	 * Extracts the PDDL goals from the parse tree
 	 *
 	 * @param trees the parse tree
-	 * @param answerMap 
+	 * @param answers
 	 * @return a list of goals
 	 */
 
@@ -118,36 +112,25 @@ public class Interpreter {
 		// if there is more than one valid goal, we have more than one ok
 		// parse trees: Todo: disambiguate using questions
 		// for now, return error message
-		if (okGoals.size()>1) 
-
-
-		{
-
-			String error = "Im not sure what you mean. Do you want med to " +Disambiguator.disambiguate(trees)+ " Sorry about this, i would like to just make an assumtion, but I am not allowed to.";
-
-
-
+		if (!Shrdlite.debug && okGoals.size()>1){
+			String error = "I'm not sure what you mean. Do you want me to " +Disambiguator.disambiguate(trees)+ "";
 			throw new InterpretationException(error );
-
 		}
 
 		//if there are unresolved ambiguituies left, throw exception to create new question
-		if (!clarificationQuestionExceptions.isEmpty())
+		if (!Shrdlite.debug && !clarificationQuestionExceptions.isEmpty())
 
 			throw clarificationQuestionExceptions.iterator().next();
 		//if we are here, there should be at least one empty referece exception
-		if (!emptyReferenceExceptions.isEmpty())
+		if (!Shrdlite.debug && !emptyReferenceExceptions.isEmpty())
 			throw emptyReferenceExceptions.iterator().next();
 
-		if (!exceptions.isEmpty())
+		if (!Shrdlite.debug && !exceptions.isEmpty())
 			throw exceptions.iterator().next();
-
-
 
 		// return goals
 		// may be empty
 		return okGoals;
-
 	}
 
 	private class ActionVisitor implements IActionVisitor<Goal, Set<WorldObject>>{

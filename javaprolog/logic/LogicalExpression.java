@@ -94,6 +94,9 @@ public class LogicalExpression<T> implements Cloneable{
 
     public boolean isCnf() {
         if(op.equals(Operator.AND)){
+            if(expressions.isEmpty()){ //In this case, it is both cnf and dnf, and we do this because we prefer cnf.
+                return false;
+            }
             for(LogicalExpression le : expressions){
                 if(!le.getOp().equals(Operator.OR)){
                     return false;

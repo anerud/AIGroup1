@@ -249,7 +249,6 @@ function moveObject(action, stackNr) {
     var arm = $(('#arm'+armint));
     var xStack = stackNr * stackWidth() + WallSeparation;
     var xArm = currentArmPosition[armint] * stackWidth() + WallSeparation;
-	
     if (action.indexOf(Pick) == 0) {
         if (!stack.length) {
             alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", it is empty!")
@@ -274,8 +273,8 @@ function moveObject(action, stackNr) {
 	var path1;
 	var path2;
 	var path3;
-	var xxArm = armint == 0 ? xArm : xArm -stackWidth();
-	var xxStack = armint == 0 ? xStack : xStack -stackWidth();
+	var xxArm = xArm -(stackWidth() * armint);
+	var xxStack =  xStack -(stackWidth() * armint);
 	if(action.indexOf(Move) == 0){
 		if(xxArm -xxStack != 0){
 			path1 = ["M", xxArm, 0, "H", xxStack,"V",0];
@@ -454,26 +453,31 @@ function enableInput() {
     $("#userinput").focus().select();
 }
 
+function isSmaller(arr, v){
+	for(var i  = 0;i<arr.length;i++){
+		if(v <= arr[i]){
+			return true;
+		}
+	}
+	return false;
+}
+
 function performPlan() {
     if (currentPlan && currentPlan.length >= currentWorld.holdings.length) {
-		var items = [];
-		var actions = []
         var timeout = 0;
+		var doneIndices = [];
 		
 		for(var i = 0;i<currentWorld.holdings.length;i++){
 			var item = currentPlan.shift() 
-			items.push(item);
 			var action = getAction(item);
-			actions.push(action);
 			if(action){
 				timeout = Math.max(moveObject(action[0], action[1]),timeout);
 			}else{
-				sayUtterance("system", items[i]);
+				sayUtterance("system", item);
 			}
 			
 		}
 			
-  
         setTimeout(performPlan, 1000 * timeout);
     } else {
         systemPrompt(PromptPause);

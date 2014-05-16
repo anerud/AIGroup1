@@ -22,8 +22,9 @@ public class WorldState implements IAStarState {
 	private boolean bothArmsMoved;
 	private int arm1;
 	private int arm2;
-	private double correctionForMovingBothArms;
+	double correctionForMovingBothArms;
 	private static boolean printProgress = false;
+	private static final double penalty = 5;
 
 	public int getHeuristicValue() {
 		return heuristicValue;
@@ -393,11 +394,7 @@ public class WorldState implements IAStarState {
 	 */
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
-		if (world.getHoldings().size() == 2) {
-			return expandTwoArms();
-		} else {
-			return expandOneArm();
-		}
+		return expandNArms(world, new LinkedList<Integer>(), actionsToGetHere);
 	}
 
 	public Collection<? extends IAStarState> expandOneArm() throws CloneNotSupportedException {
@@ -405,27 +402,73 @@ public class WorldState implements IAStarState {
 		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size(); i++) {
 				World w = world.clone();
-				if (w.drop(i,0) && !visitedWorld.contains(w.getRepresentString())) {
+				if (w.drop(i, 0) && !visitedWorld.contains(w.getRepresentString())) {
 					visitedWorld.add(w.getRepresentString());
 					List<String> newList = new LinkedList<String>(actionsToGetHere);
 					newList.add("drop0 " + i);
-					WorldState state = new WorldState(w, goal, newList,0,0,0);
+					WorldState state = new WorldState(w, goal, newList, 0, 0, 0);
 					l.add(state);
 				}
 			}
 		} else {
 			for (int i = 0; i < world.getStacks().size(); i++) {
 				World w = world.clone();
-				if (w.pick(i,0) && !visitedWorld.contains(w.getRepresentString())) {
+				if (w.pick(i, 0) && !visitedWorld.contains(w.getRepresentString())) {
 					visitedWorld.add(w.getRepresentString());
 					List<String> newList = new LinkedList<String>(actionsToGetHere);
 					newList.add("pick0 " + i);
-					WorldState state = new WorldState(w, goal, newList,0,0,0);
+					WorldState state = new WorldState(w, goal, newList, 0, 0, 0);
 					l.add(state);
 				}
 			}
 		}
 		return l;
+	}
+
+	public Collection<? extends IAStarState> expandNArms(World world1,
+			List<Integer> armpos, List<String> gotHere) throws CloneNotSupportedException {
+		if (armpos.size() >= world.getHoldings().size()) {
+			return new LinkedList<>();
+		} else {
+			LinkedList<IAStarState> states = new LinkedList<>();
+			int arm = armpos.size();
+			int start = armpos.size() == 0 ? 0 : armpos.get(armpos.size() - 1) + 1;
+			int end = world.getStacks().size() - (world.getHoldings().size() - armpos.size()) + 1;
+			// System.out.println(start + " "+end+"  -  "+arm);
+			for (int i = start; i < end; i++) {
+				World dropWorld = world1.clone();
+				World moveWorld = world1.clone();
+				World pickWorld = world1.clone();
+				List<Integer> pos = new LinkedList<>(armpos);
+				pos.add(i);
+				if (dropWorld.drop(i, arm) && !visitedWorld.contains(dropWorld.getRepresentString())) {
+					List<String> newList = new LinkedList<String>(gotHere);
+					newList.add("drop" + arm + " " + i);
+					if (armpos.size() == world.getHoldings().size() - 1) {
+						states.add(new WorldState(dropWorld, goal, newList, 0, 0, 0));
+					}else{
+						states.addAll(expandNArms(dropWorld, pos, newList));
+					}
+				}
+				if (pickWorld.pick(i, arm) && !visitedWorld.contains(pickWorld.getRepresentString())) {
+					List<String> newList = new LinkedList<String>(gotHere);
+					newList.add("pick" + arm + " " + i);
+					if (armpos.size() == world.getHoldings().size() - 1) {
+						states.add(new WorldState(pickWorld, goal, newList, 0, 0, 0));
+					}else{
+						states.addAll(expandNArms(pickWorld, pos, newList));
+					}
+				}
+				List<String> newList = new LinkedList<String>(gotHere);
+				newList.add("move" + arm + " " + i);
+				if (armpos.size() == world.getHoldings().size() - 1) {
+					states.add(new WorldState(moveWorld, goal, newList, 0, 0, 0));
+				}else{
+					states.addAll(expandNArms(moveWorld, pos, newList));
+				}
+			}
+			return states;
+		}
 	}
 
 	public Collection<? extends IAStarState> expandTwoArms() throws CloneNotSupportedException {
@@ -489,7 +532,7 @@ public class WorldState implements IAStarState {
 				}
 			}
 		}
-		
+
 		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
@@ -506,7 +549,7 @@ public class WorldState implements IAStarState {
 								newList.add("dropping from arm 1 to column " + i);
 								newList.add("dropping from arm 2 to column " + j);
 							}
-							l.add(new WorldState(dropBoth, goal, newList, i, j, 0.0001));
+							l.add(new WorldState(dropBoth, goal, newList, i, j, penalty));
 						}
 					}
 				}
@@ -529,7 +572,7 @@ public class WorldState implements IAStarState {
 								newList.add("dropping from arm 1 to column " + i);
 								newList.add("picking from arm 2 to column " + j);
 							}
-							l.add(new WorldState(dropBoth, goal, newList, i, j, 0));
+							l.add(new WorldState(dropBoth, goal, newList, i, j, penalty));
 						}
 					}
 				}
@@ -552,14 +595,12 @@ public class WorldState implements IAStarState {
 								newList.add("picking from arm 1 to column " + i);
 								newList.add("dropping from arm 2 to column " + j);
 							}
-							l.add(new WorldState(dropBoth, goal, newList, i, j, 0));
+							l.add(new WorldState(dropBoth, goal, newList, i, j, penalty));
 						}
 					}
 				}
 			}
 		}
-
-
 
 		// Pick both arms
 		if (world.getHoldings().get(0).getClass() == EmptyWorldObject.class
@@ -577,7 +618,7 @@ public class WorldState implements IAStarState {
 								newList.add("picking with arm 1 from column " + i);
 								newList.add("picking with arm 2 from column " + j);
 							}
-							l.add(new WorldState(pickBoth, goal, newList, i, j, 0.0001));
+							l.add(new WorldState(pickBoth, goal, newList, i, j, penalty));
 						}
 					}
 				}

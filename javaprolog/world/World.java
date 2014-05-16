@@ -95,7 +95,7 @@ public class World {
 
 	public boolean isOntopOfStack(WorldObject wo) {
 		WorldObject top = topOfStack(columnOf(wo));
-		return top != null && top.getId().equals(wo.getId());
+		return top != null && top.equals(wo);
 	}
 
 	// public boolean isOnFloor(WorldObject wo){
@@ -112,7 +112,7 @@ public class World {
 	 */
 	public WorldObject getWorldObject(String id) {
 		for (WorldObject h : holdings) {
-			if (h.getId().equals(id)) {
+			if (h.equals(id)) {
 				return h;
 			}
 		}
@@ -121,7 +121,7 @@ public class World {
 		}
 		for (LinkedList<WorldObject> ll : stacks) {
 			for (WorldObject wo : ll) {
-				if (wo.getId() != null && wo.getId().equals(id)) {
+				if (wo.equals(id)) {
 					return wo;
 				}
 			}
@@ -314,7 +314,7 @@ public class World {
 	}
 
 	public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1, WorldObject obj2) {
-		if (obj1.getId().equals(obj2.getId()))
+		if (obj1.equals(obj2))
 			return false; // Cannot have a relation to itself
 		if (obj2 instanceof RelativeWorldObject && obj2.getForm() == null) {
 			WorldObject woRel = ((RelativeWorldObject) obj2).getRelativeTo();

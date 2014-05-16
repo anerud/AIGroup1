@@ -12,6 +12,7 @@ basic_command : take(Entity) ---> take, entity:Entity.
 basic_command : put(Location) ---> move, it, location:Location.
 basic_command : move(Entity, Location) ---> move, entity:Entity, location:Location.
 basic_command : stack(Entity) --->  stack, entity:Entity.
+basic_command : sort(Entity) --->  sort, entity:Entity.
 
 answer : answer(Entity) ---> entity:Entity.
 
@@ -103,6 +104,7 @@ that_should_be(pl) ---> [that,should,be].
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].
 stack ---> [stack] ; [stack,up] ; [build,a,tower,of].
+sort ---> [sort].
 
 it ---> [it].
 

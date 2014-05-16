@@ -10,6 +10,8 @@ import world.World;
 import world.WorldConstraint.Relation;
 import world.WorldObject;
 
+import gnu.prolog.io.Operator;
+
 import java.util.*;
 
 
@@ -241,6 +243,41 @@ public class Interpreter {
 			return goal;
 		}
 
+
+		/* (non-Javadoc)
+		 * @see tree.IActionVisitor#visit(tree.SortNode, java.lang.Object)
+		 * 
+		 * Sort command.  Sorts any objects by color.   TODO: sort by any attribute
+		 * 
+		 */
+		public Goal visit(SortNode n, Set<WorldObject> worldObjects)
+				throws InterpretationException, CloneNotSupportedException {
+
+			LogicalExpression<WorldObject> firstObjects = n.getThingsToSortNode().accept(new NodeVisitor(), worldObjects, null);
+
+			Set<WorldObject> theSet = new HashSet<>();
+			Set<LogicalExpression<WorldObject>> theExprSet = new HashSet<>();
+
+			for (WorldObject o1:worldObjects)
+			{
+				for (WorldObject o2:worldObjects)
+				{
+					if(o1!=o2 && o1.getColor().compareTo(o2.getColor())<0)
+					{
+						RelativeWorldObject r = new RelativeWorldObject(o1,o2,Relation.LEFTOF);
+						theSet.add(r);
+						r= new RelativeWorldObject(o2,o1,Relation.RIGHTOF);
+						theSet.add(r);
+					}
+
+				}
+			}
+			LogicalExpression<WorldObject> bigExpr = new LogicalExpression<WorldObject>( theSet,LogicalExpression.Operator.AND);
+
+			return new Goal(bigExpr, Action.MOVE);
+		}
+
+
 		@Override
 
 		//create a stack
@@ -252,6 +289,9 @@ public class Interpreter {
 				throws InterpretationException, CloneNotSupportedException {
 
 			LogicalExpression<WorldObject> firstObjects = n.getThingsToStackNode().accept(new NodeVisitor(), worldObjects, null);
+
+
+
 
 			// create comparator that orders WorldObjects in stackable order
 			Comparator<WorldObject> stackComparator = new Comparator<WorldObject>(){
@@ -338,8 +378,9 @@ public class Interpreter {
 			//world.removeImpossibleLogic(expr);
 
 
-
 			Goal r = new Goal(expr, Action.MOVE); 
+
+
 			return r ;
 
 
@@ -375,7 +416,7 @@ public class Interpreter {
 				Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
 				if(wobjs.size() > 1){
 					if(!Shrdlite.debug){
-						
+
 						LogicalExpression<WorldObject> logObjs= new LogicalExpression<WorldObject>(wobjs,LogicalExpression.Operator.OR);
 
 						// there is an ambiguity in the reference. THE matches more than one object

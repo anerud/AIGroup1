@@ -1,31 +1,32 @@
 {
   "utterance": [
-    "move",
+    "sort",
     "all",
-    "red",
-    "things",
-    "to",
-    "the",
-    "left",
-    "of",
-    "all",
-    "blue",
-    "things"
+    "objects"
   ],
   "worldoriginal": [],
   "examples": [],
   "world": [
-    [],
+    [
+      "e"
+    ],
     [
       "a",
       "l",
-      "e"
-    ],
-    [],
-    [],
-    [
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
       "i"
     ],
+    [],
+    [],
+    [],
     [],
     [],
     [
@@ -35,14 +36,24 @@
     ],
     [
       "j",
-      "b",
-      "h"
+      "h",
+      "b"
     ],
     [
       "d",
       "m",
       "f"
-    ]
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
   ],
   "objects": {
     "a": {
@@ -109,6 +120,51 @@
       "form": "box",
       "size": "small",
       "color": "blue"
+    },
+    "n": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "o": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "p": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
+    },
+    "q": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "r": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "s": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
+    },
+    "t": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "u": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "v": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
     }
   },
   "plan": [],

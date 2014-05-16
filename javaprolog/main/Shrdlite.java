@@ -303,6 +303,12 @@ public class Shrdlite {
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToStackNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			return n;
+		} 
+		else if (data.equals("sort")) {
+			SortNode n = new SortNode(parent, data);
+			CompoundTerm tt = (CompoundTerm) t;
+			n.setThingsToSortNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			return n;
 		} else if (data.equals("floor")) {
 			return new FloorNode(parent, data);
 		} else if (data.equals("any") || data.equals("all") || data.equals("the")) {

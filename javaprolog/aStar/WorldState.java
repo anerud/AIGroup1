@@ -431,6 +431,65 @@ public class WorldState implements IAStarState {
 	public Collection<? extends IAStarState> expandTwoArms() throws CloneNotSupportedException {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
 
+		// Drop arm1 and move arm2
+		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
+			for (int i = 0; i < world.getStacks().size() - 1; i++) {
+				World drop0move1 = world.clone();
+				if (drop0move1.drop(i, 0) && !visitedWorld.contains(drop0move1.getRepresentString())) {
+					visitedWorld.add(drop0move1.getRepresentString());
+					List<String> newList = new LinkedList<String>(actionsToGetHere);
+					int arm2Pos = arm2;
+					if (i >= arm2) {
+						newList.add("drop0 " + i);
+						newList.add("move1 " + (i + 1));
+						if (printProgress) {
+							newList.add("dropping arm 1 to column" + i);
+							newList.add("moving arm 2 to column" + (i + 1));
+						}
+						arm2Pos = i + 1;
+					} else {
+						newList.add("drop0 " + i);
+						newList.add("move1 " + arm2);
+						if (printProgress) {
+							newList.add("dropping arm 1 to column" + i);
+							newList.add("hold arm 2 in column" + arm2);
+						}
+					}
+					l.add(new WorldState(drop0move1, goal, newList, i, arm2Pos, 0));
+				}
+			}
+		}
+
+		// Drop arm2 and move arm1
+		if (world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
+			for (int j = 1; j < world.getStacks().size(); j++) {
+				World drop1move0 = world.clone();
+				if (drop1move0.drop(j, 1) && !visitedWorld.contains(drop1move0.getRepresentString())) {
+					visitedWorld.add(drop1move0.getRepresentString());
+					List<String> newList = new LinkedList<String>(actionsToGetHere);
+					int arm1Pos = arm1;
+					if (j <= arm1) {
+						newList.add("move0 " + (j - 1));
+						newList.add("drop1 " + j);
+						if (printProgress) {
+							newList.add("moving arm 1 to column " + (j - 1));
+							newList.add("dropping arm 2 to column " + j);
+						}
+						arm1Pos = j - 1;
+					} else {
+						newList.add("move0 " + arm1);
+						newList.add("drop1 " + j);
+						if (printProgress) {
+							newList.add("hold arm 1 in column" + arm1);
+							newList.add("dropping arm 2 to column " + j);
+						}
+					}
+
+					l.add(new WorldState(drop1move0, goal, newList, arm1Pos, j, 0));
+				}
+			}
+		}
+		
 		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
@@ -500,64 +559,7 @@ public class WorldState implements IAStarState {
 			}
 		}
 
-		// Drop arm1 and move arm2
-		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
-			for (int i = 0; i < world.getStacks().size() - 1; i++) {
-				World drop0move1 = world.clone();
-				if (drop0move1.drop(i, 0) && !visitedWorld.contains(drop0move1.getRepresentString())) {
-					visitedWorld.add(drop0move1.getRepresentString());
-					List<String> newList = new LinkedList<String>(actionsToGetHere);
-					int arm2Pos = arm2;
-					if (i >= arm2) {
-						newList.add("drop0 " + i);
-						newList.add("move1 " + (i + 1));
-						if (printProgress) {
-							newList.add("dropping arm 1 to column" + i);
-							newList.add("moving arm 2 to column" + (i + 1));
-						}
-						arm2Pos = i + 1;
-					} else {
-						newList.add("drop0 " + i);
-						newList.add("move1 " + arm2);
-						if (printProgress) {
-							newList.add("dropping arm 1 to column" + i);
-							newList.add("hold arm 2 in column" + arm2);
-						}
-					}
-					l.add(new WorldState(drop0move1, goal, newList, i, arm2Pos, 0));
-				}
-			}
-		}
 
-		// Drop arm2 and move arm1
-		if (world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
-			for (int j = 1; j < world.getStacks().size(); j++) {
-				World drop1move0 = world.clone();
-				if (drop1move0.drop(j, 1) && !visitedWorld.contains(drop1move0.getRepresentString())) {
-					visitedWorld.add(drop1move0.getRepresentString());
-					List<String> newList = new LinkedList<String>(actionsToGetHere);
-					int arm1Pos = arm1;
-					if (j <= arm1) {
-						newList.add("move0 " + (j - 1));
-						newList.add("drop1 " + j);
-						if (printProgress) {
-							newList.add("moving arm 1 to column " + (j - 1));
-							newList.add("dropping arm 2 to column " + j);
-						}
-						arm1Pos = j - 1;
-					} else {
-						newList.add("move0 " + arm1);
-						newList.add("drop1 " + j);
-						if (printProgress) {
-							newList.add("hold arm 1 in column" + arm1);
-							newList.add("dropping arm 2 to column " + j);
-						}
-					}
-
-					l.add(new WorldState(drop1move0, goal, newList, arm1Pos, j, 0));
-				}
-			}
-		}
 
 		// Pick both arms
 		if (world.getHoldings().get(0).getClass() == EmptyWorldObject.class

@@ -4,37 +4,43 @@ import main.Interpreter;
 
 import java.util.LinkedList;
 
-public class PutNode extends Node {
+public class SortNode extends Node {
 
-	private RelativeNode locationNode;
-	
-	@Override
-	public String toNaturalString() {
-	
-		return "put at" + locationNode.toNaturalString();
-	}
-		
+	private Node thingsToSortNode;
 
-	public PutNode(Node parent, String data) {
+	
+	public SortNode(Node parent, String data) {
 		super(parent, data);
 	}
 
-	public void setLocationNode(RelativeNode locationNode) {
-		this.locationNode = locationNode;
+
+
+
+	@Override
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return "sort " + thingsToSortNode.toNaturalString();
+	}
+		
+	
+
+	public Node getThingsToSortNode() {
+		return thingsToSortNode;
 	}
 
-    public void setLocationNode(Node locationNode) {
-        this.locationNode = (RelativeNode)locationNode;
-    }
-
-	public RelativeNode getLocationNode() {
-		return locationNode;
+	public void setThingsToSortNode(Node thingsToStackNode) {
+		this.thingsToSortNode = thingsToStackNode;
 	}
+
+
+
+
+
 
 	@Override
 	public LinkedList<Node> getChildren() {
 		LinkedList<Node> childs = new LinkedList<Node>();
-		childs.add(locationNode);
+		childs.add(thingsToSortNode);
 		return childs;
 	}
 

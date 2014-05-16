@@ -9,7 +9,7 @@ public class MoveNode extends Node {
 	@Override
 	public String toNaturalString() {
 	
-		return "Move " + entityNode.toNaturalString() + " " + locationNode.toNaturalString();
+		return "move " + entityNode.toNaturalString() + " " + locationNode.toNaturalString();
 		
 	}
 

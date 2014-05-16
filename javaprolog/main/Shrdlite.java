@@ -16,8 +16,13 @@ import world.WorldObject;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 public class Shrdlite {
 
@@ -25,7 +30,7 @@ public class Shrdlite {
 
 	public static void main(String[] args) throws IOException, PrologException, CloneNotSupportedException {
 		long start = System.currentTimeMillis();
-//		try {
+		//		try {
 		String jsinput = null;
 		if (args.length == 0) {
 			jsinput = readFromReader(new InputStreamReader(System.in));
@@ -37,6 +42,13 @@ public class Shrdlite {
 		if (args.length > 1 && args[1].equals("debug")) {
 			debug = true;
 		}
+		
+	
+		FileWriter fw = new FileWriter("latestInput.json");
+		
+		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
+		fw.write(pretty);
+		fw.close();
 
 		ArrayList<LinkedList<WorldObject>> worldArr = new ArrayList<LinkedList<WorldObject>>(p.getWorld().size());
 
@@ -49,98 +61,161 @@ public class Shrdlite {
 		// Initialize holding object
 		WorldObject holding = p.getObjects().get(p.getHolding());
 		// Initialize world
-        for (int i = 0; i < p.getWorld().size(); i++) {
-            LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
-            for (String s : p.getWorld().get(i)) {
-                objList.add(p.getObjects().get(s));
-            }
-            worldArr.add(objList);
-        }
+		for (int i = 0; i < p.getWorld().size(); i++) {
+			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
+			for (String s : p.getWorld().get(i)) {
+				objList.add(p.getObjects().get(s));
+			}
+			worldArr.add(objList);
+		}
 		World world = new World(worldArr, holding);
 
 		Input result = new Input();
+
+
 		result.setUtterance(p.getUtterance());
 
+		// parse utterance
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
-		if (p.getQuestion() != null && p.getQuestion().getAnswer() != null) {
-			String q = p.getQuestion().getQuestions().get(p.getQuestion().getAnswer());
-			if (q != null) {
-				//TODO: F�tt svar p� fr�gan, q �r den valda fr�gan!
-			}else{
-				//TODO: F�tt d�ligt svar p� fr�gan
+
+		// parse answers as if they were commands.  If an answer to a question is in fact a command,
+		// the user has changed its mind and started over. 
+
+		boolean startover = false;
+		for (Question q : p.getQuestions())
+		{
+			List<Term> answerAsCommand = parser.parseSentence("command", q.getAnswer());
+			if (!answerAsCommand.isEmpty())
+			{
+				//make the answer-that-was-a-command the new command
+				trees = answerAsCommand;
+				startover = true;
 			}
-		} else {
-			//TODO: Ingen fr�ga st�lld!
 		}
+		// if user has started over, erase question history
+		if ( startover) p.getQuestions().clear();
 
-		List<NTree> treeList = new ArrayList<NTree>();
-		for (Term t : trees) {
-			treeList.add(termsToTree((CompoundTerm) t, null));
-		}
-		if (trees.isEmpty()) {
-			result.setOutput("Parse error!");
-		} else {
-			List<Goal> goals = new ArrayList<Goal>();
 
-			Interpreter interpreter = new Interpreter(world);
+		boolean questionsOk = true;
+		List<NTree> AnswerTreeList = new ArrayList<NTree>();
+		Map<Integer,List<NTree>> AnswerMap = new HashMap<>();
 
-			try {
-				goals.addAll(interpreter.interpret(treeList));
-				if (debug) {
-					result.setGoals(goals.toString());
-				}
-			} catch (Interpreter.InterpretationException e) {
-				result.setOutput(e.getMessage());
+		for (Question q : p.getQuestions())
+		{
+			List<Term> parsedAnswer= parser.parseSentence("entity", q.getAnswer());
+			if (parsedAnswer.isEmpty())
+			{
+				// some answer was not ok. 
+				//add another clarification question. 
+				//:Todo:  handle unparsable questions. 
+				
+				questionsOk = false;
+				break;	
 			}
+			else 
+			{
+				// get the first and only answer parse tree
+				// answers cannot be ambiguous. Make an Ntree of it and add it to the list.
+				Term t = parsedAnswer.get(0);
+				NTree answerTree =  termsToTree((CompoundTerm) t, null);
+				if (!AnswerMap.containsKey(q.getQuestionId()))
+					AnswerMap.put(q.getQuestionId(),new ArrayList<NTree>());
+				AnswerMap.get(q.getQuestionId()).add(q.getSubQuestionId(),answerTree);
 
-			if (goals.isEmpty()) {
-				if (result.getOutput() == null) {
-					result.setOutput("Interpretation error!");
-				}
-			} else if (goals.size() > 1) {
-				result.setOutput("Ambiguity error!");
+			}
+		}
+		//only interpret command if questions are ok
 
+		if (questionsOk){
+
+			// Interpret command
+			List<NTree> treeList = new ArrayList<NTree>();
+			for (Term t : trees) {
+				treeList.add(termsToTree((CompoundTerm) t, null));
+			}
+			if (trees.isEmpty()) {
+				result.setOutput("Parse error!");
 			} else {
-				log.println(goals.get(0).toString());
-				Planner planner = new Planner(world);
-				List<String> plan = planner.solve(goals.get(0));
-				result.setPlan(plan);
-				log.println("number of states checked: " + AStar.nStatesChecked);
-				if (plan.isEmpty()) {
-					result.setOutput("Planning error!");
+				List<Goal> goals = new ArrayList<Goal>();
+
+				Interpreter interpreter = new Interpreter(world);
+
+				try {
+					
+					goals.addAll(interpreter.interpret(treeList, AnswerMap));
+					if (debug) {
+						result.setGoals(goals.toString());
+					}
+
+			} catch (Interpreter.ClarificationQuestionException e) {
+				// there was an exception that generates a clarification question
+				result.setQuestions(new ArrayList<>(p.getQuestions()));
+				result.getQuestions().add(e.getQuestion());
+				
+			}
+			catch (Interpreter.InterpretationException e) {
+				//there was an error 
+				result.setOutput(e.getMessage());
+				
+			}
+
+				if (goals.isEmpty()) {
+					if (result.getOutput() == null) {
+						result.setOutput("Sorry, that is not possible. (interpretation error)");
+						
+					}
+				} else if (goals.size() > 1) {
+					result.setOutput("Disambiguation error!");
 				} else {
-					log.println(plan.toString());
-					result.setOutput("Success!");
+					log.println(goals.get(0).toString());
+					Planner planner = new Planner(world);
+					List<String> plan = planner.solve(goals.get(0));
+					result.setPlan(plan);
+					log.println("number of states checked: " + AStar.nStatesChecked);
+					if (plan.isEmpty()) {
+						result.setOutput("Planning error!");
+						result.getQuestions().clear();
+					} else {
+						log.println(plan.toString());
+						result.setOutput("Success!");
+						result.getQuestions().clear();
+						
+					}
 				}
 			}
-		}
 
-		log.print(jsinput);
-		FileWriter fw = new FileWriter("./result.json");
-		String jsonString = new Gson().toJson(result);
-		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
-		fw.write(pretty);
+		}
+		else
+		{
+			//there was a problem with a question.. 
+		}	
+
+	    fw = new FileWriter("latestOutput.json");
+	    String jsonString = new Gson().toJson(result);
+		pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);
+	    
+	    fw.write(jsinput);
 		fw.close();
-		
+
 		long end = System.currentTimeMillis();
 		log.println(start);
 		log.println(end);
 		log.println(end-start);
 		log.close();
-		
-		
+
+
 		System.out.println(jsonString);
-//		} catch (Exception e) {
-//			PrintWriter asdf = new PrintWriter("errorlog.txt");
-//			asdf.println(e.getMessage());
-//			long end = System.currentTimeMillis();
-//			asdf.println(start);
-//			asdf.println(end);
-//			asdf.println(end-start);
-//			asdf.close();
-//		}
+		//		} catch (Exception e) {
+		//			PrintWriter asdf = new PrintWriter("errorlog.txt");
+		//			asdf.println(e.getMessage());
+		//			long end = System.currentTimeMillis();
+		//			asdf.println(start);
+		//			asdf.println(end);
+		//			asdf.println(end-start);
+		//			asdf.close();
+		//		}
 	}
 
 	public static String readFromReader(Reader reader) throws IOException {
@@ -193,14 +268,14 @@ public class Shrdlite {
 			n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
 			return n;
 		} else if (data.equals("relative_tense_entity")) {
-            RelativeEntityNode n = new RelativeEntityNode(parent, data);
-            CompoundTerm tt = (CompoundTerm) t;
-            n.setQuantifierNode(getNodeFromData(n, dataFromTerm(tt.args[0]), null));
-            n.setObjectNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
-            n.setTenseNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
-            n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[3]), tt.args[3]));
-            return n;
-        } else if (data.equals("relative")) {
+			RelativeEntityNode n = new RelativeEntityNode(parent, data);
+			CompoundTerm tt = (CompoundTerm) t;
+			n.setQuantifierNode(getNodeFromData(n, dataFromTerm(tt.args[0]), null));
+			n.setObjectNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
+			n.setTenseNode(getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
+			n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[3]), tt.args[3]));
+			return n;
+		} else if (data.equals("relative")) {
 			RelativeNode n = new RelativeNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setRelationNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
@@ -222,28 +297,34 @@ public class Shrdlite {
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setLocationNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			return n;
-			
+
 		} else if (data.equals("stack")) {
 			StackNode n = new StackNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToStackNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			return n;
+		} 
+		else if (data.equals("sort")) {
+			SortNode n = new SortNode(parent, data);
+			CompoundTerm tt = (CompoundTerm) t;
+			n.setThingsToSortNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			return n;
 		} else if (data.equals("floor")) {
 			return new FloorNode(parent, data);
 		} else if (data.equals("any") || data.equals("all") || data.equals("the")) {
 			return new QuantifierNode(parent, data);
 		} else if (data.equals("now") || data.equals("future")) {
-            return new TenseNode(parent, data);
-        } else if (data.equals("object")) {
+			return new TenseNode(parent, data);
+		} else if (data.equals("object")) {
 			ObjectNode n = new ObjectNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setFormNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			n.setSizeNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
 			n.setColorNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
-			
-	
-			
-			
+
+
+
+
 			return n;
 		} else if (data.equals("under") || data.equals("beside") || data.equals("above") || data.equals("leftof")
 				|| data.equals("rightof") || data.equals("ontop") || data.equals("inside")) {
@@ -252,7 +333,7 @@ public class Shrdlite {
 		AttributeNode a=  new AttributeNode(parent, data);
 		// add plural forms for different object types. 
 		// neccessary for natuaral language generation
-		
+
 		if (data.equals("box")) a.setPluralForm("boxes");
 		if (data.equals("ball")) a.setPluralForm("balls");
 		if (data.equals("plank")) a.setPluralForm("planks");
@@ -261,11 +342,11 @@ public class Shrdlite {
 		if (data.equals("table")) a.setPluralForm("tables");
 		if (data.equals("brick")) a.setPluralForm("bricks");
 		return a;
-		
-		
-	
-		
-		
+
+
+
+
+
 	}
 
 }

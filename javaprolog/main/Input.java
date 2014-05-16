@@ -26,9 +26,9 @@ public class Input {
 	private String goals;
 
 	private List<String> plan;
-	
-	private Question question;
-	
+
+	private List<Question> questions;
+
 	public Input() {
 		utterance = new LinkedList<>();
 		worldoriginal = new LinkedList<>();
@@ -36,14 +36,15 @@ public class Input {
 		world = new LinkedList<>();
 		objects = new HashMap<>();
 		plan = new LinkedList<>();
+		questions = new LinkedList<>();
 	}
-	
-	public Question getQuestion() {
-		return question;
+
+	public List<Question> getQuestions() {
+		return questions;
 	}
-	
-	public void setQuestion(Question question) {
-		this.question = question;
+
+	public void setQuestions(List<Question> questions) {
+		this.questions = questions;
 	}
 
 	public List<String> getPlan() {

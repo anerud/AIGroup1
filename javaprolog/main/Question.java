@@ -1,34 +1,54 @@
 package main;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class Question {
 
-	private Map<String, String> questions;
-	private String answer;
+	private String question;
+	private List<String> answer;
+    private int questionId;
+    private int subQuestionId;
+    
 
-	public Question() {
-		questions = new HashMap<String, String>();
+
+	public Question(String question, int questionId, int subQuestionId) {
+		super();
+		this.question = question;
+		this.questionId = questionId;
+		this.subQuestionId = subQuestionId;
 	}
 
-	public String getAnswer() {
+	public int getQuestionId() {
+		return questionId;
+	}
+
+	public void setQuestionId(int questionId) {
+		this.questionId = questionId;
+	}
+
+	public int getSubQuestionId() {
+		return subQuestionId;
+	}
+
+	public void setSubQuestionId(int subQuestionId) {
+		this.subQuestionId = subQuestionId;
+	}
+
+
+
+	public void setQuestion(String question) {
+		this.question = question;
+	}
+	
+	public List<String> getAnswer() {
 		return answer;
 	}
 
-	public void setAnswer(String answer) {
+	public String getQuestion() {
+		return question;
+	}
+
+	public void setAnswer(List<String> answer) {
 		this.answer = answer;
-	}
-
-	public Map<String, String> getQuestions() {
-		return questions;
-	}
-
-	public void setQuestions(Map<String, String> questions) {
-		this.questions = questions;
-	}
-
-	public void addQuestions(String q, String a) {
-		this.questions.put(a, q);
 	}
 }

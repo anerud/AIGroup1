@@ -29,7 +29,12 @@ public class NTree {
 
 	@Override
 	public String toString() {
-		return root.toNaturalString() +"\n--"+root.toIndentString(0);
+		return toNaturalString();
+	}
+
+	public String toNaturalString() {
+		// TODO Auto-generated method stub
+		return root.toNaturalString();
 	}
 
 }

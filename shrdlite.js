@@ -70,7 +70,7 @@ var currentExample;
 var currentWorld;
 var currentPlan;
 var currentArmPosition;
-var currentQuestion;
+var currentQuestions;
 var lastUtterance;
 function stackWidth() {
     return CanvasWidth / currentWorld.world.length;
@@ -446,18 +446,17 @@ function userInput() {
                     'holding': currentWorld.holding,
                     'state': currentWorld.state,
                     'utterance': userinput.split(/\s+/),
-					'question' : currentQuestion,
+					'questions' : currentQuestions,
                    };
-	if(currentQuestion){
-		ajaxdata.question.answer = userinput;
+	if(currentQuestions && currentQuestions.length && !currentQuestions[currentQuestions.length-1].answer){
+		ajaxdata.questions[currentQuestions.length-1].answer = userinput.split(/\s+/);
 		if(lastUtterance){
 			ajaxdata.utterance = lastUtterance;
-			lastUtterance = null;
 		}
 	}else{
 		lastUtterance = ajaxdata.utterance;
 	}
-
+	
 
     $.ajax({
         url: AjaxScript,
@@ -472,15 +471,12 @@ function userInput() {
         try {
 			currentQuestion = null;
             result = JSON.parse(result);
-			if(result.question){
-				console.log(result.question);
-				sayUtterance("system", "A question from the server, did you mean: ");
-				var keys = Object.keys(result.question.questions);
-				for(var i = 0 ;i<keys.length;i++){
-					sayUtterance("system", keys[i] +" - " + result.question.questions[keys[i]]);
-				}
+			if(result.questions.length > 0 && !result.questions[result.questions.length-1].answer){
+				console.log(result.questions);
+				var q = result.questions[result.questions.length-1].question;
+				sayUtterance("system", q);
 				currentPlan = null;
-				currentQuestion = result.question;
+				currentQuestions = result.questions;
 				enableInput();
 			}else{
 				debugResult(result);
@@ -489,7 +485,7 @@ function userInput() {
 					currentWorld.state = result.state;
 				}
 				currentPlan = result.plan;
-				currentQuestion = null;
+				currentQuestions = result.questions;
 				performPlan();
 			}
         } catch(err) {

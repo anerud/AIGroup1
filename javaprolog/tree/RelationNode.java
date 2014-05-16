@@ -26,7 +26,7 @@ public class RelationNode extends Node{
 		case  LEFTOF:
 			return "to the left of";
 		case  ONTOP:
-			return "on top of";
+			return "on";
 		case  RIGHTOF:
 			return "to the right of";
 		default:

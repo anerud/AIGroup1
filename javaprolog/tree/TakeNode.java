@@ -9,7 +9,7 @@ public class TakeNode extends Node {
 	@Override
 	public String toNaturalString() {
 		
-		return "Take " +  entityNode.toNaturalString();
+		return "take " +  entityNode.toNaturalString();
 	}
 
 	private Node entityNode;

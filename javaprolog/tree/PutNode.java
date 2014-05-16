@@ -11,7 +11,7 @@ public class PutNode extends Node {
 	@Override
 	public String toNaturalString() {
 	
-		return "Put at" + locationNode.toNaturalString();
+		return "put at" + locationNode.toNaturalString();
 	}
 		
 

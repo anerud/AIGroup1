@@ -1,8 +1,11 @@
 {
   "utterance": [
+    "put",
     "the",
-    "red",
-    "one"
+    "ball",
+    "on",
+    "the",
+    "box"
   ],
   "worldoriginal": [],
   "examples": [],
@@ -11,48 +14,15 @@
       "e"
     ],
     [
-      "a",
-      "l",
-      "n",
-      "o",
-      "p",
-      "q",
-      "r",
-      "s",
-      "t",
-      "u",
-      "v"
+      "g",
+      "l"
     ],
-    [],
-    [],
-    [
-      "i",
-      "h",
-      "j"
-    ],
-    [],
     [],
     [
       "k",
-      "g",
-      "c",
-      "b"
-    ],
-    [],
-    [
-      "d",
       "m",
       "f"
     ],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
     []
   ],
   "objects": {
@@ -120,53 +90,29 @@
       "form": "box",
       "size": "small",
       "color": "blue"
-    },
-    "n": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "o": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "p": {
-      "form": "brick",
-      "size": "large",
-      "color": "white"
-    },
-    "q": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "r": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "s": {
-      "form": "brick",
-      "size": "large",
-      "color": "white"
-    },
-    "t": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "u": {
-      "form": "brick",
-      "size": "large",
-      "color": "black"
-    },
-    "v": {
-      "form": "brick",
-      "size": "large",
-      "color": "white"
     }
   },
   "plan": [],
-  "questions": []
+  "questions": [
+    {
+      "question": "I can see two balls. Did you mean the small ball or the large ball?",
+      "answer": [
+        "the",
+        "black",
+        "one"
+      ],
+      "questionId": 0,
+      "subQuestionId": 0
+    },
+    {
+      "question": "I can see three boxes. Did you mean the small box, the red box or the yellow box?",
+      "answer": [
+        "the",
+        "red",
+        "box"
+      ],
+      "questionId": 1,
+      "subQuestionId": 0
+    }
+  ]
 }

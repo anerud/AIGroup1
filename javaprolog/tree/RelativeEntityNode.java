@@ -1,6 +1,7 @@
 package tree;
 
 import logic.Quantifier;
+import logic.Tense;
 import main.Interpreter;
 
 import java.util.LinkedList;
@@ -11,7 +12,9 @@ public class RelativeEntityNode extends Node {
 	public String toNaturalString() {
 	
 		boolean plural = (quantifierNode.getQuantifier() ==  Quantifier.ALL);
-		return quantifierNode.toNaturalString()+ " " + objectNode.toNaturalString(plural) + " " + locationNode.toNaturalString();
+		String thatis = (plural)?" that are ":" that is ";
+		if (tenseNode != null && tenseNode.getTense()==Tense.FUTURE) thatis = " that should be ";
+		return quantifierNode.toNaturalString()+ " " + objectNode.toNaturalString(plural) + thatis + locationNode.toNaturalString();
 	}
 	public String toNaturalString(boolean plural) {
 		

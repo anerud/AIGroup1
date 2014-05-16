@@ -23,36 +23,26 @@ public class Interpreter {
 			super(s);
 		}
 	}
+	public class ClarificationQuestionException extends InterpretationException{
+		private Question question;
 
-	//thrown when a reference to an object (THE) matched more than one object
-	public class AmbiguousReferenceException extends InterpretationException{
-		int questionId;
-		int subQuestionId;
+		public ClarificationQuestionException(Question question) {
+			super("clarification question");
+			this.question = question;
+		}
 
-		public AmbiguousReferenceException(String s) {
-			this(s,0,0);
+		public Question getQuestion() {
+			return question;
 		}
-		public AmbiguousReferenceException(String s,int questionId, int subQuestionId) {
-			super(s);
-			this.questionId =questionId;
-			this.subQuestionId = subQuestionId;
-		}
-		public int getQuestionId() {
-			return questionId;
-		}
-		public void setQuestionId(int questionId) {
-			this.questionId = questionId;
-		}
-		public int getSubQuestionId() {
-			return subQuestionId;
-		}
-		public void setSubQuestionId(int subQuestionId) {
-			this.subQuestionId = subQuestionId;
+
+		public void setQuestion(Question question) {
+			this.question = question;
 		}
 	}
 
+
 	//thrown when a reference to an object (THE) matches no object  
-	public class EmptyReferenceException extends InterpretationException{
+	private class EmptyReferenceException extends InterpretationException{
 		public  EmptyReferenceException(String s) {
 			super(s);
 		}
@@ -76,14 +66,14 @@ public class Interpreter {
 	 */
 
 	//TODO:  correct exception handling for ambiguity + user questions
-	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answerMap) throws InterpretationException, AmbiguousReferenceException, CloneNotSupportedException {
+	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answerMap) throws InterpretationException, ClarificationQuestionException, CloneNotSupportedException {
 		Set<Goal> okGoals = new HashSet<>(trees.size());
 		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
 		Set<NTree> failedTrees = new HashSet<>(trees.size());
 		answers = answerMap;
 		questionID = 0;
 		Set<EmptyReferenceException> emptyReferenceExceptions = new HashSet<>();
-		Set<AmbiguousReferenceException> ambiguousReferenceExceptions = new HashSet<>();
+		Set<ClarificationQuestionException> clarificationQuestionExceptions = new HashSet<>();
 		Set<InterpretationException> exceptions = new HashSet<>();
 
 		//traverse trees
@@ -103,10 +93,10 @@ public class Interpreter {
 				failedTrees.add(tree);
 				emptyReferenceExceptions.add(e);
 			}
-			catch(AmbiguousReferenceException e){
+			catch(ClarificationQuestionException e){
 				//there was an ambiguous THE reference.
 				ambiguousTrees.add(tree);
-				ambiguousReferenceExceptions.add(e);
+				clarificationQuestionExceptions.add(e);
 			}
 			catch(InterpretationException e){
 				//there was some error. 
@@ -125,11 +115,23 @@ public class Interpreter {
 		// if there is more than one valid goal, we have more than one ok
 		// parse trees: Todo: disambiguate using questions
 		// for now, return error message
-		if (okGoals.size()>1) throw new InterpretationException("I dont know what you mean exactly...");
+		if (okGoals.size()>1) 
+
+
+		{
+
+			String error = "Im not sure what you mean. Do you want med to " +Disambiguator.disambiguate(trees)+ " Sorry about this, i would like to just make an assumtion, but I am not allowed to.";
+
+
+
+			throw new InterpretationException(error );
+
+		}
 
 		//if there are unresolved ambiguituies left, throw exception to create new question
-		if (!ambiguousReferenceExceptions.isEmpty())
-			throw ambiguousReferenceExceptions.iterator().next();
+		if (!clarificationQuestionExceptions.isEmpty())
+
+			throw clarificationQuestionExceptions.iterator().next();
 		//if we are here, there should be at least one empty referece exception
 		if (!emptyReferenceExceptions.isEmpty())
 			throw emptyReferenceExceptions.iterator().next();
@@ -139,7 +141,7 @@ public class Interpreter {
 
 
 
-		// this should not happen
+		// this should not happen.
 		return null;
 
 	}
@@ -371,35 +373,53 @@ public class Interpreter {
 				Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation, LogicalExpression.Operator.OR);
 				if(wobjs.size() > 1){
 					if(!Shrdlite.debug){
-
-						//ambiguous THE reference to a relative entity
+						
+						LogicalExpression<WorldObject> logObjs= new LogicalExpression<WorldObject>(wobjs,LogicalExpression.Operator.OR);
 
 						// there is an ambiguity in the reference. THE matches more than one object
 						Disambiguator d = new Disambiguator();
-						questionID++;
 						if (!answers.containsKey(questionID))
 							answers.put(questionID, new ArrayList<NTree>());
 						List<NTree> subAnswers= answers.get(questionID);
-						try{
-							//try to resolve the ambiguity using the answers 
-							WorldObject picked = d.disambiguate(wobjs ,n, subAnswers); 
 
-							//delete all matches except the picked one. 
-							wobjs.clear();
-							wobjs.add(picked);
+						// inject the answer in place of the node that created the ambiguity
+						// and try to resolve to an unique object.  Now, only the objects 
+						// matched by the original reference is checked
 
-						}
-						catch(AmbiguousReferenceException e )
+
+						Iterator<NTree> i = subAnswers.iterator();
+						int currentQuestion = questionID;
+						int currentNumberOfSubquestions = subAnswers.size();
+						while (i.hasNext())
 						{
-							//the ambiguity was not resolved  
-							//tag on question ID and throw.  
-							//A new question will be generated for the next
-							//query.
-							e.setQuestionId(questionID);
-							e.setSubQuestionId(subAnswers.size());
-							throw e;
-						}
+							NTree answer = i.next();
+							try{
+								ObjectNode answerRoot =(ObjectNode) ((BasicEntityNode) answer.getRoot()).getObjectNode();
+								i.remove();
+								logObjs = visit(answerRoot, logObjs.getObjs(),q);
+							}
+							catch(ClarificationQuestionException e)
+							{
+								//ignore problems unless there is no answer left.
+								// if this was the last question, a new question needs to be asked. 
+								// if this was not the last question, there an answer that should resolve this problem
+								if(!i.hasNext())
+								{
+									e.getQuestion().setQuestionId(questionID);
+									e.getQuestion().setSubQuestionId(currentNumberOfSubquestions);
+									throw e;
+								}
+							}
+							catch(EmptyReferenceException e)
+							{
+								if(!i.hasNext()) 
+								{
+									Question question = new Question("not found : "+ e.getMessage(), questionID, currentNumberOfSubquestions);
+									throw new ClarificationQuestionException(question);
+								}
+							}
 
+						}
 
 					}
 				} else if(wobjs.isEmpty()){
@@ -499,11 +519,6 @@ public class Interpreter {
 			if(quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode){
 
 				// there is an ambiguity in the reference. THE matches more than one object
-
-
-
-
-
 				Disambiguator d = new Disambiguator();
 				if (!answers.containsKey(questionID))
 					answers.put(questionID, new ArrayList<NTree>());
@@ -525,27 +540,25 @@ public class Interpreter {
 						i.remove();
 						logObjs = visit(answerRoot, logObjs.getObjs(),quantifier);
 					}
-
-					catch(AmbiguousReferenceException e)
+					catch(ClarificationQuestionException e)
 					{
-
 						//ignore problems unless there is no answer left.
 						// if this was the last question, a new question needs to be asked. 
+						// if this was not the last question, there an answer that should resolve this problem
 						if(!i.hasNext())
 						{
-							e.setQuestionId(currentQuestion);
-							e.setSubQuestionId(currentNumberOfSubquestions);
+							e.getQuestion().setQuestionId(questionID);
+							e.getQuestion().setSubQuestionId(currentNumberOfSubquestions);
 							throw e;
-
 						}
-
-
 					}
 					catch(EmptyReferenceException e)
 					{
-						if(!i.hasNext()) throw e;
-
-
+						if(!i.hasNext()) 
+						{
+							Question q = new Question("not found : "+ e.getMessage(), questionID, currentNumberOfSubquestions);
+							throw new ClarificationQuestionException(q);
+						}
 					}
 
 				}
@@ -557,8 +570,9 @@ public class Interpreter {
 				if (objectsLeft>1) 
 				{
 					// we need to ask another question
-					String question = Disambiguator.disambiguate(logObjs.getObjs(), n);
-					throw new AmbiguousReferenceException(question, questionID, subAnswers.size());
+					String questionString = Disambiguator.disambiguate(logObjs.getObjs(), n);
+					Question q = new Question(questionString, questionID, currentNumberOfSubquestions);
+					throw new ClarificationQuestionException(q);
 
 
 				}

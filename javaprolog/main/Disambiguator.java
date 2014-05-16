@@ -6,36 +6,66 @@ import world.WorldObject;
 
 import java.util.*;
 
-import main.Interpreter.AmbiguousReferenceException;
+import main.Interpreter.ClarificationQuestionException;
 
+
+/**
+ * @author Joel
+ *
+ */
 public class Disambiguator {
-	private String message;
+
 
 	final private static String[] units = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-			"nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen",
-			"nineteen" };
+		"nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen",
+	"nineteen" };
 	final private static String[] tens = { "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty",
-			"ninety" };
+	"ninety" };
 
-	// author: joel
-
-	// returns a unique world object from a set of worldObjects using
-	// natural language clarification questions. The original user reference
-	// that was ambiguous is used to form the correct question for the context.
-	// The possible objects are described with no redundant information. Only
-	// features that are needed to discriminate between the possible objects are
-	// mentioned.
-
-	// Example: the user may say: "take the large object" . if there are three
-	// large objects, the disambiguator produces a question like, "I can see
-	// three large objects. Did you mean the box, the white ball, or the red
-	// ball?
-
-	public static String disambiguate(Set<WorldObject> objs, Node n)
+	
+	public static String disambiguate(List<NTree> trees)
 	{
+       
 		
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<NTree> i= trees.iterator(); 
+		
+		boolean first = true;
+		while (i.hasNext()) {
+			String d = i.next().toNaturalString();
+			if (!i.hasNext()) {
+				sb.append(" or ");
+				sb.append(d);
+			} else {
+				if (!first)
+					sb.append(", ");
+				sb.append(d);
+				first = false;
+			}
+		}
+		sb.append("?");
+		return sb.toString();
+		
+		
+	}
+
+	/** 
+	 * 	 Generate a clarification question that disambiguates an ambiguous 
+	 *  reference, given the reference and the objects it matched 
+	 Example: the user may say: "take the large object" . If there are three
+	 large objects, the method produces a question like, "I can see
+	 three large objects. Did you mean the box, the white ball, or the red
+	 ball?
+	 * @param objects The different objects that the reference may refer to.
+	 * @param reference The reference that was ambiguous.
+	 * @return A natural language clarification question. 
+	 */
+	public static String disambiguate(Set<WorldObject> objects, Node reference)
+	{
+
 		// put alternatives in sorted list for nicer enumeration
-		List<WorldObject> sortedObjs = new LinkedList<WorldObject>(objs);
+		List<WorldObject> sortedObjs = new LinkedList<WorldObject>(objects);
 
 		// make comparator to sort list
 		Comparator<WorldObject> worldObjectComparator = new Comparator<WorldObject>() {
@@ -48,12 +78,10 @@ public class Disambiguator {
 
 		Collections.sort(sortedObjs, worldObjectComparator);
 
-		
-
 		StringBuilder sb = new StringBuilder();
-		
+
 		int count = sortedObjs.size();
-		String iCanSee = "I can see " + int2String(count) + " " + n.toNaturalString(true);
+		String iCanSee = "I can see " + int2String(count) + " " + reference.toNaturalString(true);
 		sb.append(iCanSee);
 		sb.append(". Did you mean ");
 
@@ -62,7 +90,7 @@ public class Disambiguator {
 		// produce minimal unique descriptions, separated by commas and "or"
 		boolean first = true;
 		while (i.hasNext()) {
-			String d = minimalUniqueDiscription(i.next(), new HashSet<WorldObject>(objs));
+			String d = minimalUniqueDescription(i.next(), new HashSet<WorldObject>(objects));
 			if (d.equals("error")) {
 				return iCanSee + ". Please be more specific.";
 			}
@@ -77,79 +105,79 @@ public class Disambiguator {
 			}
 		}
 		sb.append("?");
-
-		// System.out.println(sb.toString());
-		// not immplemented
 		return sb.toString();
 	}
 
-	public String getMessage() {
-		return message;
-	}
 
-	// returns a description of a WorldObject, that is minimal but sufficient to
-	// distinguish it from
-	// all other WorldObjects in the given set.
-	public static String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers) {
-		return minimalUniqueDiscription(obj, theOthers, true);
-
-	}
-
-	public static String minimalUniqueDiscription(WorldObject obj, Set<WorldObject> theOthers, boolean definiteArticle) {
+	/** Generate a description of an object. The description is minimal, but sufficient to distinguish
+	 * it from all other objects in the given set. <br><br>
+	 * 
+	 * Example:   Returns "the ball" if the object is a ball, and no there object in the set is a ball. <br>
+	 * Example:   Returns "the large red ball" if there are other large balls and red balls in the set, but no large red one. <br>
+	 * 
+	 *  Limitations:  Does not use spatial relationships to distinguish objects. Only intrinsic properties are considered
+	 *  			  Returns the string "error" if the object could not be uniquely described.   
+	 *  
+	 * @param specialObject The object to be described
+	 * @param theOthers The set of objects from which to distinguish specialObject from. If specialObject itself is included, it is ignored.
+	 * @param definiteArticle Optional, defines whether to use the definite article ("the ball") or not ("a ball"). 
+	 * @return A string describing the specialObject
+	 */
+	public static String minimalUniqueDiscription(WorldObject specialObject, Set<WorldObject> theOthers, boolean definiteArticle) {
 
 		String article = definiteArticle ? "the " : "a ";
 		theOthers = new HashSet<WorldObject>(theOthers); // do not modify input!
-		theOthers.remove(obj);
+		theOthers.remove(specialObject);
 		Set<WorldObject> removeThese = new HashSet<WorldObject>();
 
 		// check if type is unique
 		for (WorldObject other : theOthers)
-			if (!obj.getForm().equals(other.getForm()))
+			if (!specialObject.getForm().equals(other.getForm()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
 		removeThese.clear();
 
 		if (theOthers.isEmpty())
-			return article + obj.getForm();
+			return article + specialObject.getForm();
 
 		// form was not unique, check if size is unique
 		for (WorldObject other : theOthers)
-			if (!obj.getSize().equals(other.getSize()))
+			if (!specialObject.getSize().equals(other.getSize()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
-		
+
 		if (theOthers.isEmpty())
-			return article + obj.getSize() + " " + obj.getForm();
-		
-        
+			return article + specialObject.getSize() + " " + specialObject.getForm();
+
+
 		// put back the ones with different size, check for unique color
 		theOthers.addAll(removeThese);
 		removeThese.clear();
 		for (WorldObject other : theOthers)
-			if (!obj.getColor().equals(other.getColor()))
+			if (!specialObject.getColor().equals(other.getColor()))
 				removeThese.add(other);
 		theOthers.removeAll(removeThese);
 
 		if (theOthers.isEmpty())
-			return article + obj.getColor() + " " + obj.getForm();
-		
+			return article + specialObject.getColor() + " " + specialObject.getForm();
+
 		// check for uniqe dscription using all attributes
 		theOthers.addAll(removeThese);
 		removeThese.clear();
 		for (WorldObject other : theOthers)
 		{
-			if (!obj.getColor().equals(other.getColor()))
+			if (!specialObject.getColor().equals(other.getColor()))
 				removeThese.add(other);
-			if (!obj.getSize().equals(other.getSize()))
+			if (!specialObject.getSize().equals(other.getSize()))
 				removeThese.add(other);
 		}
 		theOthers.removeAll(removeThese);
-         
-		
-		if (theOthers.isEmpty())
-			return article +" "+ obj.getSize() + " " + obj.getColor() + " " + obj.getForm();
 
-	
+
+		if (theOthers.isEmpty())
+			return article +" "+ specialObject.getSize() + " " + specialObject.getColor() + " " + specialObject.getForm();
+
+
 		// if there are exactly two identical objects, they can be disambiguated
 		// by relative position.
 		// if there are more than two identical objects, it is not possible to
@@ -166,7 +194,18 @@ public class Disambiguator {
 
 		// natural language representation of integer quantities
 	}
+	
+	public static String minimalUniqueDescription(WorldObject obj, Set<WorldObject> theOthers) {
+		return minimalUniqueDiscription(obj, theOthers, true);
 
+	}
+	
+	
+
+	/** A natural  language representation of an integer quantity, such as "two" or "one hundred and one"
+	 * @param i The quantity
+	 * @return The String representation
+	 */
 	public static String int2String(int i) {
 		if( i < 20)  return units[i];
 		if( i < 100) return tens[i/10] + ((i % 10 > 0)? " " + int2String(i % 10):"");

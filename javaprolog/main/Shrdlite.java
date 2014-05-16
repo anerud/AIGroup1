@@ -107,9 +107,10 @@ public class Shrdlite {
 			List<Term> parsedAnswer= parser.parseSentence("entity", q.getAnswer());
 			if (parsedAnswer.isEmpty())
 			{
-				// some answer was not ok. (should be the last one)
-				// erase that answer and have the client ask it again
-				q.getAnswer().clear();
+				// some answer was not ok. 
+				//add another clarification question. 
+				//:Todo:  handle unparsable questions. 
+				
 				questionsOk = false;
 				break;	
 			}
@@ -148,13 +149,14 @@ public class Shrdlite {
 						result.setGoals(goals.toString());
 					}
 
-			} catch (Interpreter.AmbiguousReferenceException e) {
+			} catch (Interpreter.ClarificationQuestionException e) {
 				// there was an exception that generates a clarification question
 				result.setQuestions(new ArrayList<>(p.getQuestions()));
-				result.getQuestions().add(new Question(e.getMessage(), e.getQuestionId(), e.getSubQuestionId()));
+				result.getQuestions().add(e.getQuestion());
 				
 			}
 			catch (Interpreter.InterpretationException e) {
+				//there was an error 
 				result.setOutput(e.getMessage());
 				
 			}

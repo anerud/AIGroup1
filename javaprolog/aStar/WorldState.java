@@ -425,11 +425,11 @@ public class WorldState implements IAStarState {
 					// Drop both arms
 					World dropBoth = world.clone();
 					if (dropBoth.drop(i, 0)) {
-						if (dropBoth.drop(j, 1) && !visitedWorld.contains(dropBoth.getRepresentString())) {
+						if (dropBoth.pick(j, 1) && !visitedWorld.contains(dropBoth.getRepresentString())) {
 							visitedWorld.add(dropBoth.getRepresentString());
 							List<String> newList = new LinkedList<String>(actionsToGetHere);
-							newList.add("drop0 " + i);
-							newList.add("pick1 " + j);
+							newList.add("drop1 " + i);
+							newList.add("pick2 " + j);
 							if (printProgress) {
 								newList.add("dropping from arm 1 to column " + i);
 								newList.add("picking from arm 2 to column " + j);
@@ -447,12 +447,12 @@ public class WorldState implements IAStarState {
 				for (int j = i + 1; j < world.getStacks().size(); j++) {
 					// Drop both arms
 					World dropBoth = world.clone();
-					if (dropBoth.drop(i, 0)) {
+					if (dropBoth.pick(i, 0)) {
 						if (dropBoth.drop(j, 1) && !visitedWorld.contains(dropBoth.getRepresentString())) {
 							visitedWorld.add(dropBoth.getRepresentString());
 							List<String> newList = new LinkedList<String>(actionsToGetHere);
-							newList.add("pick0 " + i);
-							newList.add("drop1 " + j);
+							newList.add("pick1 " + i);
+							newList.add("drop2 " + j);
 							if (printProgress) {
 								newList.add("picking from arm 1 to column " + i);
 								newList.add("dropping from arm 2 to column " + j);

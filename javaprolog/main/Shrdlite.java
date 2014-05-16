@@ -12,6 +12,7 @@ import gnu.prolog.term.CompoundTerm;
 import gnu.prolog.term.Term;
 import gnu.prolog.vm.PrologException;
 import tree.*;
+import world.EmptyWorldObject;
 import world.World;
 import world.WorldObject;
 
@@ -46,10 +47,14 @@ public class Shrdlite {
 		for (String s : p.getObjects().keySet()) {
 			p.getObjects().get(s).setId(s);
 		}
-
-		// Initialize holding object
-		WorldObject holding1= p.getObjects().get(p.getHolding1());
-		WorldObject holding2 = p.getObjects().get(p.getHolding2());
+		List<WorldObject> holdings = new LinkedList<>();
+		for(String s : p.getHoldings()){
+			if(s.equals("empty")){
+				holdings.add(new EmptyWorldObject());
+			}else{
+				holdings.add(p.getObjects().get(s));
+			}
+		}
 		// Initialize world
         for (int i = 0; i < p.getWorld().size(); i++) {
             LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
@@ -58,7 +63,7 @@ public class Shrdlite {
             }
             worldArr.add(objList);
         }
-		World world = new World(worldArr, holding1,holding2);
+		World world = new World(worldArr, holdings);
 
 		Input result = new Input();
 		result.setUtterance(p.getUtterance());

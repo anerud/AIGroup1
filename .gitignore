@@ -5,6 +5,7 @@
 *.pyc
 *.project
 *.txt
+*.json
 *result.json
 __pycache__
 

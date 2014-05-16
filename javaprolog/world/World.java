@@ -17,16 +17,14 @@ public class World {
 
 	private ArrayList<LinkedList<WorldObject>> stacks;
 	private List<WorldConstraint> constraints;
-	private WorldObject holding1;
-	private WorldObject holding2;
+	private List<WorldObject> holdings;
 	private HashMap<WorldObject, Integer> columns; // Used for efficiency
 													// purposes
 
-	public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains, WorldObject holding1,
-			WorldObject holding2) {
+	public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains,
+			List<WorldObject> holdings) {
 		this.constraints = constrains;
-		this.holding1 = holding1;
-		this.holding2 = holding2;
+		this.holdings = holdings;
 		this.stacks = stacks;
 		initColumns();
 	}
@@ -39,8 +37,7 @@ public class World {
 	 */
 	public World(ArrayList<LinkedList<WorldObject>> stacks) {
 		this.constraints = new ArrayList<WorldConstraint>();
-		this.holding1 = null;
-		this.holding2 = null;
+		this.holdings = new LinkedList<>();
 		this.stacks = stacks;
 		initColumns();
 	}
@@ -51,10 +48,9 @@ public class World {
 	 * @param stacks
 	 * @param holding
 	 */
-	public World(ArrayList<LinkedList<WorldObject>> stacks, WorldObject holding1, WorldObject holding2) {
+	public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldObject> holdings) {
 		this.constraints = new ArrayList<WorldConstraint>();
-		this.holding1 = holding1;
-		this.holding2 = holding2;
+		this.holdings = holdings;
 		this.stacks = stacks;
 		initColumns();
 	}
@@ -74,12 +70,8 @@ public class World {
 		return stacks.get(this.columnOf(o)).indexOf(o);
 	}
 
-	public WorldObject getHolding1() {
-		return holding1;
-	}
-
-	public WorldObject getHolding2() {
-		return holding2;
+	public List<WorldObject> getHoldings() {
+		return holdings;
 	}
 
 	public ArrayList<LinkedList<WorldObject>> getStacks() {
@@ -92,11 +84,8 @@ public class World {
 	 */
 	public Set<WorldObject> getWorldObjects() {
 		HashSet<WorldObject> objs = new HashSet<WorldObject>();
-		if (holding1 != null) {
-			objs.add(holding1);
-		}
-		if (holding2 != null) {
-			objs.add(holding2);
+		for (WorldObject h : holdings) {
+			objs.add(h);
 		}
 		for (LinkedList<WorldObject> ll : stacks) {
 			objs.addAll(ll);
@@ -122,10 +111,11 @@ public class World {
 	 *         contains no such WorldObject
 	 */
 	public WorldObject getWorldObject(String id) {
-		if (holding1 != null && holding1.getId().equals(id))
-			return holding1;
-		if (holding2 != null && holding2.getId().equals(id))
-			return holding2;
+		for (WorldObject h : holdings) {
+			if (h.getId().equals(id)) {
+				return h;
+			}
+		}
 		if (id.equals("floor")) {
 			return new WorldObject("floor", "floor", "floor", "floor");
 		}
@@ -154,12 +144,8 @@ public class World {
 		}
 	}
 
-	public void setHolding1(WorldObject holding1) {
-		this.holding1 = holding1;
-	}
-
-	public void setHolding2(WorldObject holding2) {
-		this.holding2 = holding2;
+	public void setHoldings(List<WorldObject> holdings) {
+		this.holdings = holdings;
 	}
 
 	/**
@@ -207,26 +193,17 @@ public class World {
 	 * @param woColumn
 	 * @return true if the operation was successful
 	 */
-	public boolean pick(int woColumn, boolean isHolding1) {
+	public boolean pick(int woColumn, int arm) {
 		WorldObject top = topOfStack(woColumn);
-		if (isHolding1) {
-			if (holding1 == null && !top.getForm().equals("floor")) {
-				holding1 = top;
-				WorldObject removed = stacks.get(woColumn).removeLast();
-				if (removed != null) {
-					columns.remove(removed);
-				}
-				return true;
+
+		if (holdings.get(arm).getClass() == EmptyWorldObject.class && !top.getForm().equals("floor")) {
+			holdings.remove(arm);
+			holdings.add(arm, top);
+			WorldObject removed = stacks.get(woColumn).removeLast();
+			if (removed != null) {
+				columns.remove(removed);
 			}
-		} else {
-			if (holding2 == null && !top.getForm().equals("floor")) {
-				holding2 = top;
-				WorldObject removed = stacks.get(woColumn).removeLast();
-				if (removed != null) {
-					columns.remove(removed);
-				}
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
@@ -238,33 +215,20 @@ public class World {
 	 * @return true if the operation was successful. If false is returned, it
 	 *         means the world state is unchanged.
 	 */
-	public boolean drop(int woColumn, boolean isHolding1) {
-		if (isHolding1 && holding1 == null) {
-			return false;
-		} else if (!isHolding1 && holding2 == null) {
+	public boolean drop(int woColumn, int arm) {
+		if (holdings.get(arm).getClass() == EmptyWorldObject.class) {
 			return false;
 		}
-		if (isHolding1) {
-			WorldObject top = topOfStack(woColumn);
-			if (top != null
-					&& !(top.getForm().equals("box") ? isValidRelation(WorldConstraint.Relation.INSIDE, holding1, top)
-							: isValidRelation(WorldConstraint.Relation.ONTOP, holding1, top))) {
-				return false;
-			} // This assumes it's always ok to put stuff directly on the floor
-			stacks.get(woColumn).addLast(holding1);
-			columns.put(holding1, woColumn);
-			holding1 = null;
-		} else {
-			WorldObject top = topOfStack(woColumn);
-			if (top != null
-					&& !(top.getForm().equals("box") ? isValidRelation(WorldConstraint.Relation.INSIDE, holding2, top)
-							: isValidRelation(WorldConstraint.Relation.ONTOP, holding2, top))) {
-				return false;
-			} // This assumes it's always ok to put stuff directly on the floor
-			stacks.get(woColumn).addLast(holding2);
-			columns.put(holding2, woColumn);
-			holding2 = null;
-		}
+		WorldObject top = topOfStack(woColumn);
+		if (top != null
+				&& !(top.getForm().equals("box") ? isValidRelation(WorldConstraint.Relation.INSIDE, holdings.get(arm),
+						top) : isValidRelation(WorldConstraint.Relation.ONTOP, holdings.get(arm), top))) {
+			return false;
+		} // This assumes it's always ok to put stuff directly on the floor
+		stacks.get(woColumn).addLast(holdings.get(arm));
+		columns.put(holdings.get(arm), woColumn);
+		holdings.remove(arm);
+		holdings.add(arm, new EmptyWorldObject());
 		return true;
 	}
 
@@ -814,20 +778,18 @@ public class World {
 		}
 
 		List<WorldConstraint> cCon = new LinkedList<WorldConstraint>(this.constraints);
-		return new World(cStack, cCon, this.holding1, this.holding2);
+		return new World(cStack, cCon, new LinkedList<>(holdings));
 	}
 
 	public String getRepresentString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(":");
-		if (holding1 != null) {
-			sb.append(holding1.getId());
+		for (WorldObject o : holdings) {
+			if (o.getClass() != EmptyWorldObject.class) {
+				sb.append(o.getId());
+			}
+			sb.append(":");
 		}
-		sb.append(":");
-		if (holding2 != null) {
-			sb.append(holding2.getId());
-		}
-		sb.append(":");
 		for (LinkedList<WorldObject> wl : stacks) {
 			for (WorldObject wo : wl) {
 				sb.append(wo.getId());
@@ -852,12 +814,16 @@ public class World {
 	public boolean isGoalFulFilled(Goal goal) {
 		if (goal.getAction().equals(Goal.Action.TAKE)) {
 			Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
-			if(holding1 == null && holding2 == null){
-				return false;
-			}else if(holding1 != null && holding2 == null){
-				return wos.contains(holding1);
-			}else if(holding1 == null && holding2 != null){
-				return wos.contains(holding2);
+			int holdingitems = 0;
+			WorldObject wo = null;
+			for (WorldObject o : holdings) {
+				if (o.getClass() != EmptyWorldObject.class) {
+					holdingitems++;
+					wo = o;
+				}
+			}
+			if (holdingitems == 1) {
+				return wos.contains(wo);
 			}
 			return false;
 		} else {
@@ -869,8 +835,7 @@ public class World {
 		if (wo instanceof RelativeWorldObject) {
 			return hasRelation((RelativeWorldObject) wo);
 		} else {
-			if (columnOf(wo) != -1 || (holding1 == null ? false : holding1.getId().equals(wo.getId()))
-					|| (holding2 == null ? false : holding2.getId().equals(wo.getId())))
+			if (columnOf(wo) != -1 || holdings.contains(wo))
 				return true;
 		}
 		return false;

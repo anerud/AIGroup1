@@ -428,8 +428,8 @@ public class WorldState implements IAStarState {
 						if (dropBoth.pick(j, 1) && !visitedWorld.contains(dropBoth.getRepresentString())) {
 							visitedWorld.add(dropBoth.getRepresentString());
 							List<String> newList = new LinkedList<String>(actionsToGetHere);
-							newList.add("drop1 " + i);
-							newList.add("pick2 " + j);
+							newList.add("drop0 " + i);
+							newList.add("pick1 " + j);
 							if (printProgress) {
 								newList.add("dropping from arm 1 to column " + i);
 								newList.add("picking from arm 2 to column " + j);
@@ -451,8 +451,8 @@ public class WorldState implements IAStarState {
 						if (dropBoth.drop(j, 1) && !visitedWorld.contains(dropBoth.getRepresentString())) {
 							visitedWorld.add(dropBoth.getRepresentString());
 							List<String> newList = new LinkedList<String>(actionsToGetHere);
-							newList.add("pick1 " + i);
-							newList.add("drop2 " + j);
+							newList.add("pick0 " + i);
+							newList.add("drop1 " + j);
 							if (printProgress) {
 								newList.add("picking from arm 1 to column " + i);
 								newList.add("dropping from arm 2 to column " + j);

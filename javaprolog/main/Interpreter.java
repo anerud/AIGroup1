@@ -66,11 +66,12 @@ public class Interpreter {
 	 */
 
 	//TODO:  correct exception handling for ambiguity + user questions
-	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answerMap) throws InterpretationException, ClarificationQuestionException, CloneNotSupportedException {
+	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answers) 
+			throws InterpretationException, ClarificationQuestionException, CloneNotSupportedException {
 		Set<Goal> okGoals = new HashSet<>(trees.size());
 		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
 		Set<NTree> failedTrees = new HashSet<>(trees.size());
-		answers = answerMap;
+		this.answers = answers;
 		questionID = 0;
 		Set<EmptyReferenceException> emptyReferenceExceptions = new HashSet<>();
 		Set<ClarificationQuestionException> clarificationQuestionExceptions = new HashSet<>();
@@ -141,8 +142,9 @@ public class Interpreter {
 
 
 
-		// this should not happen.
-		return null;
+		// return goals
+		// may be empty
+		return okGoals;
 
 	}
 
@@ -571,6 +573,7 @@ public class Interpreter {
 				{
 					// we need to ask another question
 					String questionString = Disambiguator.disambiguate(logObjs.getObjs(), n);
+					if (currentNumberOfSubquestions>1) questionString = questionString + " Stupid."; 
 					Question q = new Question(questionString, questionID, currentNumberOfSubquestions);
 					throw new ClarificationQuestionException(q);
 

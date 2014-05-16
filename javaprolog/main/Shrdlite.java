@@ -163,15 +163,11 @@ public class Shrdlite {
 
 				if (goals.isEmpty()) {
 					if (result.getOutput() == null) {
-						result.setOutput("Interpretation error! (Clarification question)");
+						result.setOutput("Sorry, that is not possible. (interpretation error)");
 						
 					}
 				} else if (goals.size() > 1) {
 					result.setOutput("Disambiguation error!");
-					
-					
-
-
 				} else {
 					log.println(goals.get(0).toString());
 					Planner planner = new Planner(world);
@@ -194,14 +190,8 @@ public class Shrdlite {
 		else
 		{
 			//there was a problem with a question.. 
-
-
-
 		}	
 
-		
-
-		
 	    fw = new FileWriter("latestOutput.json");
 	    String jsonString = new Gson().toJson(result);
 		pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);

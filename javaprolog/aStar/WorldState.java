@@ -393,9 +393,45 @@ public class WorldState implements IAStarState {
 	 */
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
+		if (world.getHoldings().size() == 2) {
+			return expandTwoArms();
+		} else {
+			return expandOneArm();
+		}
+	}
+
+	public Collection<? extends IAStarState> expandOneArm() throws CloneNotSupportedException {
+		Collection<IAStarState> l = new LinkedList<IAStarState>();
+		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
+			for (int i = 0; i < world.getStacks().size(); i++) {
+				World w = world.clone();
+				if (w.drop(i,0) && !visitedWorld.contains(w.getRepresentString())) {
+					visitedWorld.add(w.getRepresentString());
+					List<String> newList = new LinkedList<String>(actionsToGetHere);
+					newList.add("drop0 " + i);
+					WorldState state = new WorldState(w, goal, newList,0,0,0);
+					l.add(state);
+				}
+			}
+		} else {
+			for (int i = 0; i < world.getStacks().size(); i++) {
+				World w = world.clone();
+				if (w.pick(i,0) && !visitedWorld.contains(w.getRepresentString())) {
+					visitedWorld.add(w.getRepresentString());
+					List<String> newList = new LinkedList<String>(actionsToGetHere);
+					newList.add("pick0 " + i);
+					WorldState state = new WorldState(w, goal, newList,0,0,0);
+					l.add(state);
+				}
+			}
+		}
+		return l;
+	}
+
+	public Collection<? extends IAStarState> expandTwoArms() throws CloneNotSupportedException {
 		Collection<IAStarState> l = new LinkedList<IAStarState>();
 
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() != EmptyWorldObject.class
+		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				for (int j = i + 1; j < world.getStacks().size(); j++) {
@@ -418,7 +454,7 @@ public class WorldState implements IAStarState {
 			}
 		}
 
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() != EmptyWorldObject.class
+		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() == EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				for (int j = i + 1; j < world.getStacks().size(); j++) {
@@ -441,7 +477,7 @@ public class WorldState implements IAStarState {
 			}
 		}
 
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() == EmptyWorldObject.class
+		if (world.getHoldings().get(0).getClass() == EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				for (int j = i + 1; j < world.getStacks().size(); j++) {
@@ -465,7 +501,7 @@ public class WorldState implements IAStarState {
 		}
 
 		// Drop arm1 and move arm2
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
+		if (world.getHoldings().get(0).getClass() != EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				World drop0move1 = world.clone();
 				if (drop0move1.drop(i, 0) && !visitedWorld.contains(drop0move1.getRepresentString())) {
@@ -494,7 +530,7 @@ public class WorldState implements IAStarState {
 		}
 
 		// Drop arm2 and move arm1
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
+		if (world.getHoldings().get(1).getClass() != EmptyWorldObject.class) {
 			for (int j = 1; j < world.getStacks().size(); j++) {
 				World drop1move0 = world.clone();
 				if (drop1move0.drop(j, 1) && !visitedWorld.contains(drop1move0.getRepresentString())) {
@@ -524,7 +560,7 @@ public class WorldState implements IAStarState {
 		}
 
 		// Pick both arms
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() == EmptyWorldObject.class
+		if (world.getHoldings().get(0).getClass() == EmptyWorldObject.class
 				&& world.getHoldings().get(1).getClass() == EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				for (int j = i + 1; j < world.getStacks().size(); j++) {
@@ -547,7 +583,7 @@ public class WorldState implements IAStarState {
 		}
 
 		// Pick arm1 and move arm2
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(0).getClass() == EmptyWorldObject.class) {
+		if (world.getHoldings().get(0).getClass() == EmptyWorldObject.class) {
 			for (int i = 0; i < world.getStacks().size() - 1; i++) {
 				World pick0move1 = world.clone();
 				if (pick0move1.pick(i, 0) && !visitedWorld.contains(pick0move1.getRepresentString())) {
@@ -576,7 +612,7 @@ public class WorldState implements IAStarState {
 		}
 
 		// Pick arm2 and move arm1
-		if (world.getHoldings().size() == 2 && world.getHoldings().get(1).getClass() == EmptyWorldObject.class) {
+		if (world.getHoldings().get(1).getClass() == EmptyWorldObject.class) {
 			for (int j = 1; j < world.getStacks().size(); j++) {
 				World pick1move0 = world.clone();
 				if (pick1move0.pick(j, 1) && !visitedWorld.contains(pick1move0.getRepresentString())) {

@@ -455,26 +455,25 @@ function enableInput() {
 }
 
 function performPlan() {
-    if (currentPlan && currentPlan.length > 1) {
-		var item1 = currentPlan.shift();
-		var item2 = currentPlan.shift();
+    if (currentPlan && currentPlan.length >= currentWorld.holdings.length) {
+		var items = [];
+		var actions = []
         var timeout = 0;
-		var action1 = getAction(item1);
-		var action2 = getAction(item2);
-		if (action1 && action2) {
-			var timeout1 = 0;
-			var timeout2 = 0;
-			if(action1){
-				timeout1 = moveObject(action1[0], action1[1]);
+		
+		for(var i = 0;i<currentWorld.holdings.length;i++){
+			var item = currentPlan.shift() 
+			items.push(item);
+			var action = getAction(item);
+			actions.push(action);
+			if(action){
+				timeout = Math.max(moveObject(action[0], action[1]),timeout);
+			}else{
+				sayUtterance("system", items[i]);
 			}
-			if(action2){
-				timeout2 = moveObject(action2[0], action2[1]);
-			}
-			timeout = Math.max(timeout1, timeout2);
-        } else {
-			sayUtterance("system", item1);
-			sayUtterance("system", item2);
-        }
+			
+		}
+			
+  
         setTimeout(performPlan, 1000 * timeout);
     } else {
         systemPrompt(PromptPause);

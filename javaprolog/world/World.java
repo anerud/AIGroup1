@@ -12,36 +12,68 @@ public class World {
 
 	private ArrayList<LinkedList<WorldObject>> stacks;
 	private List<WorldConstraint> constraints;
-	private List<WorldObject> holdings;
-	private HashMap<WorldObject, Integer> columns; // Used for efficiency
-													// purposes
+	private WorldObject holding;
+    private HashMap<WorldObject, Integer> columns; //Used for efficiency purposes
 
-	public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldConstraint> constrains, List<WorldObject> holdings) {
+	public World(ArrayList<LinkedList<WorldObject>> stacks,
+			List<WorldConstraint> constrains, WorldObject holding) {
 		this.constraints = constrains;
-		this.holdings = holdings;
+		this.holding = holding;
 		this.stacks = stacks;
-		initColumns();
+        initColumns();
 	}
 
-
-
-	private void initColumns() {
-		this.columns = new HashMap<>();
-		int column = 0;
-		for (LinkedList<WorldObject> stack : stacks) {
-			for (WorldObject wo : stack) {
-				columns.put(wo, column);
-			}
-			column++;
-		}
+	/**
+	 * This constructor assumes there are no constraints and that nothing is
+	 * being held
+	 * 
+	 * @param stacks
+	 */
+	public World(ArrayList<LinkedList<WorldObject>> stacks) {
+		this.constraints = new ArrayList<WorldConstraint>();
+		this.holding = null;
+		this.stacks = stacks;
+        initColumns();
 	}
+
+	public World(ArrayList<LinkedList<WorldObject>> stacks,
+			List<WorldConstraint> constrains) {
+		this.constraints = constrains;
+		this.holding = null;
+		this.stacks = stacks;
+        initColumns();
+	}
+
+	/**
+	 * This constructor assumes there are no constraints
+	 * 
+	 * @param stacks
+	 * @param holding
+	 */
+	public World(ArrayList<LinkedList<WorldObject>> stacks, WorldObject holding) {
+		this.constraints = new ArrayList<WorldConstraint>();
+		this.holding = holding;
+		this.stacks = stacks;
+        initColumns();
+	}
+
+    private void initColumns(){
+        this.columns = new HashMap<>();
+        int column = 0;
+        for(LinkedList<WorldObject> stack : stacks){
+            for(WorldObject wo : stack){
+                columns.put(wo, column);
+            }
+            column++;
+        }
+    }
 
 	public int nObjectsOnTopOf(WorldObject o) {
 		return stacks.get(this.columnOf(o)).indexOf(o);
 	}
 
-	public List<WorldObject> getHoldings() {
-		return holdings;
+	public WorldObject getHolding() {
+		return holding;
 	}
 
 	public ArrayList<LinkedList<WorldObject>> getStacks() {
@@ -54,7 +86,9 @@ public class World {
 	 */
 	public Set<WorldObject> getWorldObjects() {
 		HashSet<WorldObject> objs = new HashSet<WorldObject>();
-		objs.addAll(holdings);
+		if (holding != null) {
+			objs.add(holding);
+		}
 		for (LinkedList<WorldObject> ll : stacks) {
 			objs.addAll(ll);
 		}
@@ -79,11 +113,8 @@ public class World {
 	 *         contains no such WorldObject
 	 */
 	public WorldObject getWorldObject(String id) {
-		for (WorldObject holding : holdings) {
-			if (holding.getId().equals(id)) {
-				return holding;
-			}
-		}
+		if (holding != null && holding.getId().equals(id))
+			return holding;
 		if (id.equals("floor")) {
 			return new WorldObject("floor", "floor", "floor", "floor");
 		}
@@ -112,8 +143,8 @@ public class World {
 		}
 	}
 
-	public void setHoldings(List<WorldObject> holdings) {
-		this.holdings = holdings;
+	public void setHolding(WorldObject holding) {
+		this.holding = holding;
 	}
 
 	/**
@@ -139,38 +170,36 @@ public class World {
 		return stacks.get(fromColumn).isEmpty();
 	}
 
-	// /**
-	// *
-	// * @param fromColumn
-	// * @return true if the specified operation was successful
-	// */
-	// public boolean moveTopToNextColumn(int fromColumn) {
-	// // TODO: check that the objects are compatible, that is, that object a
-	// // can be placed ontop of object b
-	// if (!isStackEmpty(fromColumn)) {
-	// WorldObject wo = stacks.get(fromColumn).getLast();
-	// stacks.get(fromColumn).removeLast();
-	// stacks.get((fromColumn + 1) % numberOfColumns()).addLast(wo);
-	// return true;
-	// }
-	// return false;
-	// }
+//	/**
+//	 *
+//	 * @param fromColumn
+//	 * @return true if the specified operation was successful
+//	 */
+//	public boolean moveTopToNextColumn(int fromColumn) {
+//		// TODO: check that the objects are compatible, that is, that object a
+//		// can be placed ontop of object b
+//		if (!isStackEmpty(fromColumn)) {
+//			WorldObject wo = stacks.get(fromColumn).getLast();
+//			stacks.get(fromColumn).removeLast();
+//			stacks.get((fromColumn + 1) % numberOfColumns()).addLast(wo);
+//			return true;
+//		}
+//		return false;
+//	}
 
 	/**
 	 * 
 	 * @param woColumn
 	 * @return true if the operation was successful
 	 */
-	public boolean pick(int woColumn, int arm) {
+	public boolean pick(int woColumn) {
 		WorldObject top = topOfStack(woColumn);
-
-		if (holdings.get(arm).getClass() == EmptyWorldObject.class && !top.getForm().equals("floor")) {
-			holdings.remove(arm);
-			holdings.add(arm, top);
+		if (holding == null && !top.getForm().equals("floor")) {
+			holding = top;
 			WorldObject removed = stacks.get(woColumn).removeLast();
-			if (removed != null) {
-				columns.remove(removed);
-			}
+            if(removed != null){
+                columns.remove(removed);
+            }
 			return true;
 		}
 		return false;
@@ -183,20 +212,21 @@ public class World {
 	 * @return true if the operation was successful. If false is returned, it
 	 *         means the world state is unchanged.
 	 */
-	public boolean drop(int woColumn, int arm) {
-		if (holdings.get(arm).getClass() == EmptyWorldObject.class) {
+	public boolean drop(int woColumn) {
+		if (holding == null) {
 			return false;
 		}
 		WorldObject top = topOfStack(woColumn);
 		if (top != null
-				&& !(top.getForm().equals("box") ? isValidRelation(WorldConstraint.Relation.INSIDE, holdings.get(arm),
-						top) : isValidRelation(WorldConstraint.Relation.ONTOP, holdings.get(arm), top))) {
+				&& !(top.getForm().equals("box") ? isValidRelation(
+						WorldConstraint.Relation.INSIDE, holding, top)
+						: isValidRelation(WorldConstraint.Relation.ONTOP,
+								holding, top))) {
 			return false;
 		} // This assumes it's always ok to put stuff directly on the floor
-		stacks.get(woColumn).addLast(holdings.get(arm));
-		columns.put(holdings.get(arm), woColumn);
-		holdings.remove(arm);
-		holdings.add(arm, new EmptyWorldObject());
+		stacks.get(woColumn).addLast(holding);
+        columns.put(holding, woColumn);
+		holding = null;
 		return true;
 	}
 
@@ -204,30 +234,30 @@ public class World {
 	 * 
 	 * @param wo
 	 * @return the column of the WorldObject, or -1 if the object is not
-	 *         contained in the world. If the object is the floor, column 0 is
-	 *         returned. Relations are ignored for RelativeWorldObjects.
+	 *         contained in the world. If the object is the floor, column 0 is returned.
+     *         Relations are ignored for RelativeWorldObjects.
 	 */
 	public int columnOf(WorldObject wo) {
 		if (wo instanceof RelativeWorldObject) {
 			wo = new WorldObject(wo);
 		}
 
-		if (wo.getForm().equals("floor")) {
-			return 0; // The floor is on all columns, including 0...
-		}
+        if(wo.getForm().equals("floor")){
+            return 0; //The floor is on all columns, including 0...
+        }
 
-		Integer column = this.columns.get(wo);
-		return column == null ? -1 : column;
-		//
-		// for (LinkedList<WorldObject> ll : stacks) {
-		// if (ll.contains(wo)) {
-		// return stacks.indexOf(ll);
-		// }
-		// if (wo.getForm().equals("floor") && ll.isEmpty()) {
-		// return stacks.indexOf(ll);
-		// }
-		// }
-		// return -1;
+        Integer column = this.columns.get(wo);
+        return column == null ? -1 : column;
+//
+//		for (LinkedList<WorldObject> ll : stacks) {
+//			if (ll.contains(wo)) {
+//				return stacks.indexOf(ll);
+//			}
+//			if (wo.getForm().equals("floor") && ll.isEmpty()) {
+//				return stacks.indexOf(ll);
+//			}
+//		}
+//		return -1;
 	}
 
 	/**
@@ -243,16 +273,14 @@ public class World {
 		if (wo instanceof RelativeWorldObject) {
 			wo = new WorldObject(wo);
 		}
-		if (wo.getId().equals("floor"))
-			return -1;
-		int column = columnOf(wo);
-		if (column == -1)
-			return -1;
-		return stacks.get(column).indexOf(wo);
+		if(wo.getId().equals("floor")) return -1;
+        int column = columnOf(wo);
+        if(column == -1) return -1;
+        return stacks.get(column).indexOf(wo);
 	}
 
-	public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1,
-			LogicalExpression<WorldObject> woRel) {
+	public boolean isValidRelation(WorldConstraint.Relation relation,
+			WorldObject obj1, LogicalExpression<WorldObject> woRel) {
 		if (woRel.getObjs() != null) {
 			if (woRel.getOp().equals(LogicalExpression.Operator.AND)) {
 				for (WorldObject wo : woRel.getObjs()) {
@@ -260,7 +288,8 @@ public class World {
 						return false;
 					}
 				}
-				for (LogicalExpression<WorldObject> exp : woRel.getExpressions()) {
+				for (LogicalExpression<WorldObject> exp : woRel
+						.getExpressions()) {
 					if (!isValidRelation(relation, obj1, exp)) {
 						return false;
 					}
@@ -271,7 +300,8 @@ public class World {
 						return true;
 					}
 				}
-				for (LogicalExpression<WorldObject> exp : woRel.getExpressions()) {
+				for (LogicalExpression<WorldObject> exp : woRel
+						.getExpressions()) {
 					if (isValidRelation(relation, obj1, exp)) {
 						return true;
 					}
@@ -281,11 +311,13 @@ public class World {
 		return false;
 	}
 
-	public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1, WorldObject obj2) {
+	public boolean isValidRelation(WorldConstraint.Relation relation,
+			WorldObject obj1, WorldObject obj2) {
 		if (obj1.getId().equals(obj2.getId()))
 			return false; // Cannot have a relation to itself
 		if (obj2 instanceof RelativeWorldObject && obj2.getForm() == null) {
-			WorldObject woRel = ((RelativeWorldObject) obj2).getRelativeTo();
+			WorldObject woRel = ((RelativeWorldObject) obj2)
+					.getRelativeTo();
 			return isValidRelation(relation, obj1, woRel);
 		}
 		String form1 = obj1.getForm();
@@ -313,7 +345,8 @@ public class World {
 					if (!(form2.equals("table") || form2.equals("plank")))
 						return false;
 				} else if (size1.equals("large") && size2.equals("large")) {
-					if (!(form2.equals("table") || form2.equals("plank") || form2.equals("brick")))
+					if (!(form2.equals("table") || form2.equals("plank") || form2
+							.equals("brick")))
 						return false;
 				}
 			}
@@ -331,31 +364,21 @@ public class World {
 				if (!(size1.equals("small") && size2.equals("large")))
 					return false;
 			}
-		} else if (relation.equals(WorldConstraint.Relation.UNDER)) {
-			if (size1.equals("small") && size2.equals("large")) { // large
-																	// objects
-																	// cannot be
-																	// above
-																	// small
-																	// objects
-				return false;
-			}
-			if (form1.equals("ball")) {
-				return false; // Balls cannot support anything
-			}
-		} else if (relation.equals(WorldConstraint.Relation.ABOVE)) {
-			if (size2.equals("small") && size1.equals("large")) { // large
-																	// objects
-																	// cannot be
-																	// above
-																	// small
-																	// objects
-				return false;
-			}
-			if (form2.equals("ball")) {
-				return false; // Balls cannot support anything
-			}
-		}
+		} else if (relation.equals(WorldConstraint.Relation.UNDER)){
+            if(size1.equals("small") && size2.equals("large")){ //large objects cannot be above small objects
+                return false;
+            }
+            if(form1.equals("ball")){
+                return false; //Balls cannot support anything
+            }
+        } else if (relation.equals(WorldConstraint.Relation.ABOVE)){
+            if(size2.equals("small") && size1.equals("large")){ //large objects cannot be above small objects
+                return false;
+            }
+            if(form2.equals("ball")){
+                return false; //Balls cannot support anything
+            }
+        }
 		return true;
 	}
 
@@ -369,10 +392,10 @@ public class World {
 	 * @param attachTo
 	 * @return
 	 */
-	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(Set<WorldObject> toBeAttached,
-			LogicalExpression<WorldObject> attachTo, LogicalExpression.Operator op) {
+	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(Set<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo, LogicalExpression.Operator op) {
 
-		LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, op);
+
+        LogicalExpression<WorldObject> relobjs = new LogicalExpression<WorldObject>(null, op);
 		for (WorldObject wo : toBeAttached) {
 			// clone..
 			Set<WorldObject> objsClone = new HashSet<WorldObject>();
@@ -382,15 +405,15 @@ public class World {
 				for (WorldObject wo1 : le.getObjs()) {
 					clonedObjs.add(wo1.clone());
 				}
-				LogicalExpression<WorldObject> leCopy = new LogicalExpression<>(clonedObjs, le.getExpressions(),
-						le.getOp());
+				LogicalExpression<WorldObject> leCopy = new LogicalExpression<>(
+						clonedObjs, le.getExpressions(), le.getOp());
 				expClone.add(leCopy);
 			}
 			for (WorldObject obj : attachTo.getObjs()) {
 				objsClone.add(obj.clone());
 			}
-			LogicalExpression<WorldObject> attachToClone = new LogicalExpression<WorldObject>(objsClone, expClone,
-					attachTo.getOp());
+			LogicalExpression<WorldObject> attachToClone = new LogicalExpression<WorldObject>(
+					objsClone, expClone, attachTo.getOp());
 
 			// set the non-relative object...
 			List<WorldObject> tops = attachToClone.topObjsList();
@@ -400,12 +423,12 @@ public class World {
 					if (isValidRelation(((RelativeWorldObject) wo1).getRelation(), wo, wo1)) {
 						((RelativeWorldObject) wo1).setObj(wo);
 					} else {
-						if (attachTo.getOp().equals(LogicalExpression.Operator.AND)) {
-							toBeRemoved.addAll(tops);
-							break;
-						} else {
-							toBeRemoved.add(wo1);
-						}
+                        if(attachTo.getOp().equals(LogicalExpression.Operator.AND)){
+                            toBeRemoved.addAll(tops);
+                            break;
+                        } else {
+						    toBeRemoved.add(wo1);
+                        }
 					}
 				}
 			}
@@ -427,9 +450,9 @@ public class World {
 		return relobjs;
 	}
 
-	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(LogicalExpression<WorldObject> toBeAttached,
-			LogicalExpression<WorldObject> attachTo) {
-		LogicalExpression<WorldObject> logExp = new LogicalExpression<WorldObject>(null, toBeAttached.getOp());
+	public LogicalExpression<WorldObject> attachWorldObjectsToRelation(LogicalExpression<WorldObject> toBeAttached, LogicalExpression<WorldObject> attachTo) {
+		LogicalExpression<WorldObject> logExp = new LogicalExpression<WorldObject>(
+				null, toBeAttached.getOp());
 
 		Set<WorldObject> wos = toBeAttached.getObjs();
 		if (wos != null) {
@@ -495,14 +518,14 @@ public class World {
 				}
 			}
 			for (LogicalExpression<WorldObject> exp : le.getExpressions()) {
-				Set<WorldObject> to = new HashSet<WorldObject>();
-				for (WorldObject wo : exp.topObjs()) {
-					to.add(new WorldObject(wo));
-				}
+                Set<WorldObject> to = new HashSet<WorldObject>();
+                for (WorldObject wo : exp.topObjs()) {
+                    to.add(new WorldObject(wo));
+                }
 				to.removeAll(filterByExistsInWorld(exp));
-				for (WorldObject wo : to) {
-					filtered.remove(new WorldObject(wo));
-				}
+                for(WorldObject wo : to){
+                    filtered.remove(new WorldObject(wo));
+                }
 			}
 		} else {
 			Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
@@ -545,14 +568,16 @@ public class World {
 	 * @param relation
 	 */
 	public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered,
-			LogicalExpression<WorldObject> theRelativeObjects, WorldConstraint.Relation relation) {
+			LogicalExpression<WorldObject> theRelativeObjects,
+			WorldConstraint.Relation relation) {
 		if (theRelativeObjects.topObjs().iterator().next().getForm() == null) {
 			throw new NullPointerException();
 		}
 		Set<WorldObject> toBeRetained = new HashSet<>();
 		for (WorldObject wo : toBeFiltered) {
 			for (WorldObject obj : theRelativeObjects.topObjs()) {
-				if (obj.getForm() == null && theRelativeObjects.getOp().equals(relation)) {
+				if (obj.getForm() == null
+						&& theRelativeObjects.getOp().equals(relation)) {
 					obj.setId(wo.getId());
 					obj.setColor(wo.getColor());
 					obj.setForm(wo.getForm());
@@ -579,15 +604,17 @@ public class World {
 	 * @return
 	 */
 	public Set<WorldObject> filterByRelation(Set<WorldObject> toBeFiltered,
-			LogicalExpression<WorldObject> theRelativeObjects, LogicalExpression.Operator op) {
-		Set<WorldObject> toBeFilteredCopy = new HashSet<WorldObject>(toBeFiltered);
+			LogicalExpression<WorldObject> theRelativeObjects,
+			LogicalExpression.Operator op) {
+		Set<WorldObject> toBeFilteredCopy = new HashSet<WorldObject>(
+				toBeFiltered);
 		for (WorldObject wo : toBeFilteredCopy) {
 			if (wo instanceof RelativeWorldObject) {
 				throw new IllegalArgumentException("Debug: Nocando");
 			}
 		}
-		LogicalExpression<WorldObject> attached = attachWorldObjectsToRelation(toBeFiltered, theRelativeObjects,
-				LogicalExpression.Operator.OR);
+		LogicalExpression<WorldObject> attached = attachWorldObjectsToRelation(
+				toBeFiltered, theRelativeObjects, LogicalExpression.Operator.OR);
 
 		if (op.equals(LogicalExpression.Operator.AND)) {
 			for (WorldObject wo : attached.topObjs()) {
@@ -621,7 +648,8 @@ public class World {
 	 *             if wo.getForm() == null || woRel.getForm() == null
 	 * @return
 	 */
-	public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo, WorldObject woRel) {
+	public boolean hasRelation(WorldConstraint.Relation relation,
+			WorldObject wo, WorldObject woRel) {
 		// Make sure both objects have the same dynamic type
 		wo = new WorldObject(wo);
 		woRel = new WorldObject(woRel);
@@ -633,7 +661,8 @@ public class World {
 		if (wo.getForm() == null || woRel.getForm() == null) {
 			throw new NullPointerException();
 		}
-		if (relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE)) {
+		if (relation.equals(WorldConstraint.Relation.ONTOP)
+				|| relation.equals(WorldConstraint.Relation.INSIDE)) {
 			int row = rowOf(wo);
 			if (row == 0) {
 				return woRel.getForm().equals("floor");
@@ -661,22 +690,20 @@ public class World {
 		return false;
 	}
 
-	/**
-	 * All relations must exist (even the ones of the objects relativeTo, etc.)
-	 * for this method to return true
-	 * 
-	 * @param obj
-	 * @return
-	 */
+    /**
+     * All relations must exist (even the ones of the objects relativeTo, etc.) for this method to return true
+     * @param obj
+     * @return
+     */
 	public boolean hasRelation(RelativeWorldObject obj) {
 		if (obj.getForm() == null) {
 			throw new NullPointerException();
 		}
-		if (obj.getRelativeTo() instanceof RelativeWorldObject) {
-			if (!hasRelation((RelativeWorldObject) obj.getRelativeTo())) {
-				return false;
-			}
-		}
+        if(obj.getRelativeTo() instanceof RelativeWorldObject){
+            if(!hasRelation((RelativeWorldObject)obj.getRelativeTo())){
+                return false;
+            }
+        }
 		return hasRelation(obj.getRelation(), obj, obj.getRelativeTo());
 	}
 
@@ -694,9 +721,10 @@ public class World {
 	 *             null
 	 * @return
 	 */
-	public boolean hasRelation(WorldConstraint.Relation relation, WorldObject wo,
-			LogicalExpression<WorldObject> theRelativeObjects) {
-		if (wo.getForm() == null || theRelativeObjects.topObjs().iterator().next().getForm() == null) {
+	public boolean hasRelation(WorldConstraint.Relation relation,
+			WorldObject wo, LogicalExpression<WorldObject> theRelativeObjects) {
+		if (wo.getForm() == null
+				|| theRelativeObjects.topObjs().iterator().next().getForm() == null) {
 			throw new NullPointerException();
 		}
 		LogicalExpression.Operator op = theRelativeObjects.getOp();
@@ -705,8 +733,8 @@ public class World {
 				// First, check that the relations of the relative object are
 				// fulfilled
 				if (wo1 instanceof RelativeWorldObject) {
-					if (!hasRelation(((RelativeWorldObject) wo1).getRelation(), wo1,
-							((RelativeWorldObject) wo1).getRelativeTo())) {
+					if (!hasRelation(((RelativeWorldObject) wo1).getRelation(),
+							wo1, ((RelativeWorldObject) wo1).getRelativeTo())) {
 						return false;
 					}
 				}
@@ -726,7 +754,8 @@ public class World {
 					// So far so good. Now check that the relations of the
 					// relative object are fulfilled
 					if (wo1 instanceof RelativeWorldObject) {
-						if (hasRelation(((RelativeWorldObject) wo1).getRelation(), wo1,
+						if (hasRelation(
+								((RelativeWorldObject) wo1).getRelation(), wo1,
 								((RelativeWorldObject) wo1).getRelativeTo())) {
 							return true;
 						}
@@ -750,19 +779,17 @@ public class World {
 			cStack.add(new LinkedList<WorldObject>(s));
 		}
 
-		List<WorldConstraint> cCon = new LinkedList<WorldConstraint>(this.constraints);
-		return new World(cStack, cCon, new LinkedList<>(this.holdings));
+		List<WorldConstraint> cCon = new LinkedList<WorldConstraint>(
+				this.constraints);
+		return new World(cStack, cCon, this.holding);
 	}
 
 	public String getRepresentString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(":");
-		for (WorldObject o : holdings) {
-			if (o.getClass() != EmptyWorldObject.class) {
-				sb.append(o.getId());
-			}
-			sb.append(":");
+		if (holding != null) {
+			sb.append(holding.getId());
 		}
+		sb.append(".");
 		for (LinkedList<WorldObject> wl : stacks) {
 			for (WorldObject wo : wl) {
 				sb.append(wo.getId());
@@ -781,210 +808,167 @@ public class World {
 	 */
 	public boolean isPlaceable(int columnIndex, WorldObject holding) {
 		WorldObject wo = topOfStack(columnIndex);
-		return isValidRelation(WorldConstraint.Relation.ONTOP, holding, wo);
+        return isValidRelation(WorldConstraint.Relation.ONTOP, holding, wo);
 	}
 
-	public boolean isGoalFulFilled(Goal goal) {
-		if (goal.getAction().equals(Goal.Action.TAKE)) {
-			Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
-			int holdingitems = 0;
-			WorldObject wo = null;
-			for (WorldObject o : holdings) {
-				if (o.getClass() != EmptyWorldObject.class) {
-					holdingitems++;
-					wo = o;
-				}
-			}
-			if (holdingitems == 1) {
-				return wos.contains(wo);
-			}
-			return false;
-		} else {
-			return existsInWorld(goal.getExpression());
-		}
-	}
+    public boolean isGoalFulFilled(Goal goal) {
+        if(goal.getAction().equals(Goal.Action.TAKE)){
+            Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
+            return this.holding == null ? false : wos.contains(holding);
+        } else {
+            return existsInWorld(goal.getExpression());
+        }
+    }
 
-	public boolean existsInWorld(WorldObject wo) {
-		if (wo instanceof RelativeWorldObject) {
-			return hasRelation((RelativeWorldObject) wo);
-		} else {
-			if (columnOf(wo) != -1 || holdings.contains(wo))
-				return true;
-		}
-		return false;
-	}
+    public boolean existsInWorld(WorldObject wo) {
+        if(wo instanceof RelativeWorldObject){
+            return hasRelation((RelativeWorldObject)wo);
+        } else {
+            if(columnOf(wo) != -1 || (holding == null ? false : holding.getId().equals(wo.getId()))) return true;
+        }
+        return false;
+    }
 
-	/**
-	 * @param le
-	 * @return
-	 */
-	public boolean existsInWorld(LogicalExpression<WorldObject> le) {
-		if (le.getOp().equals(LogicalExpression.Operator.AND)) {
-			if (le.getObjs() != null) {
-				for (WorldObject wo : le.getObjs()) {
-					if (!existsInWorld(wo)) {
-						return false;
-					}
-				}
-			}
-			for (LogicalExpression<WorldObject> le1 : le.getExpressions()) {
-				if (!existsInWorld(le1)) {
-					return false;
-				}
-			}
-			return true;
-		} else {
-			if (le.getObjs() != null) {
-				for (WorldObject wo : le.getObjs()) {
-					if (existsInWorld(wo)) {
-						return true;
-					}
-				}
-			}
-			for (LogicalExpression<WorldObject> le1 : le.getExpressions()) {
-				if (existsInWorld(le1)) {
-					return true;
-				}
-			}
-			return false;
-		}
-	}
+    /**
+     * @param le
+     * @return
+     */
+    public boolean existsInWorld(LogicalExpression<WorldObject> le) {
+        if(le.getOp().equals(LogicalExpression.Operator.AND)){
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(!existsInWorld(wo)){
+                        return false;
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
+                if(!existsInWorld(le1)){
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            if(le.getObjs() != null){
+                for(WorldObject wo : le.getObjs()){
+                    if(existsInWorld(wo)){
+                        return true;
+                    }
+                }
+            }
+            for(LogicalExpression<WorldObject> le1 : le.getExpressions()){
+                if(existsInWorld(le1)){
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 
-	public List<WorldObject> objectsAbove(WorldObject wo) {
-		wo = new WorldObject(wo);
-		if (columnOf(wo) == -1 || isOntopOfStack(wo)) {
-			return new LinkedList<WorldObject>();
-		}
-		LinkedList<WorldObject> st = stacks.get(columnOf(wo));
-		return st.subList(st.indexOf(wo) + 1, st.size());
-	}
+    public List<WorldObject> objectsAbove(WorldObject wo) {
+        wo = new WorldObject(wo);
+        if(columnOf(wo) == -1 || isOntopOfStack(wo)){
+            return new LinkedList<WorldObject>();
+        }
+        LinkedList<WorldObject> st = stacks.get(columnOf(wo));
+        return st.subList(st.indexOf(wo) + 1, st.size());
+    }
 
-	/**
-	 * Removes logic which is impossible in this world. For example, two objects
-	 * cannot be placed in a box.
-	 * 
-	 * @param expression
-	 * @return null if the expression is entirely impossible.
-	 */
-	public void removeImpossibleLogic(LogicalExpression<WorldObject> expression) throws CloneNotSupportedException {
-		if (expression.getOp().equals(LogicalExpression.Operator.AND)) {
-			if (expression.getObjs() != null) {
+    /**
+     * Removes logic which is impossible in this world. For example, two objects cannot be placed in a box.
+     * @param expression
+     * @return null if the expression is entirely impossible.
+     */
+    public void removeImpossibleLogic(LogicalExpression<WorldObject> expression) throws CloneNotSupportedException {
+        if(expression.getOp().equals(LogicalExpression.Operator.AND)){
+            if(expression.getObjs() != null){
 
-				// The following code ensures two objects cannot be ontop of the
-				// same object
-				HashMap<WorldObject, WorldObject> map = new HashMap<>();
-				for (WorldObject wo : expression.getObjs()) {
-					if (wo instanceof RelativeWorldObject) {
-						if (((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.ONTOP)
-								|| ((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.INSIDE)) {
-							WorldObject existing = map.get(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()));
-							if (existing != null && !existing.equals(new WorldObject(wo))) {
-								// Something has already been placed here
-								expression.setExpressions(new HashSet<LogicalExpression>());
-								expression.setObjs(new HashSet<WorldObject>());
-								return;
-							} else {
-								if (!((RelativeWorldObject) wo).getRelativeTo().getId().equals("floor")) {
-									map.put(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()),
-											new WorldObject(wo));
-								}
-							}
-						}
-					}
-				}
+                //The following code ensures two objects cannot be ontop of the same object
+                HashMap<WorldObject, WorldObject> map = new HashMap<>();
+                for(WorldObject wo : expression.getObjs()){
+                    if(wo instanceof RelativeWorldObject){
+                        if(((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.ONTOP) || ((RelativeWorldObject) wo).getRelation().equals(WorldConstraint.Relation.INSIDE)){
+                            WorldObject existing = map.get(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()));
+                            if(existing != null && !existing.equals(new WorldObject(wo))){
+                                //Something has already been placed here
+                                expression.setExpressions(new HashSet<LogicalExpression>());
+                                expression.setObjs(new HashSet<WorldObject>());
+                                return;
+                            } else {
+                                if(!((RelativeWorldObject) wo).getRelativeTo().getId().equals("floor")){
+                                    map.put(new WorldObject(((RelativeWorldObject) wo).getRelativeTo()), new WorldObject(wo));
+                                }
+                            }
+                        }
+                    }
+                }
 
-				// The following code makes sure an object is never above itself
-				// //TODO: it should apply to all subexpressions as well...
-				for (WorldObject woRel : expression.getObjs()) {
-					WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
-					if (!(woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP)
-							|| relation.equals(WorldConstraint.Relation.INSIDE) || relation
-								.equals(WorldConstraint.Relation.ABOVE))))) {
-						continue;
-					}
-					Set<String> objsInAtom = new HashSet<>();
-					objsInAtom.add(woRel.getId());
-					do {
-						WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
-						String id = relativeTo.getId();
-						if (objsInAtom.contains(id)) {
-							expression.setExpressions(new HashSet<LogicalExpression>());
-							expression.setObjs(new HashSet<WorldObject>());
-							return;
-						}
-						objsInAtom.add(id);
-						relation = ((RelativeWorldObject) woRel).getRelation();
-						woRel = relativeTo;
-					} while (woRel instanceof RelativeWorldObject
-							&& ((relation.equals(WorldConstraint.Relation.ONTOP)
-									|| relation.equals(WorldConstraint.Relation.INSIDE) || relation
-										.equals(WorldConstraint.Relation.ABOVE))));
-				}
-				// TODO: do the same for below..
-			}
-		} else {
-			// The following code makes sure an object is never above itself
-			// //TODO: it should apply to all subexpressions as well...
+                //The following code makes sure an object is never above itself //TODO: it should apply to all subexpressions as well...
+                for(WorldObject woRel : expression.getObjs()){
+                    WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
+                    if(!(woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))))){
+                        continue;
+                    }
+                    Set<String> objsInAtom = new HashSet<>();
+                    objsInAtom.add(woRel.getId());
+                    do {
+                        WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
+                        String id = relativeTo.getId();
+                        if (objsInAtom.contains(id)){
+                            expression.setExpressions(new HashSet<LogicalExpression>());
+                            expression.setObjs(new HashSet<WorldObject>());
+                            return;
+                        }
+                        objsInAtom.add(id);
+                        relation = ((RelativeWorldObject) woRel).getRelation();
+                        woRel = relativeTo;
+                    } while (woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))));
+                }
+                //TODO: do the same for below..
+            }
+        } else {
+            //The following code makes sure an object is never above itself      //TODO: it should apply to all subexpressions as well...
 
-			if (expression.getObjs() != null) {
-				List<WorldObject> toBeRemoved = new ArrayList<>();
-				for (WorldObject woRel : expression.getObjs()) {
-					if (!(woRel instanceof RelativeWorldObject && ((((RelativeWorldObject) woRel).getRelation().equals(
-							WorldConstraint.Relation.ONTOP)
-							|| ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.INSIDE) || ((RelativeWorldObject) woRel)
-							.getRelation().equals(WorldConstraint.Relation.ABOVE))))) {
-						continue;
-					}
-					WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
-					WorldObject woRelOrig = woRel;
-					Set<String> objsInAtom = new HashSet<>();
-					objsInAtom.add(woRel.getId());
-					do {
-						WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
-						String id = relativeTo.getId();
-						if (objsInAtom.contains(id)) {
-							toBeRemoved.add(woRelOrig);
-							break;
-						}
-						objsInAtom.add(id);
-						relation = ((RelativeWorldObject) woRel).getRelation();
-						woRel = relativeTo;
-					} while (woRel instanceof RelativeWorldObject
-							&& ((relation.equals(WorldConstraint.Relation.ONTOP)
-									|| relation.equals(WorldConstraint.Relation.INSIDE) || relation
-										.equals(WorldConstraint.Relation.ABOVE))));
-				}
-				Set<WorldObject> objs = new HashSet<>(expression.getObjs()); // TODO:
-																				// why
-																				// is
-																				// this
-																				// needed
-																				// for
-																				// the
-																				// objects
-																				// to
-																				// be
-																				// able
-																				// to
-																				// be
-																				// removed?
-																				// weird...
-				objs.removeAll(toBeRemoved);
-				expression.setObjs(objs);
-				// TODO: do the same for below..
-			}
+            if(expression.getObjs() != null){
+                List<WorldObject> toBeRemoved = new ArrayList<>();
+                for(WorldObject woRel : expression.getObjs()){
+                    if(!(woRel instanceof RelativeWorldObject && ((((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ONTOP) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.INSIDE) || ((RelativeWorldObject) woRel).getRelation().equals(WorldConstraint.Relation.ABOVE))))){
+                        continue;
+                    }
+                    WorldConstraint.Relation relation = ((RelativeWorldObject) woRel).getRelation();
+                    WorldObject woRelOrig = woRel;
+                    Set<String> objsInAtom = new HashSet<>();
+                    objsInAtom.add(woRel.getId());
+                    do {
+                        WorldObject relativeTo = ((RelativeWorldObject) woRel).getRelativeTo();
+                        String id = relativeTo.getId();
+                        if (objsInAtom.contains(id)){
+                            toBeRemoved.add(woRelOrig);
+                            break;
+                        }
+                        objsInAtom.add(id);
+                        relation = ((RelativeWorldObject) woRel).getRelation();
+                        woRel = relativeTo;
+                    } while (woRel instanceof RelativeWorldObject && ((relation.equals(WorldConstraint.Relation.ONTOP) || relation.equals(WorldConstraint.Relation.INSIDE) || relation.equals(WorldConstraint.Relation.ABOVE))));
+                }
+                Set<WorldObject> objs = new HashSet<>(expression.getObjs()); //TODO: why is this needed for the objects to be able to be removed? weird...
+                objs.removeAll(toBeRemoved);
+                expression.setObjs(objs);
+                //TODO: do the same for below..
+            }
 
-		}
+        }
 
-		Set<LogicalExpression<WorldObject>> toBeAdded = new HashSet<LogicalExpression<WorldObject>>();
-		for (LogicalExpression<WorldObject> le : expression.getExpressions()) {
-			LogicalExpression<WorldObject> leClone = le.clone();
-			removeImpossibleLogic(leClone);
-			if (!le.isEmpty()) {
-				toBeAdded.add(leClone);
-			}
-		}
-		expression.getExpressions().clear();
-		expression.getExpressions().addAll(toBeAdded);
-	}
+
+        Set<LogicalExpression<WorldObject>> toBeAdded = new HashSet<LogicalExpression<WorldObject>>();
+        for(LogicalExpression<WorldObject> le : expression.getExpressions()){
+            LogicalExpression<WorldObject> leClone = le.clone();
+            removeImpossibleLogic(leClone);
+            if(!le.isEmpty()){
+                toBeAdded.add(leClone);
+            }
+        }
+        expression.getExpressions().clear();
+        expression.getExpressions().addAll(toBeAdded);
+    }
 }

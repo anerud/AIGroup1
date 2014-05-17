@@ -9,7 +9,5 @@ public interface IAStarState extends Comparable<IAStarState>{
 	public double getStateValue();
 	
 	public boolean hasReachedGoal();
-
-	public double correctionForMovingBothArms();
 	
 }

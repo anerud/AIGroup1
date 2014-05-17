@@ -12,16 +12,9 @@ basic_command : take(Entity) ---> take, entity:Entity.
 basic_command : put(Location) ---> move, it, location:Location.
 basic_command : move(Entity, Location) ---> move, entity:Entity, location:Location.
 basic_command : stack(Entity) --->  stack, entity:Entity.
+basic_command : sort(Entity) --->  sort, entity:Entity.
 
 answer : answer(Entity) ---> entity:Entity.
-
-%% grammar for sort command
-basic_command : sort(Entity,Attribute) --->  sort, entity:Entity, by, attribute:Attribute.
-
-attribute : color ---> [color].
-attribute : form ---> [shape];[type];[form].
-attribute : size ---> [size].
-
 
 location : relative(Relation, TenseEntity) ---> relation:Relation, tenseentity:TenseEntity.
 
@@ -111,8 +104,7 @@ that_should_be(pl) ---> [that,should,be].
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].
 stack ---> [stack] ; [stack,up] ; [build,a,tower,of].
-by ---> [by].
-sort ---> [sort];[order].
+sort ---> [sort].
 
 it ---> [it].
 

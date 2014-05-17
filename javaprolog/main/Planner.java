@@ -17,7 +17,7 @@ public class Planner {
 	}
 
 	public List<String> solve(Goal goal) throws CloneNotSupportedException {
-        WorldState ws = new WorldState(world, goal, new LinkedList<String>(),0);
+        WorldState ws = new WorldState(world, goal, new LinkedList<String>());
         AStar astar = new AStar(ws);
         if(astar.run()){
             return ((WorldState)astar.getCurrentState()).getActionsToGetHere();

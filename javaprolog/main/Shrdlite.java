@@ -11,9 +11,7 @@ import gnu.prolog.term.CompoundTerm;
 import gnu.prolog.term.Term;
 import gnu.prolog.vm.PrologException;
 import tree.*;
-import world.EmptyWorldObject;
 import world.World;
-import world.WorldConstraint;
 import world.WorldObject;
 
 import java.io.*;
@@ -61,14 +59,7 @@ public class Shrdlite {
 		}
 
 		// Initialize holding object
-		List<WorldObject> holdings = new LinkedList<>();
-		for(String s : p.getHoldings()){
-			if(s.equals("empty")){
-				holdings.add(new EmptyWorldObject());
-			}else{
-				holdings.add(p.getObjects().get(s));
-			}
-		}
+		WorldObject holding = p.getObjects().get(p.getHolding());
 		// Initialize world
 		for (int i = 0; i < p.getWorld().size(); i++) {
 			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
@@ -77,7 +68,7 @@ public class Shrdlite {
 			}
 			worldArr.add(objList);
 		}
-		World world = new World(worldArr,new LinkedList<WorldConstraint>(), holdings);
+		World world = new World(worldArr, holding);
 
 		Input result = new Input();
 
@@ -317,8 +308,6 @@ public class Shrdlite {
 			SortNode n = new SortNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToSortNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
-			n.setSortAttributeNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
-			
 			return n;
 		} else if (data.equals("floor")) {
 			return new FloorNode(parent, data);

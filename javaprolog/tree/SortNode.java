@@ -7,18 +7,8 @@ import java.util.LinkedList;
 public class SortNode extends Node {
 
 	private Node thingsToSortNode;
-	private Node sortAttributeNode;
-	
-	
 
 	
-	public Node getSortAttributeNode() {
-		return sortAttributeNode;
-	}
-
-
-
-
 	public SortNode(Node parent, String data) {
 		super(parent, data);
 	}
@@ -29,7 +19,7 @@ public class SortNode extends Node {
 	@Override
 	public String toNaturalString() {
 		// TODO Auto-generated method stub
-		return "sort " + thingsToSortNode.toNaturalString()+ " by " + sortAttributeNode.toNaturalString();
+		return "sort " + thingsToSortNode.toNaturalString();
 	}
 		
 	
@@ -62,14 +52,6 @@ public class SortNode extends Node {
 	@Override
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException, CloneNotSupportedException {
 		return v.visit(this, arg);
-	}
-
-
-
-
-	public void setSortAttributeNode(Node sortAttributeNode) {
-	this.sortAttributeNode = sortAttributeNode;
-	
 	}
 
 }

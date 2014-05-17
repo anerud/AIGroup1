@@ -41,8 +41,6 @@ var CanvasHeight;
 
 var Pick = 'pick';
 var Drop = 'drop';
-var Move = 'move';
-
 
 var SvgNS = 'http://www.w3.org/2000/svg';
 
@@ -71,7 +69,7 @@ var ExampleWorlds;
 var currentExample;
 var currentWorld;
 var currentPlan;
-var currentArmPosition = [];
+var currentArmPosition;
 var currentQuestions;
 var lastUtterance;
 function stackWidth() {
@@ -133,14 +131,12 @@ function changeCurrentExample() {
 	}
 	resetCurrentExample(name);
 }
+
 function resetCurrentExample(name) {
     loadExampleWorlds();
     currentExample = name;
     currentWorld = ExampleWorlds[currentExample];
-	currentArmPosition = [];
-	for(var i = 0;i< currentWorld.holdings.length;i++){
-		currentArmPosition.push(i);
-	}
+    currentArmPosition = 0;
     $('#inputexamples').empty();
     $('#inputexamples').append($('<option value="">').text("(Select an example utterance)"));
     $.each(currentWorld.examples, function(i,value) {
@@ -172,20 +168,17 @@ function resetSVG() {
         height: CanvasHeight + FloorThickness,
         fill: 'black',
     }).appendTo(svg);
-	
-	//The arms
-	for(var i = 0;i< currentWorld.holdings.length;i++){
-		$(SVG('line')).attr({
-			id: ('arm'+i),
-			x1: (stackWidth() / 2) + (stackWidth() * i),
-			y1: ArmSize * stackWidth() - CanvasHeight,
-			x2: (stackWidth() / 2) + (stackWidth() * i),
-			y2: ArmSize * stackWidth(),
-			stroke: 'black',
-			'stroke-width': ArmSize * stackWidth(),
-		}).appendTo(svg);
-	}
 
+    // The arm:
+    $(SVG('line')).attr({
+        id:'arm',
+        x1: stackWidth() / 2,
+        y1: ArmSize * stackWidth() - CanvasHeight,
+        x2: stackWidth() / 2,
+        y2: ArmSize * stackWidth(),
+        stroke: 'black',
+        'stroke-width': ArmSize * stackWidth(),
+    }).appendTo(svg);
 
     var timeout = 0;
     for (var stacknr=0; stacknr < currentWorld.world.length; stacknr++) {
@@ -203,7 +196,7 @@ function SVG(tag) {
     return document.createElementNS(SvgNS, tag);
 }
 
-function animateMotion(object, path, duration, timeout) {
+function animateMotion(object, path, timeout, duration) {
     if (path instanceof Array) {
         path = path.join(" ");
     }
@@ -214,102 +207,56 @@ function animateMotion(object, path, duration, timeout) {
         path: path,
         dur: duration,
     }).appendTo(object);
-	if(timeout){
-		animation.beginElementAt(timeout);
-	}
+    animation.beginElementAt(timeout);
     return animation;
 }
 
 function moveObject(action, stackNr) {
-	var armint = parseInt(action.substring(4));
-
-	console.log(action +  " - "+stackNr)
-	if (action.indexOf(Pick) == 0  && currentWorld.holdings[armint] != "empty") {
-        alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something! 1")
+    if (action == Pick && currentWorld.holding) {
+        alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something!")
         return 0;
-    }  else if (action.indexOf(Drop) == 0  && currentWorld.holdings[armint] == "empty") {
-        alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything! 1")
+    } else if (action == Drop && !currentWorld.holding) {
+        alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything!")
         return 0;
     }
-
     var stack = currentWorld.world[stackNr];
-    var arm = $(('#arm'+armint));
+    var arm = $('#arm');
     var xStack = stackNr * stackWidth() + WallSeparation;
-    var xArm = currentArmPosition[armint] * stackWidth() + WallSeparation;
-    if (action.indexOf(Pick) == 0) {
+    var xArm = currentArmPosition * stackWidth() + WallSeparation;
+
+    if (action == Pick) {
         if (!stack.length) {
             alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", it is empty!")
             return 0;
         }
-        currentWorld.holdings[armint] = stack.pop();
+        currentWorld.holding = stack.pop();
     }
 
     var altitude = getAltitude(stack);
-    var objectHeight = 0;
-	if(currentWorld.holdings[armint] != "empty"){
-		objectHeight = getObjectDimensions(currentWorld.holdings[armint]).heightadd;
-	}
-	var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
+    var objectHeight = getObjectDimensions(currentWorld.holding).heightadd;
+    var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
     var yStack = -altitude;
 
-	var duration1;
-	var duration2;
-	var anim1 = {t:0};
-	var anim2 = {t:0};
-	var anim3= {t:0};
-	var path1;
-	var path2;
-	var path3;
-	var xxArm = xArm -(stackWidth() * armint);
-	var xxStack =  xStack -(stackWidth() * armint);
-	if(action.indexOf(Move) == 0){
-		if(xxArm -xxStack != 0){
-			path1 = ["M", xxArm, 0, "H", xxStack,"V",0];
-		}
-		duration1 = (Math.abs(xxStack - xxArm)) / ArmSpeed;
-		duration2 = 0;
-	}else{		
-		path1 = ["M", xxArm, 0, "H", xxStack, "V", yArm];
-		path2 = ["M", xxStack, yArm, "V", 0];
-		duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
-		duration2 = (Math.abs(yArm)) / ArmSpeed;
-	}
+    var path1 = ["M", xArm, 0, "H", xStack, "V", yArm];
+    var path2 = ["M", xStack, yArm, "V", 0];
+    var duration1 = (Math.abs(xStack - xArm) + Math.abs(yArm)) / ArmSpeed;
+    var duration2 = (Math.abs(yArm)) / ArmSpeed;
+    var anim1 = animateMotion(arm, path1, 0, duration1);
+    var anim2 = animateMotion(arm, path2, duration1 + AnimationPause, duration2);
 
-	anim1.a = animateMotion(arm, path1, duration1);
-	anim2.a = animateMotion(arm, path2, duration2);
-	anim2.t = duration1 + AnimationPause;
-
-	var hol = currentWorld.holdings[armint];
-
-    if (action.indexOf(Move) == 0) {
-		if(xArm - xStack != 0){
-			path3 = ["M", xArm,yStack-yArm, "H", xStack,"V",yStack-yArm];
-			anim3.a = animateMotion($("#"+hol), path3, duration1)
-		}
-	}else if (action.indexOf(Pick) == 0) {
-        path3 = ["M", xStack, yStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+hol), path3, duration2)
-		anim3.t =duration1 + AnimationPause;
-    } else if (action.indexOf(Drop) == 0) {
-        path3 = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        anim3.a = animateMotion($("#"+hol), path3, duration1)
+    if (action == Pick) {
+        var path2b = ["M", xStack, yStack, "V", yStack-yArm];
+        animateMotion($("#"+currentWorld.holding), path2b, duration1 + AnimationPause, duration2)
+    } else if (action == Drop) {
+        var path1b = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
+        animateMotion($("#"+currentWorld.holding), path1b, 0, duration1)
     }
-	if(path1){
-		anim1.a.beginElementAt(anim1.t);
-	}
-	if(path2){
-		anim2.a.beginElementAt(anim2.t);
-	}
-	if(path3){
-		anim3.a.beginElementAt(anim3.t);
-	}
 
-
-    if (action.indexOf(Drop) == 0) {
-        stack.push(currentWorld.holdings[armint]);
-        currentWorld.holdings[armint] = "empty";
+    if (action == Drop) {
+        stack.push(currentWorld.holding);
+        currentWorld.holding = null;
     }
-    currentArmPosition[armint] = stackNr;
+    currentArmPosition = stackNr;
     debugWorld();
     return duration1 + duration2 + 2 * AnimationPause;
 }
@@ -408,9 +355,9 @@ function makeObject(svg, objectid, stacknr, timeout) {
     object.appendTo(svg);
 
     var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
-    animateMotion(object, path, 0, 0).beginElementAt(0);
+    animateMotion(object, path, 0, 0);
     path.push("V", -altitude);
-    animateMotion(object, path, 0.5).beginElementAt(timeout);
+    animateMotion(object, path, timeout, 0.5);
 }
 
 function disableInput(timeout) {
@@ -441,20 +388,20 @@ function enableInput() {
 }
 
 function performPlan() {
-    if (currentPlan && currentPlan.length >= currentWorld.holdings.length) {
+    if (currentPlan && currentPlan.length) {
+        var item = currentPlan.shift();
         var timeout = 0;
-
-		for(var i = 0;i<currentWorld.holdings.length;i++){
-			var item = currentPlan.shift() 
-			var action = getAction(item);
-			if(action){
-				timeout = Math.max(moveObject(action[0], action[1]),timeout);
-			}else{
-				sayUtterance("system", item);
-			}
-
-		}
-
+        var action = getAction(item);
+        if (action) {
+            timeout = moveObject(action[0], action[1]);
+        } else if (item && item[0] != "#") {
+            if (window.speechSynthesis.speaking) {
+                currentPlan.unshift(item);
+                timeout = AnimationPause;
+            } else {
+                sayUtterance("system", item);
+            }
+        }
         setTimeout(performPlan, 1000 * timeout);
     } else {
         systemPrompt(PromptPause);
@@ -464,7 +411,7 @@ function performPlan() {
 function getAction(item) {
     if (typeof(item) == "string") item = item.trim().split(/\s+/);
     if (item.length == 2 &&
-        (item[0].indexOf(Pick) == 0 || item[0].indexOf(Drop) == 0 || item[0].indexOf(Move) == 0) &&
+        (item[0] == Pick || item[0] == Drop) &&
         /^\d+$/.test(item[1]))
     {
         item[1] = parseInt(item[1]);
@@ -496,7 +443,7 @@ function userInput() {
 
     var ajaxdata = {'world': currentWorld.world,
                     'objects': currentWorld.objects,
-                    'holdings': currentWorld.holdings,
+                    'holding': currentWorld.holding,
                     'state': currentWorld.state,
                     'utterance': userinput.split(/\s+/),
 					'questions' : currentQuestions,

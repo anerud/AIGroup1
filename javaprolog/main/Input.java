@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Input {
 
-	private String holding;
+	private List<String> holdings;
 
 	private List<String> utterance;
 
@@ -71,12 +71,12 @@ public class Input {
 		this.output = output;
 	}
 
-	public String getHolding() {
-		return holding;
+	public List<String> getHoldings() {
+		return holdings;
 	}
 
-	public void setHolding(String holding) {
-		this.holding = holding;
+	public void setHoldings(List<String> holdings) {
+		this.holdings = holdings;
 	}
 
 	public List<String> getUtterance() {

@@ -72,7 +72,7 @@ public class WorldObject implements Cloneable{
 
     @Override
 	public String toString() {
-		return id + ": "+ size + " " + color +" " + form ;
+		return getId() + ": "+ getSize()+ " " + getColor()+" " + getForm();
 	}
 
     public boolean matchesPattern(WorldObject match){

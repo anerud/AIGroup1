@@ -317,6 +317,8 @@ public class Shrdlite {
 			SortNode n = new SortNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToSortNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			n.setSortAttributeNode(getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
+			
 			return n;
 		} else if (data.equals("floor")) {
 			return new FloorNode(parent, data);

@@ -1,11 +1,14 @@
 {
+  "holdings": [
+    "empty",
+    "empty"
+  ],
   "utterance": [
-    "put",
-    "the",
-    "ball",
-    "on",
-    "the",
-    "box"
+    "sort",
+    "all",
+    "balls",
+    "by", "size"
+    
   ],
   "worldoriginal": [],
   "examples": [],
@@ -93,26 +96,5 @@
     }
   },
   "plan": [],
-  "questions": [
-    {
-      "question": "I can see two balls. Did you mean the small ball or the large ball?",
-      "answer": [
-        "the",
-        "black",
-        "one"
-      ],
-      "questionId": 0,
-      "subQuestionId": 0
-    },
-    {
-      "question": "I can see three boxes. Did you mean the small box, the red box or the yellow box?",
-      "answer": [
-        "the",
-        "red",
-        "box"
-      ],
-      "questionId": 1,
-      "subQuestionId": 0
-    }
-  ]
+  "questions": []
 }

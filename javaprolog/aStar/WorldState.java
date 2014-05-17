@@ -144,10 +144,12 @@ public class WorldState implements IAStarState {
                             minObjsRef = new HashMap<Integer, Set<WorldObject>>();
                             Set<WorldObject> moveAtleastOnceRef = new HashSet<>();
                             moveAtleastOnceRef.add(new WorldObject(wo));
+                            moveAtleastOnceRef.addAll(world.objectsAbove(new WorldObject(wo)));
                             Set<WorldObject> moveAtleastTwiceRef = new HashSet<>();
                             minObjsRef.put(1, moveAtleastOnceRef); minObjsRef.put(2, moveAtleastTwiceRef);
                         } else {
                             minObjsRef.get(1).add(new WorldObject(wo));
+                            minObjsRef.get(1).addAll(world.objectsAbove(new WorldObject(wo)));
                         }
                     }
                 }

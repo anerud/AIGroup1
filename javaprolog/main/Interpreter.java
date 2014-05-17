@@ -61,7 +61,7 @@ public class Interpreter {
 	 * @return a list of goals
 	 */
 
-	//TODO:  correct exception handling for ambiguity + user questions
+
 	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answers) 
 			throws InterpretationException, ClarificationQuestionException, CloneNotSupportedException {
 		Set<Goal> okGoals = new HashSet<>(trees.size());

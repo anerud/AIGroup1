@@ -1,11 +1,6 @@
 {
   "utterance": [
-    "put",
-    "the",
-    "ball",
-    "on",
-    "the",
-    "box"
+"sort","all", "objects", "by", "size"
   ],
   "worldoriginal": [],
   "examples": [],

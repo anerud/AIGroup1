@@ -22,7 +22,9 @@ basic_command : stack(Entity) --->  stack, entity:Entity.
 	attribute : form ---> [shape];[type];[form].
 	attribute : size ---> [size].
 	
-	
+	by ---> [by].
+sort ---> [sort];[order].
+ 	
 
 
 
@@ -116,9 +118,7 @@ that_should_be(pl) ---> [that,should,be].
 move ---> [move] ; [put] ; [drop].
 take ---> [take] ; [grasp] ; [pick,up].
 stack ---> [stack] ; [stack,up] ; [build,a,tower,of].
-by ---> [by].
-sort ---> [sort];[order].
- 	
+
 
 it ---> [it].
 

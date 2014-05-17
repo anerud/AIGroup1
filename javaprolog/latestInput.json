@@ -2,227 +2,27 @@
   "utterance": [
     "sort",
     "all",
-    "objects"
+    "objects",
+    "by",
+    "size"
   ],
-  "worldoriginal": [
-    [
-      "e"
-    ],
-    [
-      "a",
-      "l"
-    ],
-    [],
-    [],
-    [
-      "i",
-      "h",
-      "j"
-    ],
-    [],
-    [],
-    [
-      "k",
-      "g",
-      "c",
-      "b"
-    ],
-    [],
-    [
-      "d",
-      "m",
-      "f"
-    ]
-  ],
-  "examples": [
-    [
-      "put",
-      "the",
-      "brick",
-      "that",
-      "is",
-      "to",
-      "the",
-      "left",
-      "of",
-      "a",
-      "pyramid",
-      "in",
-      "a",
-      "box"
-    ],
-    [
-      "put",
-      "the",
-      "white",
-      "ball",
-      "in",
-      "a",
-      "box",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "move",
-      "the",
-      "large",
-      "ball",
-      "inside",
-      "a",
-      "yellow",
-      "box",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "move",
-      "the",
-      "large",
-      "ball",
-      "inside",
-      "a",
-      "red",
-      "box",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "take",
-      "a",
-      "red",
-      "object"
-    ],
-    [
-      "take",
-      "the",
-      "white",
-      "ball"
-    ],
-    [
-      "put",
-      "all",
-      "boxes",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "put",
-      "the",
-      "large",
-      "plank",
-      "under",
-      "the",
-      "blue",
-      "brick"
-    ],
-    [
-      "move",
-      "all",
-      "bricks",
-      "on",
-      "a",
-      "table"
-    ],
-    [
-      "move",
-      "all",
-      "balls",
-      "inside",
-      "a",
-      "large",
-      "box"
-    ],
-    [
-      "take",
-      "an",
-      "object",
-      "on",
-      "a",
-      "plank",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "put",
-      "it",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "take",
-      "the",
-      "table",
-      "to",
-      "the",
-      "left",
-      "of",
-      "the",
-      "box",
-      "under",
-      "the",
-      "ball",
-      "to",
-      "the",
-      "right",
-      "of",
-      "the",
-      "pyramid"
-    ],
-    [
-      "take",
-      "the",
-      "box",
-      "under",
-      "an",
-      "object",
-      "on",
-      "a",
-      "green",
-      "object"
-    ],
-    [
-      "put",
-      "it",
-      "under",
-      "a",
-      "ball"
-    ]
-  ],
+  "worldoriginal": [],
+  "examples": [],
   "world": [
     [
       "e"
     ],
     [
-      "a",
+      "g",
       "l"
     ],
     [],
-    [],
-    [
-      "i",
-      "h",
-      "j"
-    ],
-    [],
-    [],
     [
       "k",
-      "g",
-      "c",
-      "b"
-    ],
-    [],
-    [
-      "d",
       "m",
       "f"
-    ]
+    ],
+    []
   ],
   "objects": {
     "a": {
@@ -292,5 +92,26 @@
     }
   },
   "plan": [],
-  "questions": []
+  "questions": [
+    {
+      "question": "I can see two balls. Did you mean the small ball or the large ball?",
+      "answer": [
+        "the",
+        "black",
+        "one"
+      ],
+      "questionId": 0,
+      "subQuestionId": 0
+    },
+    {
+      "question": "I can see three boxes. Did you mean the small box, the red box or the yellow box?",
+      "answer": [
+        "the",
+        "red",
+        "box"
+      ],
+      "questionId": 1,
+      "subQuestionId": 0
+    }
+  ]
 }

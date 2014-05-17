@@ -1,39 +1,113 @@
-{ 
-    "world": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
-    "worldoriginal": [["e"],["a","l"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"]],
-    "holding": null,
-    "objects": {
-        "a": { "form":"brick",   "size":"large",  "color":"green" },
-        "b": { "form":"brick",   "size":"small",  "color":"white" },
-        "c": { "form":"plank",   "size":"large",  "color":"red"   },
-        "d": { "form":"plank",   "size":"small",  "color":"green" },
-        "e": { "form":"ball",    "size":"large",  "color":"white" },
-        "f": { "form":"ball",    "size":"small",  "color":"black" },
-        "g": { "form":"table",   "size":"large",  "color":"blue"  },
-        "h": { "form":"table",   "size":"small",  "color":"red"   },
-        "i": { "form":"pyramid", "size":"large",  "color":"yellow"},
-        "j": { "form":"pyramid", "size":"small",  "color":"red"   },
-        "k": { "form":"box",     "size":"large",  "color":"yellow"},
-        "l": { "form":"box",     "size":"large",  "color":"red"   },
-        "m": { "form":"box",     "size":"small",  "color":"blue"  }
+{
+  "utterance": [
+"sort","all", "objects", "by", "size"
+  ],
+  "worldoriginal": [],
+  "examples": [],
+  "world": [
+    [
+      "e"
+    ],
+    [
+      "g",
+      "l"
+    ],
+    [],
+    [
+      "k",
+      "m",
+      "f"
+    ],
+    []
+  ],
+  "objects": {
+    "a": {
+      "form": "brick",
+      "size": "large",
+      "color": "green"
     },
-    "utterance":
-        ["put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "in", "a", "yellow", "object", "that", "should", "be", "on", "a", "blue", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "on", "a", "yellow", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "on", "the", "floor"],
-    "examples": [
-        ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
-        ["put","the","white","ball","in","a","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","yellow","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","red","box","on","the","floor"],
-        ["take","a","red","object"],
-        ["take","the","white","ball"],
-        ["put","all","boxes","on","the","floor"],
-        ["put","the","large","plank","under","the","blue","brick"],
-        ["move","all","bricks","on","a","table"],
-        ["move","all","balls","inside","a","large","box"],
-        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"],
-        ["put","it","on","the","floor"],
-        ["take", "the", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "the", "pyramid"],
-        ["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"],
-        ["put","it","under","a","ball"]
-    ]
+    "b": {
+      "form": "brick",
+      "size": "small",
+      "color": "white"
+    },
+    "c": {
+      "form": "plank",
+      "size": "large",
+      "color": "red"
+    },
+    "d": {
+      "form": "plank",
+      "size": "small",
+      "color": "green"
+    },
+    "e": {
+      "form": "ball",
+      "size": "large",
+      "color": "white"
+    },
+    "f": {
+      "form": "ball",
+      "size": "small",
+      "color": "black"
+    },
+    "g": {
+      "form": "table",
+      "size": "large",
+      "color": "blue"
+    },
+    "h": {
+      "form": "table",
+      "size": "small",
+      "color": "red"
+    },
+    "i": {
+      "form": "pyramid",
+      "size": "large",
+      "color": "yellow"
+    },
+    "j": {
+      "form": "pyramid",
+      "size": "small",
+      "color": "red"
+    },
+    "k": {
+      "form": "box",
+      "size": "large",
+      "color": "yellow"
+    },
+    "l": {
+      "form": "box",
+      "size": "large",
+      "color": "red"
+    },
+    "m": {
+      "form": "box",
+      "size": "small",
+      "color": "blue"
+    }
+  },
+  "plan": [],
+  "questions": [
+    {
+      "question": "I can see two balls. Did you mean the small ball or the large ball?",
+      "answer": [
+        "the",
+        "black",
+        "one"
+      ],
+      "questionId": 0,
+      "subQuestionId": 0
+    },
+    {
+      "question": "I can see three boxes. Did you mean the small box, the red box or the yellow box?",
+      "answer": [
+        "the",
+        "red",
+        "box"
+      ],
+      "questionId": 1,
+      "subQuestionId": 0
+    }
+  ]
 }

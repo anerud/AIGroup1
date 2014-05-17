@@ -4,11 +4,28 @@ import main.Interpreter;
 
 import java.util.LinkedList;
 
+import sun.swing.icon.SortArrowIcon;
+
 public class SortNode extends Node {
 
 	private Node thingsToSortNode;
+	private Node SortAttributeNode;
 
 	
+	public Node getSortAttributeNode() {
+		return SortAttributeNode;
+	}
+
+
+
+
+	public void setSortAttributeNode(Node sortAttributeNode) {
+		SortAttributeNode = sortAttributeNode;
+	}
+
+
+
+
 	public SortNode(Node parent, String data) {
 		super(parent, data);
 	}
@@ -53,5 +70,9 @@ public class SortNode extends Node {
 	public <R, A> R accept(IActionVisitor<R, A> v, A arg) throws Interpreter.InterpretationException, CloneNotSupportedException {
 		return v.visit(this, arg);
 	}
+
+
+
+
 
 }

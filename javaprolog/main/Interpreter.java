@@ -241,20 +241,46 @@ public class Interpreter {
 			Set<WorldObject> theSet = new HashSet<>();
 			Set<LogicalExpression<WorldObject>> theExprSet = new HashSet<>();
 
-			for (WorldObject o1:worldObjects)
-			{
-				for (WorldObject o2:worldObjects)
-				{
-					if(o1!=o2 && o1.getColor().compareTo(o2.getColor())<0)
+
+
+			String attribute = n.getSortAttributeNode().getData();
+
+
+			for (WorldObject o1 : worldObjects) {
+				for (WorldObject o2 : worldObjects) {
+
+					String a1 = "";
+					String a2 = "";
+					switch (attribute)
 					{
-						RelativeWorldObject r = new RelativeWorldObject(o1,o2,Relation.LEFTOF);
-						theSet.add(r);
-						r= new RelativeWorldObject(o2,o1,Relation.RIGHTOF);
-						theSet.add(r);
+					case "color":{
+						a1 = o1.getColor();
+						a2 = o2.getColor();
+
+					}
+					case "size":{
+						a1 = o1.getSize();
+						a2 = o2.getSize();
+
+					}
+					case "form":{
+						a1 = o1.getForm();
+						a2 = o2.getForm();
+
+					}	
 					}
 
+
+					if (o1 != o2 && a1.compareTo(a2) < 0) {
+						RelativeWorldObject r = new RelativeWorldObject(o1, o2, Relation.LEFTOF);
+						theSet.add(r);
+						r = new RelativeWorldObject(o2, o1, Relation.RIGHTOF);
+						theSet.add(r);
+
+					}
 				}
 			}
+
 			LogicalExpression<WorldObject> bigExpr = new LogicalExpression<WorldObject>( theSet,LogicalExpression.Operator.AND);
 
 			return new Goal(bigExpr, Action.MOVE);

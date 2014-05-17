@@ -236,18 +236,15 @@ public class Interpreter {
 		public Goal visit(SortNode n, Set<WorldObject> worldObjects)
 				throws InterpretationException, CloneNotSupportedException {
 
-			LogicalExpression<WorldObject> firstObjects = n.getThingsToSortNode().accept(new NodeVisitor(), worldObjects, null);
+			Set<WorldObject> sortObjects = (n.getThingsToSortNode().accept(new NodeVisitor(), worldObjects, null)).getObjs();
 
 			Set<WorldObject> theSet = new HashSet<>();
-			Set<LogicalExpression<WorldObject>> theExprSet = new HashSet<>();
-
-
-
+	
 			String attribute = n.getSortAttributeNode().getData();
 
 
-			for (WorldObject o1 : worldObjects) {
-				for (WorldObject o2 : worldObjects) {
+			for (WorldObject o1 : sortObjects) {
+				for (WorldObject o2 : sortObjects) {
 
 					String a1 = "";
 					String a2 = "";
@@ -256,17 +253,17 @@ public class Interpreter {
 					case "color":{
 						a1 = o1.getColor();
 						a2 = o2.getColor();
-
+                        break;
 					}
 					case "size":{
 						a1 = o1.getSize();
 						a2 = o2.getSize();
-
+                        break;
 					}
 					case "form":{
 						a1 = o1.getForm();
 						a2 = o2.getForm();
-
+                        break;
 					}	
 					}
 

@@ -4,7 +4,7 @@
     "all",
     "objects",
     "by",
-    "size"
+    "color"
   ],
   "worldoriginal": [],
   "examples": [],
@@ -13,16 +13,30 @@
       "e"
     ],
     [
-      "g",
+      "a",
       "l"
     ],
     [],
+    [],
+    [
+      "i",
+      "h",
+      "j"
+    ],
+    [],
+    [],
     [
       "k",
+      "g",
+      "c",
+      "b"
+    ],
+    [],
+    [
+      "d",
       "m",
       "f"
-    ],
-    []
+    ]
   ],
   "objects": {
     "a": {
@@ -92,26 +106,5 @@
     }
   },
   "plan": [],
-  "questions": [
-    {
-      "question": "I can see two balls. Did you mean the small ball or the large ball?",
-      "answer": [
-        "the",
-        "black",
-        "one"
-      ],
-      "questionId": 0,
-      "subQuestionId": 0
-    },
-    {
-      "question": "I can see three boxes. Did you mean the small box, the red box or the yellow box?",
-      "answer": [
-        "the",
-        "red",
-        "box"
-      ],
-      "questionId": 1,
-      "subQuestionId": 0
-    }
-  ]
+  "questions": []
 }

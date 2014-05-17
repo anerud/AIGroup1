@@ -785,7 +785,7 @@ public class World {
 	}
 
 	public boolean isGoalFulFilled(Goal goal) {
-		if (goal.getAction() == Goal.Action.TAKE) {
+		if (goal.getAction().equals(Goal.Action.TAKE)) {
 			Set<WorldObject> wos = filterByExistsInWorld(goal.getExpression());
 			int holdingitems = 0;
 			WorldObject wo = null;
@@ -799,17 +799,8 @@ public class World {
 				return wos.contains(wo);
 			}
 			return false;
-		}else {
-			if(existsInWorld(goal.getExpression())){
-				int holdingitems = 0;
-				for (WorldObject o : holdings) {
-					if (o.getClass() != EmptyWorldObject.class) {
-						holdingitems++;
-					}
-				}
-				return holdingitems == 0;
-			}
-			return false;
+		} else {
+			return existsInWorld(goal.getExpression());
 		}
 	}
 

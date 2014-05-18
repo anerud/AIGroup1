@@ -51,13 +51,13 @@ public class Stacker {
 					return 1;
 				if (o2.getForm().equals("brick"))
 					return -1;
-				if (o1.getForm().equals("pyramid"))
-					return 1;
-				if (o2.getForm().equals("pyramid"))
-					return -1;
 				if (o1.getForm().equals("plank"))
 					return 1;
 				if (o2.getForm().equals("plank"))
+					return -1;
+				if (o1.getForm().equals("pyramid"))
+					return 1;
+				if (o2.getForm().equals("pyramid"))
 					return -1;				
 				return 0;
 			}

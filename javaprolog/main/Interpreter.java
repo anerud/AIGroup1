@@ -4,6 +4,7 @@ import logic.LogicalExpression;
 import logic.Quantifier;
 import logic.Tense;
 import main.Goal.Action;
+import main.Stacker.StackException;
 import tree.*;
 import world.EmptyWorldObject;
 import world.RelativeWorldObject;
@@ -63,7 +64,7 @@ public class Interpreter {
 	 */
 
 	public Set<Goal> interpret(List<NTree> trees, Map<Integer, List<NTree>> answers) throws InterpretationException,
-			ClarificationQuestionException, CloneNotSupportedException {
+	ClarificationQuestionException, CloneNotSupportedException {
 		Set<Goal> okGoals = new HashSet<>(trees.size());
 		Set<NTree> ambiguousTrees = new HashSet<>(trees.size());
 		Set<NTree> failedTrees = new HashSet<>(trees.size());
@@ -149,7 +150,7 @@ public class Interpreter {
 		 */
 		@Override
 		public Goal visit(PutNode n, Set<WorldObject> worldObjects) throws InterpretationException,
-				CloneNotSupportedException {
+		CloneNotSupportedException {
 			boolean isAllEmpty = true;
 			for (WorldObject o : world.getHoldings()) {
 				if (o.getClass() != EmptyWorldObject.class) {
@@ -193,7 +194,7 @@ public class Interpreter {
 
 		@Override
 		public Goal visit(TakeNode n, Set<WorldObject> worldObjects) throws InterpretationException,
-				CloneNotSupportedException {
+		CloneNotSupportedException {
 			// is the (handempty) precondition fulfilled?
 			boolean isSomeEmpty = false;
 			for (WorldObject o : world.getHoldings()) {
@@ -245,7 +246,7 @@ public class Interpreter {
 		 */
 		@Override
 		public Goal visit(MoveNode n, Set<WorldObject> worldObjects) throws InterpretationException,
-				CloneNotSupportedException {
+		CloneNotSupportedException {
 
 			LogicalExpression<WorldObject> firstObjects = n.getEntityNode().accept(new NodeVisitor(), worldObjects,
 					null);
@@ -277,7 +278,7 @@ public class Interpreter {
 		 * Sort command. Sorts any objects by color. TODO: sort by any attribute
 		 */
 		public Goal visit(SortNode n, Set<WorldObject> worldObjects) throws InterpretationException,
-				CloneNotSupportedException {
+		CloneNotSupportedException {
 
 			Set<WorldObject> sortObjects = (n.getThingsToSortNode().accept(new NodeVisitor(), worldObjects, null))
 					.getObjs();
@@ -335,56 +336,26 @@ public class Interpreter {
 		// TODO: does not handle stacks with multiple boxes and tables of the
 		// same size, yet.
 		public Goal visit(StackNode n, Set<WorldObject> worldObjects) throws InterpretationException,
-				CloneNotSupportedException {
+		CloneNotSupportedException {
 
 			LogicalExpression<WorldObject> firstObjects = n.getThingsToStackNode().accept(new NodeVisitor(),
 					worldObjects, null);
+			List<WorldObject> stackOrder;
 
-			// create comparator that orders WorldObjects in stackable order
-			Comparator<WorldObject> stackComparator = new Comparator<WorldObject>() {
+			try {
+				stackOrder = Stacker.stack(firstObjects.getObjs(),world);
 
-				@Override
-				public int compare(WorldObject o1, WorldObject o2) {
 
-					if (!o1.getSize().equals(o2.getSize())) {
-						if (o1.getSize().equals("large")) {
-							return -1;
-						} else {
-							return 1;
-						}
-					}
-					if (o1.getForm().equals(o2.getForm()))
-						return o1.getColor().compareTo(o2.getColor());
 
-					if (o1.getForm().equals("ball"))
-						return 1;
-					if (o2.getForm().equals("ball"))
-						return -1;
-					if (o1.getForm().equals("box"))
-						return 1;
-					if (o2.getForm().equals("box"))
-						return -1;
-					if (o1.getForm().equals("pyramid"))
-						return 1;
-					if (o2.getForm().equals("pyramid"))
-						return -1;
+			} catch (StackException e) {
 
-					if (o1.getForm().equals("brick"))
-						return 1;
-					if (o2.getForm().equals("brick"))
-						return -1;
+				throw new InterpretationException("It is not possible to stack " + n.toNaturalString(true));
 
-					if (o1.getForm().equals("plank"))
-						return 1;
-					if (o2.getForm().equals("plank"))
-						return -1;
-					return 0;
-				}
-			};
 
-			List<WorldObject> stackOrder = new ArrayList<WorldObject>();
-			stackOrder.addAll(firstObjects.getObjs());
-			Collections.sort(stackOrder, stackComparator);
+
+			}
+
+
 			Iterator<WorldObject> i = stackOrder.iterator();
 			Set<WorldObject> theSet = new HashSet<WorldObject>();
 
@@ -401,38 +372,21 @@ public class Interpreter {
 			while (i.hasNext()) {
 				prev = nex;
 				nex = i.next();
-				if (!world.isValidRelation(Relation.ONTOP, nex, prev)) {
-					Disambiguator d = new Disambiguator();
-					Set<WorldObject> theTwo = new HashSet<WorldObject>();
-					theTwo.add(prev);
-					theTwo.add(nex);
 
-					// String ontop = d.minimalUniqueDiscription(nex, theTwo,
-					// false);
-					// String below = d.minimalUniqueDiscription(prev, theTwo,
-					// false);
-					String ontop = d.minimalUniqueDiscription(nex, worldObjects, true);
-					String below = d.minimalUniqueDiscription(prev, worldObjects, true);
-
-					String err = "Sorry, it is not possible to stack " + n.getThingsToStackNode().toNaturalString()
-							+ ". ";
-					err = err + "I would have to put " + ontop + " on top of " + below + ". Duuh.";
-
-					throw new InterpretationException(err);
-				}
 				rwo = new RelativeWorldObject(nex, rwo, Relation.ONTOP);
 			}
 			theSet.add(rwo);
 
 			LogicalExpression<WorldObject> expr = new LogicalExpression<WorldObject>(theSet,
 					LogicalExpression.Operator.NONE);
-			// world.removeImpossibleLogic(expr);
 
 			Goal r = new Goal(expr, Action.MOVE);
 
-			return r;
 
+			return r;
 		}
+
+
 	}
 
 	private class NodeVisitor implements INodeVisitor<LogicalExpression<WorldObject>, Set<WorldObject>, Quantifier> {
@@ -451,12 +405,12 @@ public class Interpreter {
 			Quantifier q = n.getQuantifierNode().getQuantifier();
 			LogicalExpression<WorldObject> matchesArg1 = n.getObjectNode().accept(this, worldObjects, q);
 			LogicalExpression<WorldObject> matchesLocation = n.getLocationNode().accept(this, null, q); // Null
-																										// because
-																										// the
-																										// argument
-																										// is
-																										// not
-																										// relevant...
+			// because
+			// the
+			// argument
+			// is
+			// not
+			// relevant...
 
 			TenseNode tenseNode = n.getTenseNode();
 
@@ -601,7 +555,7 @@ public class Interpreter {
 			}
 			LogicalExpression<WorldObject> relativeToNew = new LogicalExpression<WorldObject>(objsNew, expNew,
 					relativeTo.getOp());// new
-										// HashSet<LogicalExpression<WorldObject>>();
+			// HashSet<LogicalExpression<WorldObject>>();
 			if (relativeTo.isEmpty() && !Shrdlite.debug) {
 				// throw new
 				// InterpretationException("There are no objects which match the description '"
@@ -619,14 +573,14 @@ public class Interpreter {
 			Set<WorldObject> toBeFiltered = new HashSet<>();
 			toBeFiltered.add(new WorldObject("floor", "floor", "floor", "floor"));
 			return new LogicalExpression<WorldObject>(toBeFiltered, LogicalExpression.Operator.NONE); // "THE"
-																										// floor
-																										// is
-																										// the
-																										// only
-																										// quantifier
-																										// that
-																										// makes
-																										// sense...
+			// floor
+			// is
+			// the
+			// only
+			// quantifier
+			// that
+			// makes
+			// sense...
 		}
 
 		@Override
@@ -655,7 +609,7 @@ public class Interpreter {
 				break;
 			}
 			LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(toBeFiltered, op);// LogicalExpression.toLogicalObjects(toBeFiltered,
-																								// quantifier);
+			// quantifier);
 			if (quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode) {
 
 				// there is an ambiguity in the reference. THE matches more than

@@ -37,6 +37,13 @@ public class RelationNode extends Node{
 
 	}
 
+	@Override
+	public String toCompactString() {
+		// TODO Auto-generated method stub
+		return relation.toString();
+		
+	}
+
 	public RelationNode(Node parent, String data) {
 		super(parent, data);
         this.relation = WorldConstraint.Relation.valueOf(data.toUpperCase());

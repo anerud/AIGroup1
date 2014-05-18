@@ -2,6 +2,7 @@ package tree;
 
 import main.Interpreter;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public abstract class Node {
@@ -13,6 +14,8 @@ public abstract class Node {
 		this.parent = parent;
 	}
 
+	
+	
 	public Node getParent() {
 		return parent;
 	}
@@ -50,6 +53,24 @@ public abstract class Node {
 			s += n.toIndentString(tabs+1);
 		}
 		return s;
+	}
+	
+	public String toCompactString(){
+
+		String s="";
+		
+		Iterator<Node> i = getChildren().iterator();
+		while(i.hasNext())
+		{
+			s += i.next().toCompactString();
+			if (i.hasNext())
+				s+= ", ";
+			
+		}
+		
+		if (!getChildren().isEmpty())
+			s="("+s+")";
+		return getData() +s;
 	}
 	
 	

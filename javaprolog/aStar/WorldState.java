@@ -12,8 +12,7 @@ import java.util.*;
 /**
  * An object oriented implementation of a state in the ShrdLite world.
  * This class contains all information that defines a state in the world
- * and also funcionality for heuristics and expansions of neighbouring states.
- * @author Sebbe
+ * and also functionality for heuristics and expansions of neighbouring states.
  *
  */
 public class WorldState implements IAStarState {
@@ -405,9 +404,17 @@ public class WorldState implements IAStarState {
 		}
 	}
 
+    /**
+     * Calculates the minimum objects which need to be moved at least once or twice in order to fulfil an atom (a WorldObject) in a logical expression.
+     * @param wo
+     * @param minObjsRef sets of objects for which it is already known that they need to be moved
+     * @param recursive determines if the function should look through indirect relations or relations of RelativeWorldObjects when calculating the minimum set of objects
+     * @return a map of sets, where the key 1 maps to the set containing objects needed to be moved at least once, and the key 2 maps to the set containing objects which need to be moved at least twice
+     */
 	private HashMap<Integer, Set<WorldObject>> calculateMinObjsToMove(WorldObject wo,
 			HashMap<Integer, Set<WorldObject>> minObjsRef, boolean recursive) {
-		HashMap<Integer, Set<WorldObject>> minObjs = null;
+		//Initialization...
+        HashMap<Integer, Set<WorldObject>> minObjs = null;
 		Set<WorldObject> moveAtleastOnce = null;
 		Set<WorldObject> moveAtleastTwice = null;
 		if (minObjsRef == null) {
@@ -422,12 +429,13 @@ public class WorldState implements IAStarState {
 		minObjs.put(1, moveAtleastOnce);
 		minObjs.put(2, moveAtleastTwice);
 
-		if (!(wo instanceof RelativeWorldObject)) {
+        if (!(wo instanceof RelativeWorldObject)) {
 			moveAtleastOnce.addAll(world.objectsAbove(wo));
 			return minObjs;
 		}
 		WorldObject woRel = ((RelativeWorldObject) wo).getRelativeTo();
 
+        //Look through subrelations
 		if (woRel instanceof RelativeWorldObject && recursive) {
 			HashMap<Integer, Set<WorldObject>> mins = calculateMinObjsToMove(woRel, minObjs, true);
 			moveAtleastOnce.addAll(mins.get(1));

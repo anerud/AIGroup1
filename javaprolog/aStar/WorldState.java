@@ -20,9 +20,7 @@ public class WorldState implements IAStarState {
 	private Set<WorldObject> objectsToMove;
 	private IHeuristic<WorldState> heuristic = new HeuristicONE();
 	private boolean bothArmsMoved;
-	private int arm1;
-	private int arm2;
-	double correctionForMovingBothArms;
+	double correction;
 	private static boolean printProgress = false;
 	private static final double penalty = 5;
 
@@ -46,11 +44,11 @@ public class WorldState implements IAStarState {
 	 * @param goal
 	 * @param actionsToGetHere
 	 */
-	public WorldState(World world, Goal goal, List<String> actionsToGetHere, int arm1, int arm2,
-			double correctionForMoving) throws CloneNotSupportedException {
+	public WorldState(World world, Goal goal, List<String> actionsToGetHere,
+			double correction) throws CloneNotSupportedException {
 		this.world = world;
 		this.goal = goal;
-		this.correctionForMovingBothArms = correctionForMoving;
+		this.correction = correction;
 		this.heuristicValue = (int) heuristic.h(this, goal);
 		HashMap<Integer, Set<WorldObject>> heuristic = null;
 		heuristic = goal.getExpression().isCnf() ? computeHeuristicOnCnf(goal.getExpression()) : computeHeuristicOnDnf(
@@ -60,8 +58,6 @@ public class WorldState implements IAStarState {
 		set1.removeAll(set2);
 		this.heuristicValue = set1.size() * 2 + set2.size() * 4;
 		this.actionsToGetHere = actionsToGetHere;
-		this.arm1 = arm1;
-		this.arm2 = arm2;
 		// //Debugging
 		// //____________________________
 		// if(world.getRepresentString().equals(".e,.a,j,.l,m,..i,h,..g,b,.k,f,.c,d,..")){
@@ -383,7 +379,7 @@ public class WorldState implements IAStarState {
 	@Override
 	public int compareTo(IAStarState o) {
 		// Here one can decide whether one wants FIFO or LIFO behavior on queue.
-		if (this.getStateValue() + correctionForMovingBothArms - (o.getStateValue() + o.correctionForMovingBothArms()) >= 0) {
+		if (this.getStateValue() + correction - (o.getStateValue() + o.correctionForMovingBothArms()) >= 0) {
 			return 1;
 		}
 		return -1;
@@ -394,10 +390,10 @@ public class WorldState implements IAStarState {
 	 */
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
-		return expandNArms(world, new LinkedList<Integer>(), actionsToGetHere);
+		return expandNArms(world, new LinkedList<Integer>(), actionsToGetHere, 0);
 	}
 
-	public Collection<? extends IAStarState> expandNArms(World world1, List<Integer> armpos, List<String> gotHere)
+	public Collection<? extends IAStarState> expandNArms(World world1, List<Integer> armpos, List<String> gotHere, double correction)
 			throws CloneNotSupportedException {
 		if (armpos.size() >= world.getHoldings().size()) {
 			return new LinkedList<>();
@@ -413,30 +409,32 @@ public class WorldState implements IAStarState {
 				List<Integer> pos = new LinkedList<>(armpos);
 				pos.add(i);
 				if (dropWorld.drop(i, arm) && !visitedWorld.contains(dropWorld.getRepresentString())) {
+					visitedWorld.add(dropWorld.getRepresentString());
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("drop" + arm + " " + i);
 					if (armpos.size() == world.getHoldings().size() - 1) {
-						states.add(new WorldState(dropWorld, goal, newList, 0, 0, 0));
+						states.add(new WorldState(dropWorld, goal, newList, correction));
 					} else {
-						states.addAll(expandNArms(dropWorld, pos, newList));
+						states.addAll(expandNArms(dropWorld, pos, newList, correction));
 					}
 				}
 				if (pickWorld.pick(i, arm) && !visitedWorld.contains(pickWorld.getRepresentString())) {
+					visitedWorld.add(pickWorld.getRepresentString());
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("pick" + arm + " " + i);
 					if (armpos.size() == world.getHoldings().size() - 1) {
-						states.add(new WorldState(pickWorld, goal, newList, 0, 0, 0));
+						states.add(new WorldState(pickWorld, goal, newList, correction));
 					} else {
-						states.addAll(expandNArms(pickWorld, pos, newList));
+						states.addAll(expandNArms(pickWorld, pos, newList, correction));
 					}
 				}
 				if (world.getHoldings().size() > 1) {
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("move" + arm + " " + i);
 					if (armpos.size() == world.getHoldings().size() - 1) {
-						states.add(new WorldState(moveWorld, goal, newList, 0, 0, 0));
+						states.add(new WorldState(moveWorld, goal, newList, correction));
 					} else {
-						states.addAll(expandNArms(moveWorld, pos, newList));
+						states.addAll(expandNArms(moveWorld, pos, newList, correction));
 					}
 				}
 			}
@@ -450,7 +448,7 @@ public class WorldState implements IAStarState {
 
 	@Override
 	public double correctionForMovingBothArms() {
-		return this.correctionForMovingBothArms;
+		return this.correction;
 	}
 
 }

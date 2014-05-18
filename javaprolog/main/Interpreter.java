@@ -24,6 +24,16 @@ public class Interpreter {
 
 	public class ClarificationQuestionException extends InterpretationException {
 		private Question question;
+		private String enumeration; 
+			
+
+		public String getEnumeration() {
+			return enumeration;
+		}
+
+		public void setEnumeration(String enumeration) {
+			this.enumeration = enumeration;
+		}
 
 		public ClarificationQuestionException(Question question) {
 			super("clarification question");
@@ -325,7 +335,6 @@ public class Interpreter {
 
 			return new Goal(bigExpr, Action.MOVE);
 		}
-
 		@Override
 		// create a stack
 		// somewhat naive implementation that (if possible) sorts all selected
@@ -614,7 +623,7 @@ public class Interpreter {
 
 				// there is an ambiguity in the reference. THE matches more than
 				// one object
-				Disambiguator d = new Disambiguator();
+		
 				if (!answers.containsKey(questionID))
 					answers.put(questionID, new ArrayList<NTree>());
 				List<NTree> subAnswers = answers.get(questionID);
@@ -642,11 +651,12 @@ public class Interpreter {
 						if (!i.hasNext()) {
 							e.getQuestion().setQuestionId(questionID);
 							e.getQuestion().setSubQuestionId(currentNumberOfSubquestions);
+							e.getQuestion().setQuestion("Yes, but did you mean " + e.getEnumeration());
 							throw e;
 						}
 					} catch (EmptyReferenceException e) {
 						if (!i.hasNext()) {
-							Question q = new Question("not found : " + e.getMessage(), questionID,
+							Question q = new Question( e.getMessage(), questionID,
 									currentNumberOfSubquestions);
 							throw new ClarificationQuestionException(q);
 						}
@@ -659,11 +669,17 @@ public class Interpreter {
 				int objectsLeft = logObjs.size();
 				if (objectsLeft > 1) {
 					// we need to ask another question
-					String questionString = Disambiguator.disambiguate(logObjs.getObjs(), n);
-					if (currentNumberOfSubquestions > 1)
-						questionString = questionString + " Stupid.";
+					
+					String number = Disambiguator.int2String(logObjs.getObjs().size());
+					String enumeration = Disambiguator.disambiguate(logObjs.getObjs(), n);
+					String questionString =" I can see "+ number + " " + n.toNaturalString(true);
+					questionString = questionString + ". Did you mean " + enumeration;
+	
 					Question q = new Question(questionString, questionID, currentNumberOfSubquestions);
-					throw new ClarificationQuestionException(q);
+					ClarificationQuestionException cqe = new ClarificationQuestionException(q);
+					cqe.setEnumeration(enumeration);
+					
+					throw cqe;
 
 				}
 				questionID++;

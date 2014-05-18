@@ -65,7 +65,6 @@ public class AStar {
 //                asdf.append(((WorldState)currentState).getWorld().getRepresentString() + " \n");
 //                asdf.close();
 //            } catch (IOException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            }
             //__________________

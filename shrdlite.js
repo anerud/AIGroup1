@@ -336,7 +336,7 @@ function moveObject(action, stackNr) {
 	var duration2;
 	var anim1 = {t:0};
 	var anim2 = {t:0};
-	var anim3= {t:0};
+	var anim3 = {t:0};
 	var path1;
 	var path2;
 	var path3;
@@ -364,15 +364,15 @@ function moveObject(action, stackNr) {
     if (action.indexOf(Move) == 0) {
 		if(xArm - xStack != 0){
 			path3 = ["M", xArm,yStack-yArm, "H", xStack,"V",yStack-yArm];
-			anim3.a = animateMotion($("#"+hol), path3, duration1)
+			anim3.a = animateMotion($("#"+hol), path3, duration1);
 		}
 	}else if (action.indexOf(Pick) == 0) {
         path3 = ["M", xStack, yStack, "V", yStack-yArm];
-        anim3.a = animateMotion($("#"+hol), path3, duration2)
+        anim3.a = animateMotion($("#"+hol), path3, duration2);
 		anim3.t =duration1 + AnimationPause;
     } else if (action.indexOf(Drop) == 0) {
         path3 = ["M", xArm, yStack-yArm, "H", xStack, "V", yStack];
-        anim3.a = animateMotion($("#"+hol), path3, duration1)
+        anim3.a = animateMotion($("#"+hol), path3, duration1);
     }
 	if(path1){
 		anim1.a.beginElementAt(anim1.t);
@@ -382,6 +382,7 @@ function moveObject(action, stackNr) {
 	}
 	if(path3){
 		anim3.a.beginElementAt(anim3.t);
+	
 	}
 	
 	
@@ -489,7 +490,7 @@ function makeObject(svg, objectid, stacknr, timeout, isArm) {
 		var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
 		animateMotion(object, path, 0, 0).beginElementAt(0);
 		path.push("V", -altitude);
-		animateMotion(object, path, 0.0001).beginElementAt(timeout);
+		animateMotion(object, path, 0.1).beginElementAt(timeout);
 	}else{
 	    var altitude = getAltitude(stacknr);
 		var objectHeight =  getObjectDimensions(objectid).heightadd;
@@ -499,7 +500,7 @@ function makeObject(svg, objectid, stacknr, timeout, isArm) {
 		var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
 		animateMotion(object, path, 0, 0).beginElementAt(0);
 		path.push("V",  yStack-yArm);
-		animateMotion(object, path, 0.001).beginElementAt(timeout);	
+		animateMotion(object, path, 0.1).beginElementAt(timeout);	
 	}
 }
 
@@ -633,6 +634,7 @@ function userInput() {
 			}
         } catch(err) {
 			console.log(result);
+			console.log(err)
             alertError("JSON error222:" + err, result);
         }
 

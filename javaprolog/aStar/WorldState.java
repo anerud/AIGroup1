@@ -155,9 +155,7 @@ public class WorldState implements IAStarState {
 
 	/**
 	 * Only creates non-zero heuristics for dnf expressions. If not dnf, an
-	 * empty map is returned. //TODO: make it support cnf as well, as some
-	 * expressions are not practical in dnf. Consider for example the sentence
-	 * "put all objects beside an object"
+	 * empty map is returned.
 	 * 
 	 * @param le
 	 * @return

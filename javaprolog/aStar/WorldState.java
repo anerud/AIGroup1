@@ -496,39 +496,39 @@ public class WorldState implements IAStarState {
 			// moveAtleastOnce.add(new WorldObject(woMove));
 			// };
 		case LEFTOF:
-			// if(!world.hasRelation(WorldConstraint.Relation.LEFTOF, wo,
-			// woRel)) {
-			// List<WorldObject> minList;
-			// WorldObject woMove;
-			// if(world.objectsAbove(wo).size() <=
-			// world.objectsAbove(woRel).size()) {
-			// minList = world.objectsAbove(wo);
-			// woMove = wo;
-			// } else {
-			// minList = world.objectsAbove(woRel);
-			// woMove = woRel;
-			// }
-			// moveAtleastOnce.addAll(minList);
-			// moveAtleastOnce.add(new WorldObject(woMove));
-			// };
-			break;
-		case RIGHTOF:
-			// if(!world.hasRelation(WorldConstraint.Relation.RIGHTOF, wo,
-			// woRel)) {
-			// List<WorldObject> minList;
-			// WorldObject woMove;
-			// if(world.objectsAbove(wo).size() <=
-			// world.objectsAbove(woRel).size()) {
-			// minList = world.objectsAbove(wo);
-			// woMove = wo;
-			// } else {
-			// minList = world.objectsAbove(woRel);
-			// woMove = woRel;
-			// }
-			// moveAtleastOnce.addAll(minList);
-			// moveAtleastOnce.add(new WorldObject(woMove));
-			// };
-			break;
+            if(!world.hasRelation(WorldConstraint.Relation.LEFTOF, wo, woRel)) {
+                List<WorldObject> minList;
+                WorldObject woMove;
+
+                Set<WorldObject> set1 = new HashSet<>();
+                Set<WorldObject> set2 = new HashSet<>();
+                set1.add(new WorldObject(wo)); set1.addAll(world.objectsAbove(wo)); set1.addAll(moveAtleastOnce);
+                set2.add(new WorldObject(woRel)); set2.addAll(world.objectsAbove(woRel)); set2.addAll(moveAtleastOnce);
+
+                if(set1.size() <= set2.size()) {
+                    moveAtleastOnce.addAll(set1);
+                } else {
+                    moveAtleastOnce.addAll(set2);
+                }
+            };
+            break;
+            case RIGHTOF:
+                if(!world.hasRelation(WorldConstraint.Relation.RIGHTOF, wo, woRel)) {
+                    List<WorldObject> minList;
+                    WorldObject woMove;
+
+                    Set<WorldObject> set1 = new HashSet<>();
+                    Set<WorldObject> set2 = new HashSet<>();
+                    set1.add(new WorldObject(wo)); set1.addAll(world.objectsAbove(wo)); set1.addAll(moveAtleastOnce);
+                    set2.add(new WorldObject(woRel)); set2.addAll(world.objectsAbove(woRel)); set2.addAll(moveAtleastOnce);
+
+                    if(set1.size() <= set2.size()) {
+                        moveAtleastOnce.addAll(set1);
+                    } else {
+                        moveAtleastOnce.addAll(set2);
+                    }
+                };
+                break;
 		}
 		if (recursive) {
 			Set<WorldObject> indirectRelations = ((RelativeWorldObject) wo).inferIndirectRelations();

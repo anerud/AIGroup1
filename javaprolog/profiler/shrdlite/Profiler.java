@@ -10,21 +10,17 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 /**
+ * A convenience class for running a profiler like visual-vm. Make sure to press the run button after the profiling has started and is active.
  * Created by Roland on 2014-04-11.
  */
 public class Profiler extends JPanel{
 
-
-
     public Profiler(){
         super(new GridLayout(1,0));
-
         JButton button = new JButton("Run Shrdlite");
-
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 SwingWorker worker = new SwingWorker() {
                     @Override
                     protected Object doInBackground() throws Exception {
@@ -47,12 +43,9 @@ public class Profiler extends JPanel{
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Simple", null, button, null);
-
         tabbedPane.setSelectedIndex(0);
-
         add(tabbedPane);
     }
-
 
     public static void main(String[] args){
         //Create and set up the window.
@@ -69,5 +62,4 @@ public class Profiler extends JPanel{
         frame.pack();
         frame.setVisible(true);
     }
-
 }

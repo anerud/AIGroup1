@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Note that RelativeWorldObjects can be chained arbitrarily.
+ *
  * Created by Roland on 2014-03-28.
  */
 public class RelativeWorldObject extends WorldObject {

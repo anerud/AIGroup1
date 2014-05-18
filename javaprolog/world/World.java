@@ -6,6 +6,7 @@ import main.Goal;
 import java.util.*;
 
 /**
+ * A representation of a particular state of a Shrdlite world
  * Created by Roland on 2014-03-26.
  */
 public class World {
@@ -35,20 +36,11 @@ public class World {
 		this.stacks = stacks;
 		initColumns();
 	}
-
-	// public World(ArrayList<LinkedList<WorldObject>> stacks,
-	// List<WorldConstraint> constrains) {
-	// this.constraints = constrains;
-	// this.holdings = new LinkedList<>();
-	// this.stacks = stacks;
-	// initColumns();
-	// }
-
 	/**
 	 * This constructor assumes there are no constraints
 	 * 
 	 * @param stacks
-	 * @param holding
+	 * @param holdings
 	 */
 	public World(ArrayList<LinkedList<WorldObject>> stacks, List<WorldObject> holdings) {
 		this.constraints = new ArrayList<WorldConstraint>();
@@ -102,15 +94,9 @@ public class World {
 		return top != null && top.getId().equals(wo.getId());
 	}
 
-	// public boolean isOnFloor(WorldObject wo){
-	// WorldObject bottom = bottomOfStack(columnOf(wo));
-	// return bottom != null && bottom.equals(wo);
-	// }
-
 	/**
 	 * 
-	 * @param id
-	 *            the id of the desired WorldObject
+	 * @param id the id of the desired WorldObject
 	 * @return the WorldObject which has the specified id or null if the world
 	 *         contains no such WorldObject
 	 */
@@ -175,23 +161,6 @@ public class World {
 		return stacks.get(fromColumn).isEmpty();
 	}
 
-	// /**
-	// *
-	// * @param fromColumn
-	// * @return true if the specified operation was successful
-	// */
-	// public boolean moveTopToNextColumn(int fromColumn) {
-	// // TODO: check that the objects are compatible, that is, that object a
-	// // can be placed ontop of object b
-	// if (!isStackEmpty(fromColumn)) {
-	// WorldObject wo = stacks.get(fromColumn).getLast();
-	// stacks.get(fromColumn).removeLast();
-	// stacks.get((fromColumn + 1) % numberOfColumns()).addLast(wo);
-	// return true;
-	// }
-	// return false;
-	// }
-
 	/**
 	 * 
 	 * @param woColumn
@@ -254,16 +223,6 @@ public class World {
 
 		Integer column = this.columns.get(wo);
 		return column == null ? -1 : column;
-		//
-		// for (LinkedList<WorldObject> ll : stacks) {
-		// if (ll.contains(wo)) {
-		// return stacks.indexOf(ll);
-		// }
-		// if (wo.getForm().equals("floor") && ll.isEmpty()) {
-		// return stacks.indexOf(ll);
-		// }
-		// }
-		// return -1;
 	}
 
 	/**
@@ -287,6 +246,14 @@ public class World {
 		return stacks.get(column).indexOf(wo);
 	}
 
+    /**
+     * Determines whether obj1 has relation "relation" to all objects in the logical expression woRel, with respect to the logical conditions
+     * specified therein
+     * @param relation
+     * @param obj1
+     * @param woRel
+     * @return
+     */
 	public boolean isValidRelation(WorldConstraint.Relation relation, WorldObject obj1,
 			LogicalExpression<WorldObject> woRel) {
 		if (woRel.getObjs() != null) {
@@ -477,35 +444,6 @@ public class World {
 		}
 		return logExp;
 	}
-
-	// /**
-	// * For an object to be retained, all relations of a RelativeWorldObject or
-	// a WorldObject must be fulfilled in this world.
-	// * @param toBeFiltered
-	// * @return
-	// */
-	// public Set<WorldObject> filterByExistsInWorld(Set<WorldObject>
-	// toBeFiltered) {
-	// Set<WorldObject> toBeRetained = new HashSet<WorldObject>();
-	// for(WorldObject obj : toBeFiltered){
-	// //Check that the object exists
-	// Set<WorldObject> fil = getWorldObjects();
-	// filterByMatch(fil, obj);
-	// if(!fil.isEmpty()){
-	// toBeRetained.add(obj);
-	// }
-	//
-	// //Now remove the ones that do not match the relation (if any)
-	// if(obj instanceof RelativeWorldObject){
-	// if(!hasRelation(((RelativeWorldObject)obj).getRelation(), obj,
-	// ((RelativeWorldObject) obj).getRelativeTo())){
-	// toBeRetained.remove(obj);
-	// }
-	// }
-	// }
-	// toBeFiltered.retainAll(toBeRetained);
-	// return toBeFiltered;
-	// }
 
 	/**
 	 * Uses the operators in le to recursively determine if the objects exist in
@@ -999,21 +937,8 @@ public class World {
 									|| relation.equals(WorldConstraint.Relation.INSIDE) || relation
 										.equals(WorldConstraint.Relation.ABOVE))));
 				}
-				Set<WorldObject> objs = new HashSet<>(expression.getObjs()); // TODO:
-																				// why
-																				// is
-																				// this
-																				// needed
-																				// for
-																				// the
-																				// objects
-																				// to
-																				// be
-																				// able
-																				// to
-																				// be
-																				// removed?
-																				// weird...
+				Set<WorldObject> objs = new HashSet<>(expression.getObjs());
+				// TODO: // why is this needed for the objects to be able to be removed? weird...
 				objs.removeAll(toBeRemoved);
 				expression.setObjs(objs);
 				// TODO: do the same for below..

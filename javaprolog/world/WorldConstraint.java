@@ -9,10 +9,6 @@ public class WorldConstraint {
         BESIDE, LEFTOF, RIGHTOF, ABOVE, ONTOP, UNDER, INSIDE
     }
     
-   
-
-
 	public WorldConstraint(){
-
     }
 }

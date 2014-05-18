@@ -81,9 +81,9 @@ public class Disambiguator {
         StringBuilder sb = new StringBuilder();
 
         int count = sortedObjs.size();
-        String iCanSee = "I can see " + int2String(count) + " " + reference.toNaturalString(true);
-        sb.append(iCanSee);
-        sb.append(". Did you mean ");
+        //String iCanSee = "I can see " + int2String(count) + " " + reference.toNaturalString(true);
+        //sb.append(iCanSee);
+        //sb.append(". Did you mean ");
 
         Iterator<WorldObject> i = sortedObjs.iterator();
 
@@ -92,7 +92,8 @@ public class Disambiguator {
         while (i.hasNext()) {
             String d = minimalUniqueDescription(i.next(), new HashSet<WorldObject>(objects));
             if (d.equals("error")) {
-                return iCanSee + ". Please be more specific.";
+               // return iCanSee + ". Please be more specific.";
+                return  "Please be more specific.";
             }
             if (!i.hasNext()) {
                 sb.append(" or ");

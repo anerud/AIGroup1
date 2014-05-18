@@ -7,7 +7,8 @@ var ExampleNames = ["simple","small","medium", "large", "monster", "insanely ube
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
-var SystemPromptText = "What can I do for you today?";
+// it says nothing damnit
+var SystemPromptText = "";
 
 // Constants that you can play around with:
 var DialogueHistory = 100;    // max nr. utterances

@@ -179,7 +179,7 @@ public class Shrdlite {
 						result.getQuestions().clear();
 					} else {
 						log.println(plan.toString());
-						result.setOutput("Success!");
+						result.setOutput("Ok.");
 						result.getQuestions().clear();
 						
 					}
@@ -189,7 +189,13 @@ public class Shrdlite {
 		}
 		else
 		{
-			//there was a problem with a question.. 
+			// there was a parse error with an answer.  
+			// have the client ask the same question again
+			
+			result.setQuestions(new ArrayList<>(p.getQuestions()));
+			result.getQuestions().get(result.getQuestions().size()-1).setAnswer(null);
+			
+			
 		}	
 
 	    fw = new FileWriter("latestOutput.json");

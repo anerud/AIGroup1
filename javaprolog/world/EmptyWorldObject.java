@@ -21,6 +21,11 @@ public class EmptyWorldObject extends WorldObject {
 	};
 
 	@Override
+	public boolean matchesPattern(WorldObject match) {
+		return false;
+	}
+
+	@Override
 	public String getId() {
 		return "-1";
 	}

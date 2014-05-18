@@ -11,6 +11,8 @@ public class Input {
 
 	private String holding;
 
+	private List<String> holdings;
+
 	private List<String> utterance;
 
 	private List<List<String>> worldoriginal;
@@ -41,6 +43,14 @@ public class Input {
 
 	public List<Question> getQuestions() {
 		return questions;
+	}
+
+	public List<String> getHoldings() {
+		return holdings;
+	}
+
+	public void setHoldings(List<String> holdings) {
+		this.holdings = holdings;
 	}
 
 	public void setQuestions(List<Question> questions) {

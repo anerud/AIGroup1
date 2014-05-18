@@ -11,6 +11,7 @@ import gnu.prolog.term.CompoundTerm;
 import gnu.prolog.term.Term;
 import gnu.prolog.vm.PrologException;
 import tree.*;
+import world.EmptyWorldObject;
 import world.World;
 import world.WorldObject;
 
@@ -30,7 +31,7 @@ public class Shrdlite {
 
 	public static void main(String[] args) throws IOException, PrologException, CloneNotSupportedException {
 		long start = System.currentTimeMillis();
-		//		try {
+		// try {
 		String jsinput = null;
 		if (args.length == 0) {
 			jsinput = readFromReader(new InputStreamReader(System.in));
@@ -42,10 +43,9 @@ public class Shrdlite {
 		if (args.length > 1 && args[1].equals("debug")) {
 			debug = true;
 		}
-		
-	
+
 		FileWriter fw = new FileWriter("latestInput.json");
-		
+
 		String pretty = new GsonBuilder().setPrettyPrinting().create().toJson(p);
 		fw.write(pretty);
 		fw.close();
@@ -59,7 +59,23 @@ public class Shrdlite {
 		}
 
 		// Initialize holding object
-		WorldObject holding = p.getObjects().get(p.getHolding());
+		List<WorldObject> holdings = new LinkedList<>();
+		if (p.getHoldings() != null) {
+			for (String s : p.getHoldings()) {
+				if (s.equals("empty")) {
+					holdings.add(new EmptyWorldObject());
+				} else {
+					holdings.add(p.getObjects().get(s));
+				}
+			}
+		} else {
+			if (p.getHolding() != null) {
+				holdings.add(p.getObjects().get(p.getHolding()));
+			} else {
+				holdings.add(new EmptyWorldObject());
+			}
+		}
+
 		// Initialize world
 		for (int i = 0; i < p.getWorld().size(); i++) {
 			LinkedList<WorldObject> objList = new LinkedList<WorldObject>();
@@ -68,10 +84,9 @@ public class Shrdlite {
 			}
 			worldArr.add(objList);
 		}
-		World world = new World(worldArr, holding);
+		World world = new World(worldArr, holdings);
 
 		Input result = new Input();
-
 
 		result.setUtterance(p.getUtterance());
 
@@ -79,56 +94,51 @@ public class Shrdlite {
 		DCGParser parser = new DCGParser("shrdlite_grammar.pl");
 		List<Term> trees = parser.parseSentence("command", p.getUtterance());
 
-
-		// parse answers as if they were commands.  If an answer to a question is in fact a command,
-		// the user has changed its mind and started over. 
+		// parse answers as if they were commands. If an answer to a question is
+		// in fact a command,
+		// the user has changed its mind and started over.
 
 		boolean startover = false;
-		for (Question q : p.getQuestions())
-		{
+		for (Question q : p.getQuestions()) {
 			List<Term> answerAsCommand = parser.parseSentence("command", q.getAnswer());
-			if (!answerAsCommand.isEmpty())
-			{
-				//make the answer-that-was-a-command the new command
+			if (!answerAsCommand.isEmpty()) {
+				// make the answer-that-was-a-command the new command
 				trees = answerAsCommand;
 				startover = true;
 			}
 		}
 		// if user has started over, erase question history
-		if ( startover) p.getQuestions().clear();
-
+		if (startover)
+			p.getQuestions().clear();
 
 		boolean questionsOk = true;
 		List<NTree> AnswerTreeList = new ArrayList<NTree>();
-		Map<Integer,List<NTree>> AnswerMap = new HashMap<>();
+		Map<Integer, List<NTree>> AnswerMap = new HashMap<>();
 
-		for (Question q : p.getQuestions())
-		{
-			List<Term> parsedAnswer= parser.parseSentence("entity", q.getAnswer());
-			if (parsedAnswer.isEmpty())
-			{
-				// some answer was not ok. 
-				//add another clarification question. 
-				//:Todo:  handle unparsable questions. 
-				
+		for (Question q : p.getQuestions()) {
+			List<Term> parsedAnswer = parser.parseSentence("entity", q.getAnswer());
+			if (parsedAnswer.isEmpty()) {
+				// some answer was not ok.
+				// add another clarification question.
+				// :Todo: handle unparsable questions.
+
 				questionsOk = false;
-				break;	
-			}
-			else 
-			{
+				break;
+			} else {
 				// get the first and only answer parse tree
-				// answers cannot be ambiguous. Make an Ntree of it and add it to the list.
+				// answers cannot be ambiguous. Make an Ntree of it and add it
+				// to the list.
 				Term t = parsedAnswer.get(0);
-				NTree answerTree =  termsToTree((CompoundTerm) t, null);
+				NTree answerTree = termsToTree((CompoundTerm) t, null);
 				if (!AnswerMap.containsKey(q.getQuestionId()))
-					AnswerMap.put(q.getQuestionId(),new ArrayList<NTree>());
-				AnswerMap.get(q.getQuestionId()).add(q.getSubQuestionId(),answerTree);
+					AnswerMap.put(q.getQuestionId(), new ArrayList<NTree>());
+				AnswerMap.get(q.getQuestionId()).add(q.getSubQuestionId(), answerTree);
 
 			}
 		}
-		//only interpret command if questions are ok
+		// only interpret command if questions are ok
 
-		if (questionsOk){
+		if (questionsOk) {
 
 			// Interpret command
 			List<NTree> treeList = new ArrayList<NTree>();
@@ -143,28 +153,28 @@ public class Shrdlite {
 				Interpreter interpreter = new Interpreter(world);
 
 				try {
-					
+
 					goals.addAll(interpreter.interpret(treeList, AnswerMap));
 					if (debug) {
 						result.setGoals(goals.toString());
 					}
 
-			} catch (Interpreter.ClarificationQuestionException e) {
-				// there was an exception that generates a clarification question
-				result.setQuestions(new ArrayList<>(p.getQuestions()));
-				result.getQuestions().add(e.getQuestion());
-				
-			}
-			catch (Interpreter.InterpretationException e) {
-				//there was an error 
-				result.setOutput(e.getMessage());
-				
-			}
+				} catch (Interpreter.ClarificationQuestionException e) {
+					// there was an exception that generates a clarification
+					// question
+					result.setQuestions(new ArrayList<>(p.getQuestions()));
+					result.getQuestions().add(e.getQuestion());
+
+				} catch (Interpreter.InterpretationException e) {
+					// there was an error
+					result.setOutput(e.getMessage());
+
+				}
 
 				if (goals.isEmpty()) {
 					if (result.getOutput() == null) {
 						result.setOutput("Sorry, that is not possible. (interpretation error)");
-						
+
 					}
 				} else if (goals.size() > 1) {
 					result.setOutput("Disambiguation error!");
@@ -181,47 +191,43 @@ public class Shrdlite {
 						log.println(plan.toString());
 						result.setOutput("Ok.");
 						result.getQuestions().clear();
-						
+
 					}
 				}
 			}
 
-		}
-		else
-		{
-			// there was a parse error with an answer.  
+		} else {
+			// there was a parse error with an answer.
 			// have the client ask the same question again
-			
-			result.setQuestions(new ArrayList<>(p.getQuestions()));
-			result.getQuestions().get(result.getQuestions().size()-1).setAnswer(null);
-			
-			
-		}	
 
-	    fw = new FileWriter("latestOutput.json");
-	    String jsonString = new Gson().toJson(result);
+			result.setQuestions(new ArrayList<>(p.getQuestions()));
+			result.getQuestions().get(result.getQuestions().size() - 1).setAnswer(null);
+
+		}
+
+		fw = new FileWriter("latestOutput.json");
+		String jsonString = new Gson().toJson(result);
 		pretty = new GsonBuilder().setPrettyPrinting().create().toJson(result);
-	    
-	    fw.write(jsinput);
+
+		fw.write(jsinput);
 		fw.close();
 
 		long end = System.currentTimeMillis();
 		log.println(start);
 		log.println(end);
-		log.println(end-start);
+		log.println(end - start);
 		log.close();
 
-
 		System.out.println(jsonString);
-		//		} catch (Exception e) {
-		//			PrintWriter asdf = new PrintWriter("errorlog.txt");
-		//			asdf.println(e.getMessage());
-		//			long end = System.currentTimeMillis();
-		//			asdf.println(start);
-		//			asdf.println(end);
-		//			asdf.println(end-start);
-		//			asdf.close();
-		//		}
+		// } catch (Exception e) {
+		// PrintWriter asdf = new PrintWriter("errorlog.txt");
+		// asdf.println(e.getMessage());
+		// long end = System.currentTimeMillis();
+		// asdf.println(start);
+		// asdf.println(end);
+		// asdf.println(end-start);
+		// asdf.close();
+		// }
 	}
 
 	public static String readFromReader(Reader reader) throws IOException {
@@ -309,8 +315,7 @@ public class Shrdlite {
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToStackNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
 			return n;
-		} 
-		else if (data.equals("sort")) {
+		} else if (data.equals("sort")) {
 			SortNode n = new SortNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
 			n.setThingsToSortNode(getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
@@ -325,34 +330,34 @@ public class Shrdlite {
 		} else if (data.equals("object")) {
 			ObjectNode n = new ObjectNode(parent, data);
 			CompoundTerm tt = (CompoundTerm) t;
-			n.setFormNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
-			n.setSizeNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
-			n.setColorNode((AttributeNode)getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
-
-
-
+			n.setFormNode((AttributeNode) getNodeFromData(n, dataFromTerm(tt.args[0]), tt.args[0]));
+			n.setSizeNode((AttributeNode) getNodeFromData(n, dataFromTerm(tt.args[1]), tt.args[1]));
+			n.setColorNode((AttributeNode) getNodeFromData(n, dataFromTerm(tt.args[2]), tt.args[2]));
 
 			return n;
 		} else if (data.equals("under") || data.equals("beside") || data.equals("above") || data.equals("leftof")
 				|| data.equals("rightof") || data.equals("ontop") || data.equals("inside")) {
 			return new RelationNode(parent, data);
 		}
-		AttributeNode a=  new AttributeNode(parent, data);
-		// add plural forms for different object types. 
+		AttributeNode a = new AttributeNode(parent, data);
+		// add plural forms for different object types.
 		// neccessary for natuaral language generation
 
-		if (data.equals("box")) a.setPluralForm("boxes");
-		if (data.equals("ball")) a.setPluralForm("balls");
-		if (data.equals("plank")) a.setPluralForm("planks");
-		if (data.equals("anyform")) a.setPluralForm("objects");
-		if (data.equals("pyramid")) a.setPluralForm("pyramids");
-		if (data.equals("table")) a.setPluralForm("tables");
-		if (data.equals("brick")) a.setPluralForm("bricks");
+		if (data.equals("box"))
+			a.setPluralForm("boxes");
+		if (data.equals("ball"))
+			a.setPluralForm("balls");
+		if (data.equals("plank"))
+			a.setPluralForm("planks");
+		if (data.equals("anyform"))
+			a.setPluralForm("objects");
+		if (data.equals("pyramid"))
+			a.setPluralForm("pyramids");
+		if (data.equals("table"))
+			a.setPluralForm("tables");
+		if (data.equals("brick"))
+			a.setPluralForm("bricks");
 		return a;
-
-
-
-
 
 	}
 

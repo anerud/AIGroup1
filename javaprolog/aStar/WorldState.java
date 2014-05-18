@@ -7,8 +7,16 @@ import world.World;
 import world.WorldConstraint;
 import world.WorldObject;
 
+import java.lang.annotation.Inherited;
 import java.util.*;
 
+/**
+ * An object oriented implementation of a state in the ShrdLite world.
+ * This class contains all information that defines a state in the world
+ * and also funcionality for heuristics and expansions of neighbouring states.
+ * @author Sebbe
+ *
+ */
 public class WorldState implements IAStarState {
 
 	private List<String> actionsToGetHere;
@@ -569,22 +577,19 @@ public class WorldState implements IAStarState {
 	@Override
 	public int compareTo(IAStarState o) {
 		// Here one can decide whether one wants FIFO or LIFO behavior on queue.
-		if (this.getStateValue() + correctionForMovingBothArms()
-				- (o.getStateValue() + o.correctionForMovingBothArms()) >= 0) {
+		if (this.getStateValue() + correctionForMovingArms()
+				- (o.getStateValue() + o.correctionForMovingArms()) >= 0) {
 			return 1;
 		}
 		return -1;
 	}
 
-	/**
-	 * @return
-	 */
 	@Override
 	public Collection<? extends IAStarState> expand() throws CloneNotSupportedException {
 		return expandNArms(world, new LinkedList<Integer>(), actionsToGetHere, 0);
 	}
 
-	public Collection<? extends IAStarState> expandNArms(World world1, List<Integer> armpos, List<String> gotHere,
+	private Collection<? extends IAStarState> expandNArms(World world1, List<Integer> armpos, List<String> gotHere,
 			double penaltySoFar) throws CloneNotSupportedException {
 		if (armpos.size() >= world.getHoldings().size()) {
 			return new LinkedList<>();
@@ -599,6 +604,7 @@ public class WorldState implements IAStarState {
 				World pickWorld = world1.clone();
 				List<Integer> pos = new LinkedList<>(armpos);
 				pos.add(i);
+				//Try to pick column i with current arm
 				if (pickWorld.pick(i, arm) && !visitedWorld.contains(pickWorld.getRepresentString())) {
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("pick" + arm + " " + i);
@@ -609,6 +615,7 @@ public class WorldState implements IAStarState {
 						states.addAll(expandNArms(pickWorld, pos, newList, penaltySoFar + penaltydefault));
 					}
 				}
+				//Try to drop in column i with current arm
 				if (dropWorld.drop(i, arm) && !visitedWorld.contains(dropWorld.getRepresentString())) {
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("drop" + arm + " " + i);
@@ -619,6 +626,7 @@ public class WorldState implements IAStarState {
 						states.addAll(expandNArms(dropWorld, pos, newList, penaltySoFar + penaltydefault));
 					}
 				}
+				//Move current arm to column i
 				if (world.getHoldings().size() > 1) {
 					List<String> newList = new LinkedList<String>(gotHere);
 					newList.add("move" + arm + " " + i);
@@ -638,7 +646,7 @@ public class WorldState implements IAStarState {
 	}
 
 	@Override
-	public double correctionForMovingBothArms() {
+	public double correctionForMovingArms() {
 		return penalty;
 	}
 

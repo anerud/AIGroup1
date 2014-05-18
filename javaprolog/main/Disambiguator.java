@@ -6,8 +6,6 @@ import world.WorldObject;
 
 import java.util.*;
 
-import main.Interpreter.ClarificationQuestionException;
-
 
 /**
  * @author Joel

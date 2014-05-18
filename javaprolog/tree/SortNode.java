@@ -4,8 +4,6 @@ import main.Interpreter;
 
 import java.util.LinkedList;
 
-import sun.swing.icon.SortArrowIcon;
-
 public class SortNode extends Node {
 
 	private Node thingsToSortNode;

@@ -7,7 +7,6 @@ import world.World;
 import world.WorldConstraint;
 import world.WorldObject;
 
-import java.lang.annotation.Inherited;
 import java.util.*;
 
 /**
@@ -24,8 +23,6 @@ public class WorldState implements IAStarState {
 	private int heuristicValue;
 	private World world;
 	private Goal goal;
-	private Set<WorldObject> objectsToMove;
-	private IHeuristic<WorldState> heuristic = new HeuristicONE();
 	private double penalty = 0;
 	private static final double penaltydefault = 0;
 
@@ -54,7 +51,6 @@ public class WorldState implements IAStarState {
 		this.world = world;
 		this.goal = goal;
 		this.penalty = penalty;
-		this.heuristicValue = (int) heuristic.h(this, goal);
 		HashMap<Integer, Set<WorldObject>> heuristic = null;
 		heuristic = goal.getExpression().isCnf() ? computeHeuristicOnCnf(goal.getExpression()) : computeHeuristicOnDnf(
 				goal.getExpression(), null);
@@ -74,9 +70,17 @@ public class WorldState implements IAStarState {
 		// //____________________________
 	}
 
+    /**
+     * Computes a heuristic on a Conjunctive Normal Form. This is calculated as heuristic_objects = max_i(min_j(minObjsToFulfil(c_{i,j}) \cup (\cup_i (\cap_j minObjsToFulfil(c_{i,j})))) where c_{i,j}
+     * denotes atom j in clause i in the logical expression.
+     * @param expression
+     * @return
+     * @throws CloneNotSupportedException
+     */
 	private HashMap<Integer, Set<WorldObject>> computeHeuristicOnCnf(LogicalExpression<WorldObject> expression)
 			throws CloneNotSupportedException {
-		HashMap<Integer, Set<WorldObject>> minObjs = new HashMap<>();
+		//Initialization...
+        HashMap<Integer, Set<WorldObject>> minObjs = new HashMap<>();
 		Set<WorldObject> moveAtleastOnce = new HashSet<>();
 		Set<WorldObject> moveAtleastTwice = new HashSet<>();
 		minObjs.put(1, moveAtleastOnce);
@@ -163,7 +167,8 @@ public class WorldState implements IAStarState {
 
 	/**
 	 * Only creates non-zero heuristics for dnf expressions. If not dnf, an
-	 * empty map is returned.
+	 * empty map is returned. The heuristic simply evaluates all clauses, and returns the minimum set of objects which are needed
+     * to fulfil a clause.
 	 * 
 	 * @param le
 	 * @return
@@ -270,6 +275,8 @@ public class WorldState implements IAStarState {
 	}
 
 	/**
+     * Determines which stacks each object in the world can be under a certain state given by a logical expression.
+     *
 	 * @pre le must be a simple expression containing only AND operators
 	 * @param le
 	 * @return a map String -> Integer[2] where the first value in the Integer

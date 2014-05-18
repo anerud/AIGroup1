@@ -19,10 +19,7 @@ import world.WorldConstraint.Relation;
 public class Stacker {
 
 	public static class StackException extends Exception{
-
-
 	}
-
 
 	/** Returns a list of the given objects in an order that is stackable 
 	 * 
@@ -86,7 +83,7 @@ public class Stacker {
 			{
 				balls.add(wo);
 			}
-			else if( !wo.getForm().equals("box"))
+			else if(wo.getForm().equals("box"))
 			{
 				boxes.add(wo);
 
@@ -108,7 +105,7 @@ public class Stacker {
 			boolean hitBottom = false;
 			do 
 			{
-				boolean okAbove = (above == null || world.isValidRelation(Relation.ONTOP, above, box) );
+				boolean okAbove = (above == null || world.isValidRelation(Relation.INSIDE, above, box) );
 				boolean okBelow = (below == null || world.isValidRelation(Relation.ONTOP, box, below) );
 				if (okAbove && okBelow)
 				{
@@ -128,6 +125,8 @@ public class Stacker {
 						hitBottom = true;
 					}
 				}
+				index++;
+				
 			}while (i.hasNext() || !hitBottom);
 
 			if (foundPlace)
@@ -152,7 +151,7 @@ public class Stacker {
 
 		{    
 			WorldObject ball = balls.iterator().next();
-			if( stack.isEmpty() ||world.isValidRelation(Relation.ONTOP, ball, stack.iterator().next()) )
+			if( stack.isEmpty() ||world.isValidRelation(Relation.INSIDE, ball, stack.iterator().next()) )
 			{
 				stack.add(0,ball);
 
@@ -163,15 +162,11 @@ public class Stacker {
 			}
 		}
 
-
-
-
-
-
-
-
-
-		return null;
+		
+		//the stacking was ok
+		Collections.reverse(stack);
+		return stack;
+		
 
 	}
 

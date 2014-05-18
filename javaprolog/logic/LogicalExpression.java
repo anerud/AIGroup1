@@ -154,7 +154,7 @@ public class LogicalExpression<T> implements Cloneable{
     }
 
     /**
-     * Simplifies this expression and removes unnecessary operators.
+     * Simplifies this expression to a Conjunctive Normal Form or a Disjunctive Normal Form (the latter if feasible), and removes unnecessary operators.
      */
     public LogicalExpression<T> simplifyExpression() throws CloneNotSupportedException {
         if(this.expressions.isEmpty()){
@@ -289,7 +289,6 @@ public class LogicalExpression<T> implements Cloneable{
         }
 
         //oldTODO: "remove subexpressions which are identical..". This is probably done automatically
-
         //Can it be further simplified?
 //        if(((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1) || same2 && ()){
 //            return currentExp.simplifyExpression();

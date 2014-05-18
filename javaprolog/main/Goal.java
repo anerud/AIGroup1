@@ -5,7 +5,7 @@ import world.RelativeWorldObject;
 import world.WorldObject;
 
 /**
- * Wraps a pddl expression Exp. A goal is a logical expression (Exp) which describes the desired relationship between objects in the world.
+ * Convenience class which wraps a PDDL logical expression. A goal is a logical expression (Exp) which describes the desired relationship between objects in the world.
  */
 public class Goal {
 
@@ -20,8 +20,6 @@ public class Goal {
     public Action getAction() {
         return action;
     }
-
-  
 
     public Goal(LogicalExpression<WorldObject> expression, Action action){
         this.expression = expression;

@@ -353,17 +353,9 @@ public class Interpreter {
 
 			try {
 				stackOrder = Stacker.stack(firstObjects.getObjs(),world);
-
-
-
 			} catch (StackException e) {
-
 				throw new InterpretationException("It is not possible to stack " + n.toNaturalString(true));
-
-
-
 			}
-
 
 			Iterator<WorldObject> i = stackOrder.iterator();
 			Set<WorldObject> theSet = new HashSet<WorldObject>();
@@ -390,8 +382,6 @@ public class Interpreter {
 					LogicalExpression.Operator.NONE);
 
 			Goal r = new Goal(expr, Action.MOVE);
-
-
 			return r;
 		}
 

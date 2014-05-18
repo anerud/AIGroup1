@@ -1,14 +1,18 @@
 {
   "holdings": [
-    "empty",
     "empty"
   ],
   "utterance": [
-    "sort",
-    "all",
-    "objects",
-    "by",
-    "color"
+    "move",
+    "the",
+    "large",
+    "ball",
+    "inside",
+    "a",
+    "box",
+    "on",
+    "the",
+    "floor"
   ],
   "worldoriginal": [],
   "examples": [],
@@ -17,30 +21,16 @@
       "e"
     ],
     [
-      "a",
+      "g",
       "l"
     ],
     [],
-    [],
-    [
-      "i",
-      "h",
-      "j"
-    ],
-    [],
-    [],
     [
       "k",
-      "g",
-      "c",
-      "b"
-    ],
-    [],
-    [
-      "d",
       "m",
       "f"
-    ]
+    ],
+    []
   ],
   "objects": {
     "a": {

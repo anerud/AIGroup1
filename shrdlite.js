@@ -3,12 +3,11 @@
 var AjaxScript = "cgi-bin/ajaxwrapper.py";
 
 // List of the JSON files that contain example worlds:
-var ExampleNames = ["simple","small","medium", "large", "monster", "insanely uber large monster world"];
+var ExampleNames = ["simple","small","medium", "large", "monster"];
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
 var SystemPromptText = "What can I do for you today?";
-
 // Constants that you can play around with:
 var DialogueHistory = 100;    // max nr. utterances
 var FloorThickness = 10;     // pixels
@@ -18,7 +17,7 @@ var AnimationPause = 0.0; // seconds
 var PromptPause = 0.0;   // seconds
 var AjaxTimeout = 500;    // seconds
 var ArmSpeed = 1000;   // pixels per second
-
+var groundPos = []
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
 var UseSpeech = false;
@@ -99,6 +98,71 @@ $(function() {
     resetCurrentExample(ExampleNames[0]);
 });
 
+function firstFreeIndex(){
+	for(var i = 0;i< currentWorld.world.length;i++){
+		var found = false;
+		for(var  j = 0;j< currentArmPosition.length;j++){
+			if(currentArmPosition[j] == i){
+				found = true;
+				break;
+			}
+		}
+		if(!found){
+			if(i == 0){
+				return {"stack" : 0, "index":0};
+			}else{
+				return {"stack" : i, "index":currentArmPosition.indexOf(i-1)+1};
+			}
+		
+		}
+	}
+}
+
+
+function firstNonHoldingIndex(){
+	for(var i = 0;i< currentWorld.holdings.length;i++){
+		if(currentWorld.holdings[i] == "empty"){
+			return i;
+		}
+	}
+	return currentWorld.holdings.length-1;
+}
+
+
+
+function loadArmChanger() {
+    $("#changearms").empty();
+	$('<input type="submit">').val("Add arm")
+	.click(function(){
+		if(currentWorld.holdings.length < currentWorld.world.length-1){
+			var firstFree = firstFreeIndex();
+			currentArmPosition.splice(firstFree.index,0,firstFree.stack);
+			currentWorld.holdings.splice(firstFree.index,0,"empty");
+			resetSVG();
+			console.log(currentArmPosition)
+			console.log(currentWorld.holdings)
+		}
+	})
+	.appendTo($("#changearms"));
+	
+	$('<input type="submit">').val("Remove arm")
+	.click(function(){
+		if(currentWorld.holdings.length > 1){
+			var index = firstNonHoldingIndex();
+			if(currentWorld.holdings[index] == "empty"){
+				currentWorld.holdings.splice(index, 1);
+				currentArmPosition.splice(index, 1);
+				resetSVG();
+				console.log(currentArmPosition)
+			console.log(currentWorld.holdings)
+			}
+		}
+	})
+	.appendTo($("#changearms"));
+	
+
+}
+
 function loadExampleWorlds() {
     ExampleWorlds = {};
     $("#exampleworlds").empty();
@@ -141,6 +205,7 @@ function resetCurrentExample(name) {
 		currentWorld.holdings = []
 		currentWorld.holdings.push("empty")
 	}
+	loadArmChanger()
 	currentArmPosition = [];
 	for(var i = 0;i< currentWorld.holdings.length;i++){
 		currentArmPosition.push(i);
@@ -153,12 +218,13 @@ function resetCurrentExample(name) {
     });
     $("#dialogue > p").remove();
     resetSVG();
+	systemPrompt(PromptPause)
 }
 
 function resetSVG() {
-    disableInput();
+    //disableInput();
     $("#response").empty();
-    sayUtterance("system", "Please wait while I populate the world.");
+    //sayUtterance("system", "Please wait while I populate the world.");
     $('#svgdiv').empty();
 
     var viewBox = [0, 0, CanvasWidth + 2 * WallSeparation, CanvasHeight + FloorThickness];
@@ -176,14 +242,16 @@ function resetSVG() {
         height: CanvasHeight + FloorThickness,
         fill: 'black',
     }).appendTo(svg);
-	
+	groundPos = []
 	//The arms
 	for(var i = 0;i< currentWorld.holdings.length;i++){
+		var pos = currentArmPosition[i];
+		groundPos.push(pos)
 		$(SVG('line')).attr({
 			id: ('arm'+i),
-			x1: (stackWidth() / 2) + (stackWidth() * i),
+			x1: (stackWidth() / 2) + (stackWidth() * pos),
 			y1: ArmSize * stackWidth() - CanvasHeight,
-			x2: (stackWidth() / 2) + (stackWidth() * i),
+			x2: (stackWidth() / 2) + (stackWidth() * pos),
 			y2: ArmSize * stackWidth(),
 			stroke: 'black',
 			'stroke-width': ArmSize * stackWidth(),
@@ -199,8 +267,16 @@ function resetSVG() {
             timeout += AnimationPause;
         }
     }
+	
+	for(var i = 0;i<currentWorld.holdings.length;i++){
+		if(currentWorld.holdings[i] != "empty"){
+			 makeObject(svg, currentWorld.holdings[i], currentArmPosition[i], 0, true);
+		}
+	}
+	
+	
     debugWorld();
-    systemPrompt(timeout + PromptPause);
+   // systemPrompt(timeout + PromptPause);
 }
 
 function SVG(tag) {
@@ -226,7 +302,7 @@ function animateMotion(object, path, duration, timeout) {
 
 function moveObject(action, stackNr) {
 	var armint = parseInt(action.substring(4));
-
+	
 	console.log(action +  " - "+stackNr)
 	if (action.indexOf(Pick) == 0  && currentWorld.holdings[armint] != "empty") {
         alertError("ERROR", "I cannot pick an object from stack " + stackNr + ", I am already holding something! 1")
@@ -235,7 +311,7 @@ function moveObject(action, stackNr) {
         alertError("ERROR", "I cannot drop an object onto stack " + stackNr + ", I am not holding anything! 1")
         return 0;
     }
-
+	
     var stack = currentWorld.world[stackNr];
     var arm = $(('#arm'+armint));
     var xStack = stackNr * stackWidth() + WallSeparation;
@@ -255,7 +331,7 @@ function moveObject(action, stackNr) {
 	}
 	var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
     var yStack = -altitude;
-
+	
 	var duration1;
 	var duration2;
 	var anim1 = {t:0};
@@ -264,8 +340,8 @@ function moveObject(action, stackNr) {
 	var path1;
 	var path2;
 	var path3;
-	var xxArm = xArm -(stackWidth() * armint);
-	var xxStack =  xStack -(stackWidth() * armint);
+	var xxArm = xArm -(stackWidth() * groundPos[armint]);
+	var xxStack =  xStack -(stackWidth() * groundPos[armint]);
 	if(action.indexOf(Move) == 0){
 		if(xxArm -xxStack != 0){
 			path1 = ["M", xxArm, 0, "H", xxStack,"V",0];
@@ -278,13 +354,13 @@ function moveObject(action, stackNr) {
 		duration1 = (Math.abs(xxStack - xxArm) + Math.abs(yArm)) / ArmSpeed;
 		duration2 = (Math.abs(yArm)) / ArmSpeed;
 	}
-
+	
 	anim1.a = animateMotion(arm, path1, duration1);
 	anim2.a = animateMotion(arm, path2, duration2);
 	anim2.t = duration1 + AnimationPause;
-
+	
 	var hol = currentWorld.holdings[armint];
-
+	
     if (action.indexOf(Move) == 0) {
 		if(xArm - xStack != 0){
 			path3 = ["M", xArm,yStack-yArm, "H", xStack,"V",yStack-yArm];
@@ -307,8 +383,8 @@ function moveObject(action, stackNr) {
 	if(path3){
 		anim3.a.beginElementAt(anim3.t);
 	}
-
-
+	
+	
     if (action.indexOf(Drop) == 0) {
         stack.push(currentWorld.holdings[armint]);
         currentWorld.holdings[armint] = "empty";
@@ -317,7 +393,6 @@ function moveObject(action, stackNr) {
     debugWorld();
     return duration1 + duration2 + 2 * AnimationPause;
 }
-
 function getObjectDimensions(objectid) {
     var attrs = currentWorld.objects[objectid];
     var size = ObjectData[attrs.form][attrs.size];
@@ -343,7 +418,7 @@ function getAltitude(stack, objectid) {
     return altitude;
 }
 
-function makeObject(svg, objectid, stacknr, timeout) {
+function makeObject(svg, objectid, stacknr, timeout, isArm) {
     var attrs = currentWorld.objects[objectid];
     var altitude = getAltitude(currentWorld.world[stacknr], objectid);
     var dim = getObjectDimensions(objectid);
@@ -410,11 +485,22 @@ function makeObject(svg, objectid, stacknr, timeout) {
         fill: attrs.color,
     });
     object.appendTo(svg);
-
-    var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
-    animateMotion(object, path, 0, 0).beginElementAt(0);
-    path.push("V", -altitude);
-    animateMotion(object, path, 0.5).beginElementAt(timeout);
+	if(!isArm){
+		var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
+		animateMotion(object, path, 0, 0).beginElementAt(0);
+		path.push("V", -altitude);
+		animateMotion(object, path, 0.0001).beginElementAt(timeout);
+	}else{
+	    var altitude = getAltitude(stacknr);
+		var objectHeight =  getObjectDimensions(objectid).heightadd;
+		var yArm = CanvasHeight - altitude - ArmSize * stackWidth() - objectHeight;
+		var yStack = -altitude;
+	
+		var path = ["M", stacknr * stackWidth() + WallSeparation, -(CanvasHeight + FloorThickness)];
+		animateMotion(object, path, 0, 0).beginElementAt(0);
+		path.push("V",  yStack-yArm);
+		animateMotion(object, path, 0.001).beginElementAt(timeout);	
+	}
 }
 
 function disableInput(timeout) {

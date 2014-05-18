@@ -1,5 +1,6 @@
 package aStar;
 
+import java.util.Collection;
 import java.util.PriorityQueue;
 
 public class AStar {
@@ -7,6 +8,7 @@ public class AStar {
 	private PriorityQueue<IAStarState> q;
 	private IAStarState currentState;
     public static int nStatesChecked;
+    public static int nStatesAddedToQ;
 
 
     /**
@@ -51,8 +53,8 @@ public class AStar {
 //            }
             //[["e"],["a","l", "n", "o", "p", "q", "r", "s", "t", "u", "v"],[],[],["i","h","j"],[],[],["k","g","c","b"],[],["d","m","f"],[],[],[],[],[],[],[],[],[],[]],
             //____________________________
-
-			q.addAll(currentState.expand());
+            Collection<? extends IAStarState> neighbours = currentState.expand();
+			q.addAll(neighbours);
             time2 = System.currentTimeMillis();
             diff = time2 - time1;
             sum += diff;
@@ -60,6 +62,7 @@ public class AStar {
             //Debugging
             //__________________
             nStatesChecked++;
+            nStatesAddedToQ += neighbours.size();
 //            try (PrintWriter asdf = new PrintWriter(new BufferedWriter(
 //                    new FileWriter("GoalLog.txt", true)))) {
 //                asdf.append(((WorldState)currentState).getWorld().getRepresentString() + " \n");

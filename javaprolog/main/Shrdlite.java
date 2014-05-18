@@ -184,6 +184,7 @@ public class Shrdlite {
 					List<String> plan = planner.solve(goals.get(0));
 					result.setPlan(plan);
 					log.println("number of states checked: " + AStar.nStatesChecked);
+					log.println("number of states added to queue: " + AStar.nStatesAddedToQ);
 					if (plan.isEmpty()) {
 						result.setOutput("Planning error!");
 						result.getQuestions().clear();

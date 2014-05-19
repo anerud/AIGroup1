@@ -20,7 +20,7 @@ var ArmSpeed = 1000;   // pixels per second
 var groundPos = []
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
-var UseSpeech = false;
+var UseSpeech = true;
 
 // There is no way of setting male/female voice,
 // so this is one way of having different voices for user/system:
@@ -659,7 +659,7 @@ function sayUtterance(participant, utterance, silent) {
                 speech[attr] = Voices[participant][attr];
             }
             console.log("speakING: " + utterance);
-            //window.speechSynthesis.speak(speech);
+            window.speechSynthesis.speak(speech);
         } catch(err) {
         }
     }

@@ -19,7 +19,7 @@ public class StackNode extends Node {
 	@Override
 	public String toNaturalString() {
 		// TODO Auto-generated method stub
-		return "Stack " + thingsToStackNode.toNaturalString();
+		return "stack " + thingsToStackNode.toNaturalString();
 	}
 		
 	

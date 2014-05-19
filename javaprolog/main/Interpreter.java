@@ -334,14 +334,7 @@ public class Interpreter {
         }
 
         @Override
-        // create a stack
-        // somewhat naive implementation that (if possible) sorts all selected
-        // object in a stackable way
-        // and then moves them in top of each other in that order.
-        // this does not produce the fastest reachable stack, only one of all
-        // O(n!) possible stacks.
-        // TODO: does not handle stacks with multiple boxes and tables of the
-        // same size, yet.
+
         public Goal visit(StackNode n, Set<WorldObject> worldObjects) throws InterpretationException,
                 CloneNotSupportedException {
 
@@ -352,7 +345,7 @@ public class Interpreter {
             try {
                 stackOrder = Stacker.stack(firstObjects.getObjs(), world);
             } catch (StackException e) {
-                throw new InterpretationException("It is not possible to stack " + n.toNaturalString(true));
+                throw new InterpretationException("It is not possible to " + n.toNaturalString(true));
             }
 
             Iterator<WorldObject> i = stackOrder.iterator();
@@ -415,65 +408,25 @@ public class Interpreter {
             if (q.equals(Quantifier.THE)) {
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation,
                         LogicalExpression.Operator.OR);
+                
+                
                 if (wobjs.size() > 1) {
                     if (!Shrdlite.debug) {
+                    	
+                    	//there was an ambiguous The reference
+                    	
+                    	//throw new InterpretationException("ambiguous THe ");
+                    	
 
-                        LogicalExpression<WorldObject> logObjs = new LogicalExpression<WorldObject>(wobjs,
-                                LogicalExpression.Operator.OR);
+ 
 
-                        // there is an ambiguity in the reference. THE matches
-                        // more than one object
-                        Disambiguator d = new Disambiguator();
-                        if (!answers.containsKey(questionID))
-                            answers.put(questionID, new ArrayList<NTree>());
-                        List<NTree> subAnswers = answers.get(questionID);
-
-                        // inject the answer in place of the node that created the ambiguity
-                        // and try to resolve to an unique object. Now, only the objects
-                        // matched by the original reference is checked
-
-                        Iterator<NTree> i = subAnswers.iterator();
-                        int currentQuestion = questionID;
-                        int currentNumberOfSubquestions = subAnswers.size();
-                        while (i.hasNext()) {
-                            NTree answer = i.next();
-                            try {
-                                ObjectNode answerRoot = (ObjectNode) ((BasicEntityNode) answer.getRoot())
-                                        .getObjectNode();
-                                i.remove();
-                                logObjs = visit(answerRoot, logObjs.getObjs(), q);
-                            } catch (ClarificationQuestionException e) {
-                                // ignore problems unless there is no answer left.
-                                // if this was the last question, a new question
-                                // needs to be asked.
-                                // if this was not the last question, there an
-                                // answer that should resolve this problem
-                                if (!i.hasNext()) {
-                                    e.getQuestion().setQuestionId(questionID);
-                                    e.getQuestion().setSubQuestionId(currentNumberOfSubquestions);
-                                    throw e;
-                                }
-                            } catch (EmptyReferenceException e) {
-                                if (!i.hasNext()) {
-                                    Question question = new Question("not found : " + e.getMessage(), questionID,
-                                            currentNumberOfSubquestions);
-                                    throw new ClarificationQuestionException(question);
-                                }
-                            }
-
-                        }
-
-                    }
+                    } 
+                    
+                    
                 } else if (wobjs.isEmpty()) {
                     if (!Shrdlite.debug) {
                         throw new InterpretationException("I cannot see any " + n.toNaturalString());
-                        // throw new
-                        // InterpretationException("There are no objects which match the description '"
-                        // + n.getObjectNode().getChildren().toString() +
-                        // "' with relation '" +
-                        // n.getLocationNode().getRelationNode().getRelation() +
-                        // "' to '" +
-                        // n.getLocationNode().getEntityNode().getChildren().toString());
+ 
                     }
                 }
                 LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());

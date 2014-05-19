@@ -18,7 +18,7 @@
         "m": { "form":"box",     "size":"small",  "color":"blue"  }
     },
     "utterance":
-        ["take", "the", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "a", "pyramid"],
+        ["take", "a", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "a", "pyramid"],
     "examples": [
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
         ["put","the","white","ball","in","a","box","on","the","floor"],

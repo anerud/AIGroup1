@@ -173,19 +173,22 @@ public class Shrdlite {
 					result.setOutput("Disambiguation error!");
 				} else {
 					log.println(goals.get(0).toString());
-					Planner planner = new Planner(world);
-					List<String> plan = planner.solve(goals.get(0));
-					result.setPlan(plan);
-					log.println("number of states checked: " + AStar.nStatesChecked);
-					log.println("number of states added to queue: " + AStar.nStatesAddedToQ);
-					if (plan.isEmpty()) {
-						result.setOutput("Planning error!");
-						result.getQuestions().clear();
+					if (world.isGoalFulFilled(goals.get(0))) {
+						result.setOutput("The goal is already fullfilled!");
 					} else {
-						log.println(plan.toString());
-						result.setOutput("Ok.");
-						result.getQuestions().clear();
-
+						Planner planner = new Planner(world);
+						List<String> plan = planner.solve(goals.get(0));
+						result.setPlan(plan);
+						log.println("number of states checked: " + AStar.nStatesChecked);
+						log.println("number of states added to queue: " + AStar.nStatesAddedToQ);
+						if (plan.isEmpty()) {
+							result.setOutput("Planning error!");
+							result.getQuestions().clear();
+						} else {
+							log.println(plan.toString());
+							result.setOutput("Ok.");
+							result.getQuestions().clear();
+						}
 					}
 				}
 			}

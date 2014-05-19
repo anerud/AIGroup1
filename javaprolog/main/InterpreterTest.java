@@ -206,7 +206,7 @@ public class InterpreterTest {
     }
 
     @org.junit.Test
-    public void testMoveObject17() throws Exception {
+    public void testMoveObject17() throws Exception {  //This is kinda slow at the moment..
         test("testMoveObject17");
     }
 
@@ -252,14 +252,20 @@ public class InterpreterTest {
     }
 
     @org.junit.Test
+    public void testSortByColorSimple() throws Exception {
+        test("testSortByColorSimple");
+    }
+
+    @org.junit.Test
     public void testSortByColorMedium() throws Exception {
         test("testSortByColorMedium");
     }
 
     @org.junit.Test
-    public void testSortByColorSimple() throws Exception {
-        test("testSortByColorSimple");
+    public void testSortByColorLarge() throws Exception { //kinda slow..
+        test("testSortByColorLarge");
     }
+
 
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
         Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();

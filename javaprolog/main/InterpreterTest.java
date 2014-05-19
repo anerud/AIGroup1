@@ -262,8 +262,16 @@ public class InterpreterTest {
     }
 
     @org.junit.Test
-    public void testSortByColorLarge() throws Exception { //kinda slow..
+    public void testSortByColorLarge() throws Exception { //kinda slow, but works..
         test("testSortByColorLarge");
+    }
+
+
+    @org.junit.Test
+    public void testMoveObjectImpossibleGoal() throws Exception {
+//        test("testMoveObjectImpossibleGoal");
+        //TODO: This goal illustrates what happens when a goal is unreachable but the interpreter does not realize it.
+        //We end up searching for a solution forever.
     }
 
 

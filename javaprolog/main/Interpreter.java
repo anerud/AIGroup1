@@ -411,27 +411,78 @@ public class Interpreter {
             if (q.equals(Quantifier.THE)) {
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation,
                         LogicalExpression.Operator.OR);
+                
+                
+                LogicalExpression<WorldObject> logObjs = new LogicalExpression<>(wobjs,  LogicalExpression.Operator.OR);
+                Quantifier quantifier = q;
+                
+     	 // logical expression logobjs
+            	
+            	
+            	// there is an ambiguity in the reference. THE matches more than
+                // one object
 
+                if (!answers.containsKey(questionID))
+                    answers.put(questionID, new ArrayList<NTree>());
+                List<NTree> subAnswers = answers.get(questionID);
 
-                if (wobjs.size() > 1) {
-                    if (!Shrdlite.debug) {
+                // inject the answer in place of the node that created the
+                // ambiguity
+                // and try to resolve to an unique object. Now, only the objects
+                // matched by the original reference is checked
 
-                        //there was an ambiguous The reference
-
-                        //throw new InterpretationException("ambiguous THe ");
-
-
-
-
+                Iterator<NTree> i = subAnswers.iterator();
+                int currentQuestion = questionID;
+                int currentNumberOfSubquestions = subAnswers.size();
+                while (i.hasNext()) {
+                    NTree answer = i.next();
+                    try {
+                        ObjectNode answerRoot = (ObjectNode) ((BasicEntityNode) answer.getRoot()).getObjectNode();
+                        i.remove();
+                        logObjs = visit(answerRoot, logObjs.getObjs(), quantifier);
+                    } catch (ClarificationQuestionException e) {
+                        // ignore problems unless there is no answer left.
+                        // if this was the last question, a new question needs
+                        // to be asked.
+                        // if this was not the last question, there an answer
+                        // that should resolve this problem
+                        if (!i.hasNext()) {
+                            e.getQuestion().setQuestionId(questionID);
+                            e.getQuestion().setSubQuestionId(currentNumberOfSubquestions);
+                            e.getQuestion().setQuestion("Yes, but did you mean " + e.getEnumeration());
+                            throw e;
+                        }
+                    } catch (EmptyReferenceException e) {
+                        if (!i.hasNext()) {
+                            Question que = new Question(e.getMessage(), questionID,
+                                    currentNumberOfSubquestions);
+                            throw new ClarificationQuestionException(que);
+                        }
                     }
 
-
-                } else if (wobjs.isEmpty()) {
-                    if (!Shrdlite.debug) {
-                        throw new InterpretationException("I cannot see any " + n.toNaturalString());
-
-                    }
                 }
+
+                // the available answers has narrowed down the possible objects
+                // is there still an ambiguity?
+                int objectsLeft = logObjs.size();
+                if (objectsLeft > 1) {
+                    // we need to ask another question
+
+                    String number = Disambiguator.int2String(logObjs.getObjs().size());
+                    String enumeration = Disambiguator.disambiguate(logObjs.getObjs(), n);
+                    String questionString = " I can see " + number + " " + n.toNaturalString(true);
+                    questionString = questionString + ". Did you mean " + enumeration;
+
+                    Question que = new Question(questionString, questionID, currentNumberOfSubquestions);
+                    ClarificationQuestionException cqe = new ClarificationQuestionException(que);
+                    cqe.setEnumeration(enumeration);
+
+                    throw cqe;
+
+                }
+                questionID++;
+
+                //  return logical expression based on wobjs
                 LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());
                 return le;
             } else { // ANY, AND
@@ -530,7 +581,11 @@ public class Interpreter {
             // quantifier);
             if (quantifier.equals(Quantifier.THE) && logObjs.size() > 1 && n.getParent() instanceof BasicEntityNode) {
 
-                // there is an ambiguity in the reference. THE matches more than
+                
+            	 // logical expression logobjs
+            	
+            	
+            	// there is an ambiguity in the reference. THE matches more than
                 // one object
 
                 if (!answers.containsKey(questionID))

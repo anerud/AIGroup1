@@ -96,11 +96,12 @@ public class Stacker {
 			WorldObject below = (i.hasNext())?i.next():null;
 			Boolean foundPlace = false;
 			int index = 0;
-			boolean hitBottom = false;
+			boolean done = false;
 			do 
 			{
-				boolean okAbove = (above == null || world.isValidRelation(Relation.INSIDE, above, box) );
-				boolean okBelow = (below == null || world.isValidRelation(Relation.ONTOP, box, below) );
+				if (below== null) done =true;
+				boolean okAbove = (above == null || world.isValidRelation(Relation.INSIDE, above, box) || world.isValidRelation(Relation.ONTOP, above, box) );
+				boolean okBelow = (below == null || world.isValidRelation(Relation.INSIDE, box, below) || world.isValidRelation(Relation.ONTOP, box, below) );
 				if (okAbove && okBelow)
 				{
 					foundPlace =true;
@@ -108,20 +109,21 @@ public class Stacker {
 				}
 				else
 				{
+
 					above = below;
-					if(i.hasNext())
+					if(i.hasNext() )
 					{
 						below = i.next();
+
 					}
 					else
 					{
 						below = null;
-						hitBottom = true;
 					}
 				}
 				index++;
-				
-			}while (i.hasNext() || !hitBottom);
+
+			}while (i.hasNext() || !done);
 
 			if (foundPlace)
 			{
@@ -134,11 +136,11 @@ public class Stacker {
 
 		}
 
-	     //all boxes has been placed
+		//all boxes has been placed
 		//if there are more than one ball, there is no way to stack
 		if (balls.size()>1)
 			throw new StackException();
-		
+
 		//   try to place ball. 
 		// it must be on the top.
 		if (balls.size()==1)
@@ -156,11 +158,11 @@ public class Stacker {
 			}
 		}
 
-		
+
 		//the stacking was ok
 		Collections.reverse(stack);
 		return stack;
-		
+
 
 	}
 

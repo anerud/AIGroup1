@@ -226,6 +226,11 @@ public class InterpreterTest {
     }
 
     @org.junit.Test
+    public void testMoveObjectMonster2() throws Exception {
+        test("testMoveObjectMonster2");
+    }
+
+    @org.junit.Test
     public void testConjunctive1() throws Exception {
         test("testConjunctive1");
     }

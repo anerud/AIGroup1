@@ -93,6 +93,9 @@ public class Interpreter {
                 if (treeGoal != null) {
                     world.removeImpossibleLogic(treeGoal.getExpression());
                     treeGoal.getExpression().simplifyExpression();
+                    if(treeGoal.getExpression().isEmpty()){
+                        treeGoal = null;
+                    }
                 }
             } catch (EmptyReferenceException e) {
                 // there was a problem with the interpretation. Some object did
@@ -408,25 +411,25 @@ public class Interpreter {
             if (q.equals(Quantifier.THE)) {
                 Set<WorldObject> wobjs = world.filterByRelation(matchesArg1.getObjs(), matchesLocation,
                         LogicalExpression.Operator.OR);
-                
-                
+
+
                 if (wobjs.size() > 1) {
                     if (!Shrdlite.debug) {
-                    	
-                    	//there was an ambiguous The reference
-                    	
-                    	//throw new InterpretationException("ambiguous THe ");
-                    	
 
- 
+                        //there was an ambiguous The reference
 
-                    } 
-                    
-                    
+                        //throw new InterpretationException("ambiguous THe ");
+
+
+
+
+                    }
+
+
                 } else if (wobjs.isEmpty()) {
                     if (!Shrdlite.debug) {
                         throw new InterpretationException("I cannot see any " + n.toNaturalString());
- 
+
                     }
                 }
                 LogicalExpression<WorldObject> le = new LogicalExpression<WorldObject>(wobjs, matchesArg1.getOp());

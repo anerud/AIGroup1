@@ -155,6 +155,8 @@ public class LogicalExpression<T> implements Cloneable{
 
     /**
      * Simplifies this expression to a Conjunctive Normal Form or a Disjunctive Normal Form (the latter if feasible), and removes unnecessary operators.
+     * @return null if the expression is empty after simplifying
+     * @throws CloneNotSupportedException
      */
     public LogicalExpression<T> simplifyExpression() throws CloneNotSupportedException {
         if(this.expressions.isEmpty()){
@@ -173,7 +175,7 @@ public class LogicalExpression<T> implements Cloneable{
         LogicalExpression<T> currentExp = this;
 
         //First remove unnecessary leading operators
-        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
+        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() == 1){
             //In this case, we can delete the top operator
             //put them all in the same expression
             currentExp = currentExp.getExpressions().iterator().next();
@@ -189,9 +191,14 @@ public class LogicalExpression<T> implements Cloneable{
             currentExp.getExpressions().removeAll(toBeRemoved);
         }
         //Then remove unnecessary leading operators again..
-        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() <= 1){
+        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() == 1){
             currentExp = currentExp.getExpressions().iterator().next();
         }
+
+        if((currentExp.getObjs() == null || currentExp.getObjs().size() == 0) && currentExp.getExpressions().size() == 0){
+            return null;
+        }
+
         //Can we simplify more?
         if(currentExp.getExpressions().isEmpty()){
             this.objs = currentExp.getObjs();

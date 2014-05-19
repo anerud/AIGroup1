@@ -251,7 +251,15 @@ public class InterpreterTest {
         //TODO: we can currently not handle this!
     }
 
+    @org.junit.Test
+    public void testSortByColorMedium() throws Exception {
+        test("testSortByColorMedium");
+    }
 
+    @org.junit.Test
+    public void testSortByColorSimple() throws Exception {
+        test("testSortByColorSimple");
+    }
 
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){
         Set<LinkedList<String>> perms = new HashSet<LinkedList<String>>();

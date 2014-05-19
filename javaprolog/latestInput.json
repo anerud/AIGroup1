@@ -1,11 +1,10 @@
 {
   "utterance": [
-    "put",
+    "sort",
     "all",
     "objects",
-    "beside",
-    "an",
-    "object"
+    "by",
+    "color"
   ],
   "worldoriginal": [
     [
@@ -138,93 +137,21 @@
       "a",
       "large",
       "box"
-    ],
-    [
-      "take",
-      "an",
-      "object",
-      "on",
-      "a",
-      "plank",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "put",
-      "it",
-      "on",
-      "the",
-      "floor"
-    ],
-    [
-      "take",
-      "the",
-      "table",
-      "to",
-      "the",
-      "left",
-      "of",
-      "the",
-      "box",
-      "under",
-      "the",
-      "ball",
-      "to",
-      "the",
-      "right",
-      "of",
-      "the",
-      "pyramid"
-    ],
-    [
-      "take",
-      "the",
-      "box",
-      "under",
-      "an",
-      "object",
-      "on",
-      "a",
-      "green",
-      "object"
-    ],
-    [
-      "put",
-      "it",
-      "under",
-      "a",
-      "ball"
     ]
   ],
   "world": [
-    [
-      "e"
-    ],
+    [],
     [
       "a",
-      "l"
+      "k",
+      "e"
     ],
     [],
-    [],
     [
-      "i",
+      "l",
+      "d",
       "h",
       "j"
-    ],
-    [],
-    [],
-    [
-      "k",
-      "g",
-      "c",
-      "b"
-    ],
-    [],
-    [
-      "d",
-      "m",
-      "f"
     ]
   ],
   "objects": {

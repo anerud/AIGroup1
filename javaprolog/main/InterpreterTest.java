@@ -271,8 +271,16 @@ public class InterpreterTest {
     public void testMoveObjectImpossibleGoal() throws Exception {
 //        test("testMoveObjectImpossibleGoal");
         //TODO: This goal illustrates what happens when a goal is unreachable but the interpreter does not realize it.
-        //We end up searching for a solution forever.
+        //We end up searching for a solution forever. It is impossible because there is only one yellow object on which a
+        //object can be placed ON (the box uses IN).
     }
+
+    @org.junit.Test
+    public void testMoveObjectImpossibleGoalPossible() throws Exception {
+        test("testMoveObjectImpossibleGoalPossible");   //In contrast of the above test, this works perfectly..
+    }
+
+
 
 
     private Set<LinkedList<String>> permutations(LinkedList<String> strings, String first){

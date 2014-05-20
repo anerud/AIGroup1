@@ -3,7 +3,7 @@
 var AjaxScript = "cgi-bin/ajaxwrapper.py";
 
 // List of the JSON files that contain example worlds:
-var ExampleNames = ["simple","small","medium", "large", "monster"];
+var ExampleNames = ["simple","small","medium", "large", "monster","many"];
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
@@ -222,6 +222,7 @@ function resetCurrentExample(name) {
 }
 
 function resetSVG() {
+	currentQuestions = null;
     //disableInput();
     $("#response").empty();
     //sayUtterance("system", "Please wait while I populate the world.");
@@ -629,7 +630,7 @@ function userInput() {
 					currentWorld.state = result.state;
 				}
 				currentPlan = result.plan;
-				currentQuestions = result.questions;
+				currentQuestions = null;
 				performPlan();
 			}
         } catch(err) {

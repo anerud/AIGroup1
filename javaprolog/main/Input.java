@@ -42,6 +42,9 @@ public class Input {
 	}
 
 	public List<Question> getQuestions() {
+		if(questions == null){
+			questions = new LinkedList<>();
+		}
 		return questions;
 	}
 

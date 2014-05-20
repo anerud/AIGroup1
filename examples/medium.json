@@ -19,7 +19,7 @@
     "utterance": 
         ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
     "examples": [
-        ["move","the","large", "ball","inside","a","yellow","box", "that, "should", "be", "on","the","floor"],
+        ["move","the","large","ball","inside","a","yellow","box","that","should","be","on","the","floor"],
 		[ "sort", "all", "objects", "by", "color" ],
 		[ "put", "all", "small", "objects", "above", "an", "object" ],
 		["put", "all", "red", "objects", "above", "a", "green", "object"],
@@ -32,6 +32,6 @@
 		["put", "all", "yellow", "objects", "beside", "a", "green", "object"],
 		[ "put", "all", "blue", "objects", "on", "a", "red", "object", "that", "should", "be", "on", "a", "green", "object", "that", "is", "on", "the", "floor" ],
 		["take", "an", "object", "to", "the", "right", "of", "all", "objects", "on", "a", "table"],
-		["take", "a", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "a", "pyramid"],
+		["take", "a", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "a", "pyramid"]
     ]
 }

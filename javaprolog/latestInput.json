@@ -3,27 +3,43 @@
     "empty"
   ],
   "utterance": [
-    "sort",
+    "put",
     "all",
     "objects",
-    "by",
-    "color"
+    "beside",
+    "an",
+    "object"
   ],
   "worldoriginal": [],
   "examples": [],
   "world": [
-    [],
+    [
+      "e"
+    ],
     [
       "a",
+      "l"
+    ],
+    [],
+    [],
+    [
+      "i",
+      "h",
+      "j"
+    ],
+    [],
+    [],
+    [
       "k",
-      "e"
+      "g",
+      "c",
+      "b"
     ],
     [],
     [
-      "l",
       "d",
-      "h",
-      "j"
+      "m",
+      "f"
     ]
   ],
   "objects": {

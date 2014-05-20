@@ -5,10 +5,17 @@
   "utterance": [
     "put",
     "all",
+    "red",
     "objects",
-    "beside",
+    "on",
     "an",
-    "object"
+    "object",
+    "that",
+    "should",
+    "be",
+    "on",
+    "the",
+    "floor"
   ],
   "worldoriginal": [],
   "examples": [],
@@ -18,7 +25,16 @@
     ],
     [
       "a",
-      "l"
+      "l",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v"
     ],
     [],
     [],
@@ -40,7 +56,17 @@
       "d",
       "m",
       "f"
-    ]
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
   ],
   "objects": {
     "a": {
@@ -107,8 +133,52 @@
       "form": "box",
       "size": "small",
       "color": "blue"
+    },
+    "n": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "o": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "p": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
+    },
+    "q": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "r": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "s": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
+    },
+    "t": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "u": {
+      "form": "brick",
+      "size": "large",
+      "color": "black"
+    },
+    "v": {
+      "form": "brick",
+      "size": "large",
+      "color": "white"
     }
   },
-  "plan": [],
-  "questions": []
+  "plan": []
 }

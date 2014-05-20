@@ -28,15 +28,7 @@
     "utterance": 
         [ "put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "is", "on", "a", "green", "object", "that", "is", "on", "a", "red", "object", "that", "is", "in", "a", "yellow", "object", "that", "is", "on", "a", "blue", "object", "that", "is", "on", "a", "red", "object", "that", "is", "on", "a", "yellow", "object", "that", "is", "on", "a", "green", "object", "that", "is", "in", "a", "red", "object", "that", "is", "on", "the", "floor"],
     "examples": [
-        ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
-        ["put","the","white","ball","in","a","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","yellow","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","red","box","on","the","floor"],
-        ["take","a","red","object"],
-        ["take","the","white","ball"],
-        ["put","all","boxes","on","the","floor"],
-        ["put","the","large","plank","under","the","blue","brick"],
-        ["move","all","bricks","on","a","table"],
-        ["move","all","balls","inside","a","large","box"]
+        [ "put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "in", "a", "yellow", "object", "that", "should", "be", "on", "a", "blue", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "on", "a", "yellow", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "in", "a", "red", "object", "that", "should", "be", "on", "the", "floor"],
+		[ "put", "all", "red", "objects", "on", "an", "object", "that", "should", "be", "on", "the", "floor" ]
     ]
 }

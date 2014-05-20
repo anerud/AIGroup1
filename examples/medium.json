@@ -29,7 +29,6 @@
 		["put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "in", "a", "yellow", "object", "that", "should", "be", "on", "a", "blue", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "on", "a", "yellow", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "in", "a", "red", "object", "that", "should", "be", "on", "the", "floor"],
 		["put", "all", "red", "objects", "on", "an", "object", "that", "should", "be", "on", "an", "object"],
 		[ "put", "all", "green", "objects", "above", "all", "yellow", "objects" ],
-		["put", "all", "yellow", "objects", "beside", "a", "green", "object"],
 		[ "put", "all", "blue", "objects", "on", "a", "red", "object", "that", "should", "be", "on", "a", "green", "object", "that", "is", "on", "the", "floor" ],
 		["take", "an", "object", "to", "the", "right", "of", "all", "objects", "on", "a", "table"],
 		["take", "a", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "a", "pyramid"]

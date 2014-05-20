@@ -29,6 +29,8 @@
         [ "put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "is", "on", "a", "green", "object", "that", "is", "on", "a", "red", "object", "that", "is", "in", "a", "yellow", "object", "that", "is", "on", "a", "blue", "object", "that", "is", "on", "a", "red", "object", "that", "is", "on", "a", "yellow", "object", "that", "is", "on", "a", "green", "object", "that", "is", "in", "a", "red", "object", "that", "is", "on", "the", "floor"],
     "examples": [
         [ "put", "a", "black", "object", "in", "a", "blue", "object", "on", "a", "red", "object", "on", "a", "white", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "in", "a", "yellow", "object", "that", "should", "be", "on", "a", "blue", "object", "that", "should", "be", "on", "a", "red", "object", "that", "should", "be", "on", "a", "yellow", "object", "that", "should", "be", "on", "a", "green", "object", "that", "should", "be", "in", "a", "red", "object", "that", "should", "be", "on", "the", "floor"],
-		[ "put", "all", "red", "objects", "on", "an", "object", "that", "should", "be", "on", "the", "floor" ]
+		[ "put", "all", "red", "objects", "on", "an", "object", "that", "should", "be", "on", "the", "floor" ],
+		["stack", "all", "objects" ],
+		["stack", "all", "objects", "to", "the", "right", "of", "the", "white", "ball" ]
     ]
 }

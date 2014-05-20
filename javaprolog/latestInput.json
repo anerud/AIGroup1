@@ -3,19 +3,16 @@
     "empty"
   ],
   "utterance": [
-    "put",
+    "stack",
     "all",
-    "red",
     "objects",
-    "on",
-    "an",
-    "object",
-    "that",
-    "should",
-    "be",
-    "on",
+    "to",
     "the",
-    "floor"
+    "right",
+    "of",
+    "the",
+    "white",
+    "ball"
   ],
   "worldoriginal": [],
   "examples": [],

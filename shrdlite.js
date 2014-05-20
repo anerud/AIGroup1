@@ -3,7 +3,7 @@
 var AjaxScript = "cgi-bin/ajaxwrapper.py";
 
 // List of the JSON files that contain example worlds:
-var ExampleNames = ["simple","small","medium", "large", "monster"];
+var ExampleNames = ["simple","small","medium", "large", "monster","many"];
 var ExamplesFolder = "examples";
 
 // What the system says when it has nothing to do:
@@ -20,7 +20,7 @@ var ArmSpeed = 1000;   // pixels per second
 var groundPos = []
 // This only has effect in the latest versions of Chrome and Safari,
 // the only browsers that have implemented the W3C Web Speech API:
-var UseSpeech = false;
+var UseSpeech = true;
 
 // There is no way of setting male/female voice,
 // so this is one way of having different voices for user/system:
@@ -222,6 +222,7 @@ function resetCurrentExample(name) {
 }
 
 function resetSVG() {
+	currentQuestions = null;
     //disableInput();
     $("#response").empty();
     //sayUtterance("system", "Please wait while I populate the world.");
@@ -629,7 +630,7 @@ function userInput() {
 					currentWorld.state = result.state;
 				}
 				currentPlan = result.plan;
-				currentQuestions = result.questions;
+				currentQuestions = null;
 				performPlan();
 			}
         } catch(err) {
@@ -659,7 +660,7 @@ function sayUtterance(participant, utterance, silent) {
                 speech[attr] = Voices[participant][attr];
             }
             console.log("speakING: " + utterance);
-            //window.speechSynthesis.speak(speech);
+            window.speechSynthesis.speak(speech);
         } catch(err) {
         }
     }

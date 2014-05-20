@@ -20,20 +20,10 @@
     "utterance":
         ["move","the","large", "ball","inside","a","yellow","box","on","the","floor"],
     "examples": [
-        ["put","the","brick","that","is","to","the","left","of","a","pyramid","in","a","box"],
-        ["put","the","white","ball","in","a","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","yellow","box","on","the","floor"],
-        ["move","the","large", "ball","inside","a","red","box","on","the","floor"],
-        ["take","a","red","object"],
-        ["take","the","white","ball"],
-        ["put","all","boxes","on","the","floor"],
-        ["put","the","large","plank","under","the","blue","brick"],
-        ["move","all","bricks","on","a","table"],
-        ["move","all","balls","inside","a","large","box"],
-        ["take", "an", "object", "on", "a", "plank", "on", "the", "floor"],
-        ["put","it","on","the","floor"],
-        ["take", "the", "table", "to", "the", "left", "of", "the", "box", "under", "the", "ball", "to", "the", "right", "of", "the", "pyramid"],
-        ["take", "the", "box", "under", "an", "object", "on", "a", "green", "object"],
-        ["put","it","under","a","ball"]
+         [ "put", "the", "ball", "in", "a", "box", "on", "the", "floor" ],
+		 [ "put", "the", "ball", "that", "is", "in", "a", "box", "on", "the", "floor" ],
+		 [ "put", "the", "ball", "in", "a", "box", "that", "is", "on", "the", "floor" ],
+		 [ "put", "the", "ball", "in", "a", "box", "that", "should", "be", "on", "the", "floor" ],
+		 [ "sort", "all", "objects", "by", "color" ]		 
     ]
 }
